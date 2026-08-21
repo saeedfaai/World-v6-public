@@ -11,6 +11,14 @@ World v6.2 is publicly available under the repository's non-commercial license m
 - **Paid pilot / enterprise deployment** — evaluation, adaptation, integration, architecture support, and production-oriented implementation under a separate agreement.
 - **Technology transfer or negotiated exclusivity** — proposals involving a defined territory, vertical, field of use, or other exclusive rights may be considered only under explicit written terms.
 
+## Lowest-friction commercial entry: Founding Commercial Pilot
+
+Organizations that want to evaluate World v6.2 against one real agentic-system problem before committing to a broader license can start with a bounded paid pilot.
+
+**Typical founding-pilot budget: USD 2,500–10,000**, depending on scope and integration depth.
+
+See [`FOUNDING_PILOT.md`](FOUNDING_PILOT.md) for scope, economics, conversion options, and evidence boundaries.
+
 ## Submit a commercial proposal
 
 Use the repository's **Commercial Licensing / Partnership Inquiry** issue form:
