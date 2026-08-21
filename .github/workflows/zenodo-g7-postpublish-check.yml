@@ -1,0 +1,66 @@
+name: Zenodo G7 post-publish verification
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .zenodo-g7-postpublish-trigger
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify published Zenodo record
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, json, requests
+          token=os.environ.get('ZENODO_TOKEN','')
+          dep_id='22040348'
+          out='/tmp/zenodo-postpublish.md'
+          lines=['Zenodo G7 post-publish verification (read-only; no token exposed).','']
+          if not token:
+              lines += ['- Result: `MISSING_SECRET`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          dep=requests.get(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=h,timeout=30)
+          pub=requests.get(f'https://zenodo.org/api/records/{dep_id}',headers=h,timeout=30)
+          lines += [f'- Deposition HTTP: `{dep.status_code}`', f'- Public record HTTP: `{pub.status_code}`']
+          dj=dep.json() if dep.ok else {}
+          pj=pub.json() if pub.ok else {}
+          md=dj.get('metadata') or {}
+          doi=md.get('doi') or dj.get('doi') or (pj.get('pids') or {}).get('doi',{}).get('identifier') or (pj.get('metadata') or {}).get('doi')
+          conceptdoi=md.get('conceptdoi') or dj.get('conceptdoi') or (pj.get('pids') or {}).get('conceptdoi',{}).get('identifier')
+          doi_url=dj.get('doi_url') or (f'https://doi.org/{doi}' if doi else None)
+          links=dj.get('links') or {}
+          public_url=(pj.get('links') or {}).get('self_html') or links.get('record_html') or f'https://zenodo.org/records/{dep_id}'
+          lines += [
+            f'- Submitted: `{dj.get("submitted")}`',
+            f'- State: `{dj.get("state")}`',
+            f'- Record id: `{dep_id}`',
+            f'- DOI: `{doi}`',
+            f'- DOI URL: `{doi_url}`',
+            f'- Concept DOI: `{conceptdoi}`',
+            f'- Public URL: `{public_url}`',
+            f'- Title: `{md.get("title") or (pj.get("metadata") or {}).get("title")}`',
+            f'- Version: `{md.get("version") or (pj.get("metadata") or {}).get("version")}`',
+          ]
+          ok=bool(dj.get('submitted')) and str(dj.get('state','')).lower() not in ('unsubmitted','') and bool(doi) and pub.ok
+          lines += [f'- Result: `{"PUBLISHED" if ok else "NOT_CONFIRMED"}`']
+          open(out,'w').write('\n'.join(lines))
+          PY
+
+      - name: Report result
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo G7 post-publish verification - ${GITHUB_RUN_ID}" --body-file /tmp/zenodo-postpublish.md
