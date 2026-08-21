@@ -1,0 +1,84 @@
+name: Research feedback / replication
+description: Submit a technical critique, replication result, formal analysis, security finding, interoperability result, or research question about World v6.2.
+title: "[Research] "
+labels: []
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for evaluating World v6.2. Please keep claims evidence-bounded and cite the release DOI when relevant: https://doi.org/10.5281/zenodo.22040348
+
+        Do not post secrets, confidential business information, private credentials, personal data, or undisclosed vulnerabilities that would create immediate security risk.
+
+  - type: dropdown
+    id: contribution_type
+    attributes:
+      label: Contribution type
+      options:
+        - Technical critique
+        - Replication / reproduction result
+        - Formal verification / modeling
+        - Security analysis
+        - Interoperability experiment
+        - Benchmark / comparative evaluation
+        - Architecture question
+        - Other research contribution
+    validations:
+      required: true
+
+  - type: input
+    id: release
+    attributes:
+      label: Release evaluated
+      description: Version, commit SHA, DOI, or artifact hash.
+      placeholder: "6.2.0-rc.3 / DOI 10.5281/zenodo.22040348"
+    validations:
+      required: true
+
+  - type: textarea
+    id: question
+    attributes:
+      label: Research question or claim being evaluated
+      description: State the exact proposition you tested, challenged, or analyzed.
+    validations:
+      required: true
+
+  - type: textarea
+    id: method
+    attributes:
+      label: Method
+      description: Describe environment, data, tools, framework, model/provider, formal method, or experimental procedure.
+    validations:
+      required: true
+
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence / results
+      description: Include reproducible commands, logs, hashes, metrics, traces, screenshots, or links to public artifacts where possible. Do not include secrets.
+    validations:
+      required: true
+
+  - type: textarea
+    id: interpretation
+    attributes:
+      label: Interpretation
+      description: Explain what the result supports, falsifies, leaves unresolved, or suggests should change.
+    validations:
+      required: true
+
+  - type: textarea
+    id: related
+    attributes:
+      label: Related work / comparison
+      description: Optional references, alternative architectures, standards, frameworks, or prior results.
+
+  - type: checkboxes
+    id: disclosure
+    attributes:
+      label: Disclosure checks
+      options:
+        - label: I have not included credentials, secrets, private personal data, or confidential commercial terms.
+          required: true
+        - label: I have distinguished measured evidence from assumptions or speculation.
+          required: true
