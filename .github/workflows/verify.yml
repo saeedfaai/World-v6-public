@@ -1,0 +1,99 @@
+name: Verify World v6.2 RC3
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v6
+        with:
+          version: "0.8.13"
+          enable-cache: true
+
+      - name: Install LibreOffice for preserved ancestor PDF regression
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends libreoffice-impress fonts-dejavu-core
+
+      - name: Sync locked dependencies
+        run: uv sync --locked --all-groups
+
+      - name: Scan publication binaries for privacy, secrets, and path hygiene
+        run: uv run --locked --all-groups python tools/scan_publication_binaries.py
+
+      - name: Build exact deterministic publication payload
+        run: uv run --locked --all-groups python tools/build_release.py . /tmp/World_v6.2_RC3.zip
+
+      - name: Emit deterministic indexes for audit
+        run: |
+          echo '=== FILE_INVENTORY_BEGIN ==='
+          cat FILE_INVENTORY.txt
+          echo '=== FILE_INVENTORY_END ==='
+          echo '=== SHA256SUMS_BEGIN ==='
+          cat SHA256SUMS.txt
+          echo '=== SHA256SUMS_END ==='
+          echo '=== RELEASE_ZIP_SHA256 ==='
+          sha256sum /tmp/World_v6.2_RC3.zip
+
+      - name: Validate generated publication indexes
+        run: |
+          test -s FILE_INVENTORY.txt
+          test -s SHA256SUMS.txt
+          test -s /tmp/World_v6.2_RC3.zip
+
+      - name: Stage exact publication build artifact
+        run: |
+          mkdir -p publication-artifact
+          cp FILE_INVENTORY.txt publication-artifact/
+          cp SHA256SUMS.txt publication-artifact/
+          cp /tmp/World_v6.2_RC3.zip publication-artifact/
+
+      - name: Upload exact publication build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: world-v6.2-rc3-publication-build
+          path: publication-artifact/
+          if-no-files-found: error
+          retention-days: 30
+
+      - name: Verify repository contracts, hashes, JSON and claim boundaries
+        run: uv run --locked --all-groups python tools/verify_repository.py
+
+      - name: Compile runtime and tools
+        run: uv run --locked --all-groups python -m compileall -q -f candidate-v6.2/runtime tools
+
+      - name: Run Mother Core tests
+        env:
+          PYTHONPATH: candidate-v6.2/runtime
+        run: uv run --locked --all-groups python -m pytest -q candidate-v6.2/runtime/core/tests
+
+      - name: Run Secretary-001 tests
+        env:
+          PYTHONPATH: candidate-v6.2/runtime:candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001
+        run: uv run --locked --all-groups python -m pytest -q candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001/tests
+
+      - name: Run preserved ancestor regression
+        env:
+          PYTHONPATH: source-ancestor/runtime:source-ancestor/secretary-v0.1.3
+        run: uv run --locked --all-groups python -m pytest -q source-ancestor/secretary-v0.1.3/tests
+
+      - name: Run offline provider portability demos
+        run: |
+          uv run --locked --all-groups python tools/demo_portable_secretary.py --provider chatgpt
+          uv run --locked --all-groups python tools/demo_portable_secretary.py --provider gemini
+          uv run --locked --all-groups python tools/demo_portable_secretary.py --provider grok
