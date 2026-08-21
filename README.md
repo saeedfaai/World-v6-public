@@ -1,10 +1,38 @@
 # World v6.2 — Fractal Multi-Brain Architecture RC3
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22040348.svg)](https://doi.org/10.5281/zenodo.22040348)
+[![Evidence](https://img.shields.io/badge/evidence-E2-orange)](ACADEMIC.md)
+[![Status](https://img.shields.io/badge/status-RC3%20%7C%20not%20deployed-blue)](ACADEMIC.md)
+[![Academic Page](https://img.shields.io/badge/research-academic%20entry%20point-6ee7ff)](ACADEMIC.md)
+
 **Version:** `6.2.0-rc.3`  
 **Status:** `RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED`  
 **Evidence:** `E2 — Local Component/Contract Evidence`  
 **Author:** Saeed Farokhi  
-**Repository:** `saeedfaai/World-v6-public`
+**Repository:** `saeedfaai/World-v6-public`  
+**Version DOI:** [`10.5281/zenodo.22040348`](https://doi.org/10.5281/zenodo.22040348)  
+**Concept DOI:** [`10.5281/zenodo.22040347`](https://doi.org/10.5281/zenodo.22040347)
+
+## Academic entry point
+
+For researchers, reviewers, engineers, and anyone evaluating the architecture scientifically:
+
+- **[Academic & Research Guide](ACADEMIC.md)** — abstract, research question, contributions, evidence, limitations, related work, evaluation program, BibTeX, and research collaboration routes.
+- **[Zenodo archived RC3 release](https://zenodo.org/records/22040348)** — DOI-backed publication record and archived release package.
+- **[Academic web page](https://primal-mote-7c2qycu.shipstatic.com)** — public research landing page with DOI, evidence boundary, related-work positioning, citation, and collaboration links.
+- **[CITATION.cff](CITATION.cff)** — machine-readable citation metadata.
+- **[`candidate-v6.2/evidence/`](candidate-v6.2/evidence/)** — published machine-readable evidence.
+- **[Complete Persian architecture/proof/roadmap report](docs/reports/World_v6.2_ARCHITECTURE_PROOF_ROADMAP_SECRETARY_COMPLETE_FA.pdf)** — long-form reference report.
+
+### Research claim boundary
+
+World v6.2 is a **candidate reference architecture and executable research prototype**. It is not presented as a production-certified platform, an official standard, a proof of consciousness, or a claim of legal personhood. The current release claims **E2 local component/contract evidence only**; integration, recovery, security, load, chaos, live-provider, and production evidence remain explicitly open.
+
+### Abstract
+
+World v6.2 separates canonical identity, truth, policy, authority, effects, memory, lifecycle, and evidence from any individual language model or provider. It uses a deterministic model-independent Mother Core with replaceable cognitive handlers, bounded fractal decomposition, resolution-aware context projection, explicit approval and effect boundaries, shadow evaluation, staged compilation, and recovery-oriented evidence gates.
+
+The central engineering proposition is that an AI entity should remain accountable across model replacement, provider migration, workflow changes, and infrastructure failure. The model may reason, plan, classify, draft, or critique, but it does not own canonical identity, policy, authority, or history.
 
 ## Commercial licensing & partnerships — proposals welcome
 
@@ -174,6 +202,37 @@ crash/replay/reconciliation, fresh-machine restore, live provider adapters, live
 Telegram/Drive effects, security/load/chaos, canonical ratification, and production
 readiness.
 
+## Related work & research positioning
+
+World v6.2 is not intended to replace established databases, workflow engines, agent frameworks, observability systems, or consensus infrastructure. Its proposed differentiation is the integration of **persistent identity and authority, policy-constrained brain replacement, provenance-aware memory, governed lifecycle, effect control, evidence-gated growth, and verifiable recovery** into one continuity contract.
+
+Useful comparison points include persistent-agent approaches such as Letta, workflow persistence such as LangGraph, agent frameworks from Microsoft and Google, NIST AI RMF governance framing, CloudEvents, W3C PROV-O, OpenTelemetry, and established Transactional Outbox/Reconciliation patterns. See **[ACADEMIC.md](ACADEMIC.md)** for a structured comparison and proposed external evaluation program.
+
 ## Citation
 
-Use [`CITATION.cff`](CITATION.cff). The archived RC3 version DOI is **`10.5281/zenodo.22040348`** (concept DOI: **`10.5281/zenodo.22040347`**). The public Zenodo record is `https://zenodo.org/records/22040348`.
+Use [`CITATION.cff`](CITATION.cff).
+
+**Version DOI:** [`10.5281/zenodo.22040348`](https://doi.org/10.5281/zenodo.22040348)  
+**Concept DOI:** [`10.5281/zenodo.22040347`](https://doi.org/10.5281/zenodo.22040347)  
+**Zenodo record:** https://zenodo.org/records/22040348
+
+Suggested reference:
+
+> Farokhi, Saeed. *World v6.2 — Fractal Multi-Brain Architecture*, version 6.2.0-rc.3. 2026. DOI: 10.5281/zenodo.22040348.
+
+```bibtex
+@software{farokhi_world_v6_2_2026,
+  author  = {Farokhi, Saeed},
+  title   = {World v6.2 — Fractal Multi-Brain Architecture},
+  year    = {2026},
+  version = {6.2.0-rc.3},
+  doi     = {10.5281/zenodo.22040348},
+  url     = {https://zenodo.org/records/22040348}
+}
+```
+
+## For researchers
+
+Independent critique, replication, formal verification, security review, interoperability experiments, and comparative evaluations are welcome. Please use GitHub Issues for public technical discussion and reference the DOI when discussing or citing the release.
+
+For confidential commercial or strategic discussions, do **not** post deal terms in public Issues; see [`COMMERCIAL.md`](COMMERCIAL.md).
