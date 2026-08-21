@@ -1,4 +1,4 @@
-name: Import verified World v6.2 RC3 snapshot
+name: Import and publish verified World v6.2 RC3
 
 on:
   push:
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  import:
+  import-and-release:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -28,6 +28,7 @@ jobs:
           set -euo pipefail
           test -f World_v6.2_RC3_FINAL_RELEASE.zip
           echo "44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b  World_v6.2_RC3_FINAL_RELEASE.zip" | sha256sum -c -
+          cp World_v6.2_RC3_FINAL_RELEASE.zip /tmp/World_v6.2_RC3_FINAL_RELEASE.zip
 
       - name: Extract and validate clean payload
         shell: bash
@@ -35,7 +36,7 @@ jobs:
           set -euo pipefail
           rm -rf /tmp/world-v6-rc3
           mkdir -p /tmp/world-v6-rc3
-          unzip -q World_v6.2_RC3_FINAL_RELEASE.zip -d /tmp/world-v6-rc3
+          unzip -q /tmp/World_v6.2_RC3_FINAL_RELEASE.zip -d /tmp/world-v6-rc3
           ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
           test -d "$ROOT"
           COUNT="$(find "$ROOT" -type f | wc -l | tr -d ' ')"
@@ -44,6 +45,8 @@ jobs:
           test -f "$ROOT/LICENSE"
           test -f "$ROOT/RELEASE_MANIFEST.json"
           test -f "$ROOT/SBOM.cdx.json"
+          test -f "$ROOT/FILE_INVENTORY.txt"
+          test -f "$ROOT/SHA256SUMS.txt"
           echo "Validated payload files: $COUNT"
 
       - name: Replace bootstrap tree with exact release payload
@@ -60,3 +63,47 @@ jobs:
           test "$TRACKED" = "207"
           git commit -m "Publish World v6.2.0-rc.3 clean snapshot"
           git push origin HEAD:main
+
+      - name: Create annotated RC3 tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git tag -a v6.2.0-rc.3 -m "World v6.2.0-rc.3"
+          git push origin v6.2.0-rc.3
+
+      - name: Create GitHub pre-release with verified assets
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
+          cat >/tmp/RELEASE_NOTES.md <<'EOF'
+          # World v6.2 Fractal Multi-Brain Architecture — RC3
+
+          Status: Ratification Candidate / Non-Canonical / Not Deployed.
+
+          Publication model: PUBLIC / SOURCE-AVAILABLE / NON-COMMERCIAL.
+
+          Software license: PolyForm Noncommercial 1.0.0.
+          Documentation/architecture: CC BY-NC-SA 4.0.
+          Commercial use requires a separate written license from Saeed Farokhi.
+
+          Exact release ZIP SHA-256:
+          `44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b`
+
+          Clean snapshot payload: 207 files.
+          Historical private development repository is intentionally not published.
+          EOF
+          gh release create v6.2.0-rc.3 \
+            /tmp/World_v6.2_RC3_FINAL_RELEASE.zip \
+            "$ROOT/FILE_INVENTORY.txt" \
+            "$ROOT/SHA256SUMS.txt" \
+            "$ROOT/RELEASE_MANIFEST.json" \
+            "$ROOT/SBOM.cdx.json" \
+            --repo "$GITHUB_REPOSITORY" \
+            --verify-tag \
+            --prerelease \
+            --latest=false \
+            --title "World v6.2 Fractal Multi-Brain Architecture — RC3" \
+            --notes-file /tmp/RELEASE_NOTES.md
