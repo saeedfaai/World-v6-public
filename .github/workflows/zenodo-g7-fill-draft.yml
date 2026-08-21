@@ -2,6 +2,10 @@ name: Fill Zenodo G7 draft metadata
 
 on:
   workflow_dispatch:
+  push:
+    branches: [main]
+    paths:
+      - .zenodo-g7-trigger
 
 permissions:
   contents: read
@@ -83,7 +87,6 @@ jobs:
           dep = r.json()
           md = dict(dep.get('metadata') or {})
 
-          # Required/authoritative G7 metadata.
           md['upload_type'] = 'software'
           md['publication_date'] = '2026-08-21'
           md['title'] = TARGET_TITLE
@@ -99,15 +102,9 @@ jobs:
           md['access_right'] = 'open'
           md['version'] = '6.2.0-rc.3'
           md['keywords'] = [
-              'multi-agent systems',
-              'fractal architecture',
-              'multi-brain architecture',
-              'deterministic kernel',
-              'resolution-native architecture',
-              'AI orchestration',
-              'agent governance',
-              'source-available',
-              'non-commercial',
+              'multi-agent systems', 'fractal architecture', 'multi-brain architecture',
+              'deterministic kernel', 'resolution-native architecture', 'AI orchestration',
+              'agent governance', 'source-available', 'non-commercial'
           ]
           md['notes'] = (
               'License map: software — PolyForm Noncommercial License 1.0.0; '
@@ -118,19 +115,10 @@ jobs:
               '44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b.'
           )
           md['related_identifiers'] = [
-              {
-                  'identifier': 'https://github.com/saeedfaai/World-v6-public',
-                  'relation': 'isSupplementTo',
-              },
-              {
-                  'identifier': 'https://github.com/saeedfaai/World-v6-public/releases/tag/v6.2.0-rc.3',
-                  'relation': 'isSupplementTo',
-              },
+              {'identifier': 'https://github.com/saeedfaai/World-v6-public', 'relation': 'isSupplementTo'},
+              {'identifier': 'https://github.com/saeedfaai/World-v6-public/releases/tag/v6.2.0-rc.3', 'relation': 'isSupplementTo'},
           ]
 
-          # Preserve existing license configuration to avoid flattening Zenodo's newer
-          # mixed-license UI. If none is exposed through the legacy deposition API,
-          # attempt to select PolyForm Noncommercial as the primary software license.
           if not md.get('license'):
               try:
                   lr = requests.get(f'{BASE}/licenses', params={'q':'PolyForm Noncommercial License 1.0.0','size':100}, timeout=30)
@@ -150,11 +138,10 @@ jobs:
           if not md.get('license'):
               fail('No license is currently exposed on the draft. Add PolyForm Noncommercial License 1.0.0 in the Zenodo UI, then rerun.')
 
-          payload = {'metadata': md}
           r = requests.put(
               f'{BASE}/deposit/depositions/{dep_id}',
               headers=headers,
-              data=json.dumps(payload),
+              data=json.dumps({'metadata': md}),
               timeout=30,
           )
           if not r.ok:
@@ -163,21 +150,14 @@ jobs:
           updated = r.json()
           umd = updated.get('metadata') or {}
           required = {
-              'upload_type': 'software',
-              'publication_date': '2026-08-21',
-              'title': TARGET_TITLE,
-              'access_right': 'open',
-              'version': '6.2.0-rc.3',
+              'upload_type': 'software', 'publication_date': '2026-08-21',
+              'title': TARGET_TITLE, 'access_right': 'open', 'version': '6.2.0-rc.3'
           }
           bad = {k:(umd.get(k),v) for k,v in required.items() if umd.get(k) != v}
           if bad:
               fail('Post-update verification mismatch: ' + json.dumps(bad, ensure_ascii=False))
-          if not umd.get('creators'):
-              fail('Post-update verification: creators missing')
-          if not umd.get('description'):
-              fail('Post-update verification: description missing')
-          if not umd.get('license'):
-              fail('Post-update verification: license missing')
+          if not umd.get('creators') or not umd.get('description') or not umd.get('license'):
+              fail('Post-update verification: one or more required fields are missing')
 
           print('ZENODO_DRAFT_UPDATE=SUCCESS')
           print('TITLE=' + umd.get('title',''))
