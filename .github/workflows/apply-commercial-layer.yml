@@ -1,0 +1,185 @@
+name: Apply commercial licensing layer
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .commercial-layer-trigger
+
+permissions:
+  contents: write
+
+jobs:
+  apply:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Add commercial licensing and partnership surface
+        shell: bash
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          commercial = '''# Commercial Licensing & Partnerships
+
+World v6.2 is publicly available under the repository's non-commercial license map. The public release **does not grant commercial rights**.
+
+**Commercial proposals are welcome.** Saeed Farokhi is open to concrete financial and strategic proposals for commercial use of World v6.2, including:
+
+- **Commercial license purchase** — fixed-fee, annual, enterprise, deployment-based, field-of-use, or other negotiated structures.
+- **Royalty / revenue-share** — a percentage of revenue, usage, transactions, deployments, or another mutually agreed commercial metric.
+- **Strategic partnership / joint venture** — co-development, market launch, sector-specific deployment, regional partnership, or jointly operated products.
+- **OEM / embedded / white-label licensing** — integration of World v6.2 into another commercial product, platform, agent system, service, or infrastructure stack.
+- **Paid pilot / enterprise deployment** — evaluation, adaptation, integration, architecture support, and production-oriented implementation under a separate agreement.
+- **Technology transfer or negotiated exclusivity** — proposals involving a defined territory, vertical, field of use, or other exclusive rights may be considered only under explicit written terms.
+
+## Submit a commercial proposal
+
+Use the repository's **Commercial Licensing / Partnership Inquiry** issue form:
+
+https://github.com/saeedfaai/World-v6-public/issues/new?template=commercial-inquiry.yml
+
+A strong initial proposal should state, at a non-confidential level:
+
+1. organization or project name;
+2. intended commercial use of World v6.2;
+3. expected deployment scale and target market;
+4. preferred deal structure (license fee, royalty/revenue share, joint venture, OEM, paid pilot, or other);
+5. proposed economics or commercial range if available;
+6. geography / industry / field of use;
+7. desired timeline and whether exclusivity is requested.
+
+## Confidentiality
+
+GitHub Issues are public. **Do not post trade secrets, customer data, private financial terms, credentials, source code that is not cleared for disclosure, or other confidential information.** Use the public inquiry only to establish contact and request a private negotiation channel.
+
+## Rights boundary
+
+Submitting an inquiry or proposal grants no license, exclusivity, ownership, deployment right, endorsement, or commercial authorization. Commercial rights exist only after a separate written agreement is executed by the relevant parties.
+
+The existing public licenses continue to govern non-commercial use of the released materials. Any commercial deployment, monetization, paid resale, commercial embedding, or other commercial exploitation of World v6.2 requires a separate written commercial agreement from **Saeed Farokhi**, except where a specific file expressly states otherwise.
+
+## Citation and released version
+
+- Version: `6.2.0-rc.3`
+- Version DOI: `10.5281/zenodo.22040348`
+- Concept DOI: `10.5281/zenodo.22040347`
+- Public repository: https://github.com/saeedfaai/World-v6-public
+'''
+          Path('COMMERCIAL.md').write_text(commercial, encoding='utf-8')
+
+          template = '''name: Commercial Licensing / Partnership Inquiry
+description: Propose a commercial license, revenue share, JV, OEM deal, paid pilot, or other business arrangement for World v6.2.
+title: "[Commercial Inquiry] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your interest in World v6.2. This issue is PUBLIC. Do not include confidential business terms, customer data, credentials, trade secrets, or non-public source code. Use this form to establish contact and describe the opportunity at a non-confidential level.
+
+  - type: input
+    id: organization
+    attributes:
+      label: Organization / project
+      description: Company, institution, fund, project, or independent team name.
+      placeholder: Example Corp / Project Name
+    validations:
+      required: true
+
+  - type: dropdown
+    id: proposal_type
+    attributes:
+      label: Proposal type
+      options:
+        - Commercial license purchase
+        - Royalty / revenue share
+        - Strategic partnership / joint venture
+        - OEM / embedded / white-label license
+        - Paid pilot / enterprise deployment
+        - Technology transfer / negotiated exclusivity
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Intended commercial use
+      description: Describe what you want to build, deploy, sell, integrate, or operate using World v6.2. Keep this non-confidential.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scale
+    attributes:
+      label: Expected scale, market, and territory
+      description: Users, deployments, transaction scale, industry/vertical, geography, and expected timeline.
+    validations:
+      required: true
+
+  - type: textarea
+    id: economics
+    attributes:
+      label: Proposed commercial structure
+      description: If possible, state your preferred economics or commercial range (license fee, royalty %, revenue share, pilot budget, JV structure, etc.). Do not disclose anything you consider confidential.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: exclusivity
+    attributes:
+      label: Exclusivity requested?
+      options:
+        - No
+        - Yes — territory-specific
+        - Yes — industry/vertical-specific
+        - Yes — field-of-use-specific
+        - To be discussed
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: public_ack
+    attributes:
+      label: Public issue acknowledgement
+      options:
+        - label: I understand this GitHub issue is public and I have not included confidential information.
+          required: true
+        - label: I understand no commercial rights are granted unless a separate written agreement is executed.
+          required: true
+'''
+          p=Path('.github/ISSUE_TEMPLATE/commercial-inquiry.yml')
+          p.parent.mkdir(parents=True, exist_ok=True)
+          p.write_text(template, encoding='utf-8')
+
+          readme=Path('README.md')
+          text=readme.read_text(encoding='utf-8')
+          marker='**Repository:** `saeedfaai/World-v6-public`\n'
+          block='''\n## Commercial licensing & partnerships — proposals welcome\n\nWorld v6.2 is open to **commercial licensing, paid enterprise deployment, OEM/embedded licensing, royalty or revenue-share arrangements, strategic partnerships, and joint ventures**. Concrete financial proposals are welcome.\n\nThe public release does **not** grant commercial rights. Commercial use requires a separate written agreement with **Saeed Farokhi**.\n\n**[Commercial options & proposal guidance](COMMERCIAL.md)** · **[Open a commercial inquiry](https://github.com/saeedfaai/World-v6-public/issues/new?template=commercial-inquiry.yml)**\n\n> GitHub Issues are public. Do not post confidential deal terms or private business information; use the inquiry only to establish a private negotiation channel.\n'''
+          if '## Commercial licensing & partnerships — proposals welcome' not in text:
+              if marker not in text: raise SystemExit('README marker not found')
+              text=text.replace(marker, marker+block, 1)
+              readme.write_text(text, encoding='utf-8')
+
+          fa=Path('README_FA.md')
+          ftext=fa.read_text(encoding='utf-8')
+          fmarker='`RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED`\n'
+          fblock='''\n\n## همکاری تجاری و پیشنهاد مالی\n\nWorld v6.2 برای **پیشنهادهای تجاری و مالی** باز است؛ از جمله خرید لایسنس تجاری، اجرای Enterprise، OEM/White-label، سهم از درآمد یا Royalty، شراکت راهبردی و Joint Venture. پیشنهادهای دارای ساختار مالی مشخص در اولویت بررسی هستند.\n\nانتشار عمومی این مخزن هیچ حق استفادهٔ تجاری ایجاد نمی‌کند. هر استفادهٔ تجاری نیازمند **قرارداد کتبی جداگانه با Saeed Farokhi** است.\n\n**[مدل‌های همکاری و راهنمای پیشنهاد تجاری](COMMERCIAL.md)** · **[ارسال Commercial Inquiry](https://github.com/saeedfaai/World-v6-public/issues/new?template=commercial-inquiry.yml)**\n\n> Issueهای GitHub عمومی‌اند؛ اطلاعات محرمانه یا جزئیات خصوصی معامله را در Issue ننویسید. Issue فقط برای شروع ارتباط و انتقال مذاکره به کانال خصوصی است.\n'''
+          if '## همکاری تجاری و پیشنهاد مالی' not in ftext:
+              if fmarker not in ftext: raise SystemExit('README_FA marker not found')
+              ftext=ftext.replace(fmarker, fmarker+fblock, 1)
+              fa.write_text(ftext, encoding='utf-8')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add README.md README_FA.md COMMERCIAL.md .github/ISSUE_TEMPLATE/commercial-inquiry.yml
+          if git diff --cached --quiet; then
+            echo "No changes needed"
+            exit 0
+          fi
+          git commit -m "Add commercial licensing and partnership intake"
+          git push
