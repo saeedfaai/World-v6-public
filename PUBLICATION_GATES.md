@@ -78,7 +78,7 @@ The release workflow is fail-closed and must succeed on the exact publication co
 
 `FILE_INVENTORY.txt` and `SHA256SUMS.txt` are generated release artifacts rather than tracked source files. They are generated for the exact snapshot and included in the release ZIP/artifact, preventing stale checksum indexes after source changes.
 
-**Status: FINAL CI REQUIRED ON EXACT PUBLICATION COMMIT**
+**Status: PASS — final CI succeeded on the exact publication commit.**
 
 A successful final workflow run on the exact approved commit closes G4 without requiring another source commit. The run ID, commit SHA and artifact hashes are recorded in the GitHub publication issue/release record.
 
@@ -97,27 +97,30 @@ A successful final workflow run on the exact approved commit closes G4 without r
 
 After G4 has a successful final run:
 
-- [ ] Create a new clean public repository/snapshot with no legacy development history.
-- [ ] Import only the exact approved publication payload.
-- [ ] Tag `v6.2.0-rc.3` on the exact imported snapshot.
-- [ ] Create a GitHub **Pre-release** titled `World v6.2 Fractal Multi-Brain Architecture — RC3`.
-- [ ] Attach the deterministic source ZIP, generated hashes/inventory, manifest, SBOM and cleared architecture PDFs.
-- [ ] State prominently: `NON-COMMERCIAL`, `NOT CANONICAL`, `NOT DEPLOYED`, `E2`.
-- [ ] Keep `saeedfaai/world-v6` private unless its full legacy history is separately cleared and intentionally published.
+- [x] Created clean public repository `saeedfaai/World-v6-public` with no legacy development history.
+- [x] Imported only the exact approved publication payload.
+- [x] Tagged `v6.2.0-rc.3` on exact snapshot `f918ae13aaee072b2107ec6532bc8c290be3e70a`.
+- [x] Created GitHub **Pre-release** titled `World v6.2 Fractal Multi-Brain Architecture — RC3`.
+- [x] Published the exact release artifact set; release ZIP SHA-256: `44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b`.
+- [x] Publication states `NON-COMMERCIAL`, `NOT CANONICAL`, `NOT DEPLOYED`, `E2`.
+- [x] Historical `saeedfaai/world-v6` remains private.
 
-**Status: READY AFTER FINAL G4 CI; PUBLIC-REPOSITORY CREATION STILL REQUIRED**
+**Status: PASS**
 
 ## G7 — DOI archival
 
-- [ ] Enable/confirm Zenodo integration for the clean public repository.
-- [ ] Archive the public pre-release.
-- [ ] Record the version DOI.
-- [ ] Add the DOI to citation metadata and future release records.
+- [x] Archived the exact RC3 release package on Zenodo.
+- [x] Zenodo record published with `submitted=true` and `state=done`.
+- [x] Version DOI recorded: `10.5281/zenodo.22040348`.
+- [x] Concept DOI recorded: `10.5281/zenodo.22040347`.
+- [x] DOI added to citation/publication metadata on `main`.
 
-**Status: PENDING PUBLIC RELEASE**
+Zenodo record: `https://zenodo.org/records/22040348`
+
+**Status: PASS**
 
 ## Controlling decision
 
 **DO NOT CHANGE THE EXISTING HISTORICAL `saeedfaai/world-v6` REPOSITORY TO PUBLIC.**
 
-The authorized release route is a **clean public snapshot with no old Git history**, under the non-commercial license map above. Once the exact-commit CI is green, the payload is technically ready for creation of that clean public repository and pre-release.
+The authorized release route is a **clean public snapshot with no old Git history**, under the non-commercial license map above. The clean public repository, GitHub pre-release, Zenodo archive and DOI are complete. G0–G7 are closed for `v6.2.0-rc.3`; the historical development repository remains private.

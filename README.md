@@ -4,7 +4,7 @@
 **Status:** `RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED`  
 **Evidence:** `E2 — Local Component/Contract Evidence`  
 **Author:** Saeed Farokhi  
-**Repository:** `saeedfaai/world-v6`
+**Repository:** `saeedfaai/World-v6-public`
 
 > World v6.2 is a model-independent architecture in which identity, canonical truth,
 > policy, authority, effects, memory, and lifecycle remain outside any individual AI
@@ -166,5 +166,4 @@ readiness.
 
 ## Citation
 
-Use [`CITATION.cff`](CITATION.cff). A version DOI will be added after the first cleared
-public GitHub pre-release is archived through Zenodo.
+Use [`CITATION.cff`](CITATION.cff). The archived RC3 version DOI is **`10.5281/zenodo.22040348`** (concept DOI: **`10.5281/zenodo.22040347`**). The public Zenodo record is `https://zenodo.org/records/22040348`.
