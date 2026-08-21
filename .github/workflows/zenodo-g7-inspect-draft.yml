@@ -43,14 +43,19 @@ jobs:
           def fnames(d):
               return [(f.get('filename') or f.get('key') or '') for f in (d.get('files') or [])]
           cand=[d for d in drafts if 'World_v6.2_RC3_FINAL_RELEASE.zip' in fnames(d)]
+          match_mode='exact-file'
           if not cand:
               cand=[d for d in drafts if 'World v6.2' in (d.get('title') or (d.get('metadata') or {}).get('title') or '')]
+              match_mode='title'
+          if not cand and len(drafts)==1:
+              cand=[drafts[0]]
+              match_mode='sole-draft-fallback'
           if not cand:
               lines += ['- Result: `NO_MATCHING_DRAFT`', f'- Draft count visible: `{len(drafts)}`']
               open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
           dep=cand[0]; dep_id=dep.get('id')
           rr=requests.get(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=h,timeout=30)
-          lines += [f'- Read draft HTTP: `{rr.status_code}`']
+          lines += [f'- Match mode: `{match_mode}`', f'- Read draft HTTP: `{rr.status_code}`']
           if not rr.ok:
               lines += ['- Result: `READ_FAILED`']
               open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
