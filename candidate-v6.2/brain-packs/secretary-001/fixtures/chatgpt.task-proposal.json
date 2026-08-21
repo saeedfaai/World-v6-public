@@ -1,0 +1,12 @@
+{
+  "schema_version": "world-v6.secretary-decision.v1",
+  "intent": "TASK_CAPTURE",
+  "response_kind": "TASK_PROPOSAL",
+  "template_id": "TASK_PROPOSAL_FA",
+  "slots": {"title": "ارسال پیش‌نویس قرارداد"},
+  "proposed_actions": ["PROPOSE_TASK"],
+  "requires_approval": false,
+  "confidence_millis": 960,
+  "evidence_refs": ["projection:task-current"],
+  "uncertainties": []
+}

@@ -1,0 +1,69 @@
+{
+  "release": "World v6.2 Fractal Multi-Brain RC3",
+  "version": "6.2.0-rc.3",
+  "generated_at": "2026-08-20",
+  "status": "RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED",
+  "evidence_level": "E2_LOCAL_CONTRACT",
+  "environment": {
+    "python": "3.12.13",
+    "uv": "0.11.33",
+    "lock_check": "PASS",
+    "locked_sync": "PASS",
+    "environment_path": "/tmp/world-v62-rc3-venv",
+    "runtime_network_for_model_invocation": false,
+    "runtime_api_token_used": false
+  },
+  "tests": {
+    "core": {"passed": 78, "failed": 0},
+    "secretary": {"passed": 22, "failed": 0},
+    "candidate_combined": {"passed": 100, "failed": 0},
+    "preserved_ancestor": {"passed": 14, "failed": 0},
+    "total_independent": {"passed": 114, "failed": 0},
+    "rc3_architecture_subset": {"passed": 7, "failed": 0},
+    "offline_provider_demos": {"passed": 3, "failed": 0}
+  },
+  "universal_model_conformance": {
+    "provider_family": "ANY_CONFORMING_MODEL",
+    "mode": "MANUAL_HOST",
+    "bundle_schema": "PASS",
+    "arbitrary_provider_label": "PASS",
+    "minimal_r0_projection": "PASS",
+    "integrity_tamper_rejection": "PASS",
+    "strict_output_validation": "PASS",
+    "authority_smuggling_rejection": "PASS",
+    "chatgpt_gemini_grok_semantic_equivalence": "PASS",
+    "deterministic_render_equivalence": "PASS",
+    "live_provider_api": "NOT_RUN_NOT_CLAIMED"
+  },
+  "artifact_checks": {
+    "all_json_parse": "PASS",
+    "all_json_schemas_draft_2020_12": "PASS",
+    "architecture_document_manifest_hash_binding": "PASS",
+    "model_card_profile_hash_binding": "PASS",
+    "portable_pack_dna_prompt_schema_profile_binding": "PASS",
+    "compileall": "PASS",
+    "secret_scan": "PASS",
+    "cyclonedx_sbom_json": "PASS"
+  },
+  "architecture": {
+    "document_sha256": "cd5fa150cdfeb23b95b94893af27b484efa23f481b7a0ae02933906097d2bf80",
+    "manifest_sha256": "bec6dbd16d1d4b9cd58efb66bd8dc6ecff557f24b8dc5078d693a8dc3faff3fe",
+    "release_manifest_sha256_at_validation": "e14827056d3f6fe95c1a683412237bd54e4c706828a1c2a6e81bb87a04468c19"
+  },
+  "preservation": {
+    "root_constitution_v1_0": "UNCHANGED",
+    "canonical_entity_dna_v1_2": "UNCHANGED",
+    "parent_rc2": "PRESERVED_SEPARATELY",
+    "source_ancestor_secretary_0_1_3": "PRESERVED_UNCHANGED"
+  },
+  "open_e3_e4_e5": [
+    "live_provider_adapter conformance",
+    "PostgreSQL atomic Registry/Event/State/Outbox integration",
+    "crash replay idempotency and reconciliation",
+    "fresh restore and C6 non-extinction proof",
+    "security privacy load and chaos tests",
+    "signed version-control release",
+    "Human Root canonical ratification"
+  ],
+  "production_readiness_claimed": false
+}

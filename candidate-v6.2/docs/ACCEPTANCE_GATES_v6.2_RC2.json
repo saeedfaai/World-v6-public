@@ -1,0 +1,26 @@
+{
+  "release": "World v6.2 Fractal Multi-Brain RC2",
+  "gate_model": "FAIL_CLOSED_ALL_REQUIRED",
+  "gates": [
+    {"id":"R2-G01","name":"parent_rc1_and_source_ancestor_preserved","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G02","name":"root_constitution_and_canonical_dna_unchanged","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G03","name":"fractal_node_capsule_hash_and_budget_conformance","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G04","name":"orthogonal_axis_and_resolution_minimum_invariance","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G05","name":"portable_pack_prompt_dna_schema_profile_hash_binding","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G06","name":"chatgpt_gemini_grok_fixture_semantic_and_render_equivalence","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G07","name":"offline_no_network_no_api_token_runtime","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G08","name":"strict_proposal_only_output_and_external_effect_boundary","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G09","name":"shadow_maturity_one_step_promotion_gates","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G10","name":"blind_council_revision_vote_dissent_and_veto","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G11","name":"candidate_and_ancestor_local_regression","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G12","name":"dependency_lock_sbom_compileall_and_secret_scan","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G13","name":"human_root_requested_rc2_candidate_build","required_for":"RC2_FREEZE","status":"PASS"},
+    {"id":"R2-G14","name":"version_control_commit_and_release_tag","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"R2-G15","name":"live_provider_eval_and_api_adapter_conformance","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"R2-G16","name":"postgresql_atomic_integration","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"R2-G17","name":"crash_replay_reconciliation","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"R2-G18","name":"fresh_restore_and_c6_non_extinction_proof","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"R2-G19","name":"security_load_chaos","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"R2-G20","name":"human_root_canonical_ratification","required_for":"CANONICAL_PROMOTION","status":"OPEN"}
+  ]
+}

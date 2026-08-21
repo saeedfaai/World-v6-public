@@ -1,0 +1,13 @@
+{
+  "overlay_contract": "world-v6.provider-overlay.v1",
+  "provider_family": "GEMINI_HOST",
+  "binding_mode": "MANUAL_HOST",
+  "integration_status": "OFFLINE_CONTRACT_TESTED_NO_LIVE_API",
+  "network_required_by_runtime": false,
+  "api_token_required_by_runtime": false,
+  "identity_authority_memory": false,
+  "proposal_only": true,
+  "response_format": "STRICT_JSON_OBJECT",
+  "prompt_wrapper": "Provide the same portable pack and projection envelopes; disable prose outside the JSON decision contract.",
+  "fallback": "DETERMINISTIC_CODE_THEN_HUMAN_ROOT"
+}

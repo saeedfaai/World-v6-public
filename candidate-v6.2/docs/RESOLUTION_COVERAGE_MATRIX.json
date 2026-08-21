@@ -1,0 +1,37 @@
+{
+  "release": "World v6.2 Resolution-Native RC1",
+  "root_constitution_changed": false,
+  "canonical_truth_downgraded": false,
+  "resolution_specific_database_column_required_rc1": false,
+  "areas": {
+    "identity": "covered_r0_backbone",
+    "dna": "candidate_overlay_no_new_top_level_organ",
+    "registry_state": "canonical_authority_preserved",
+    "event_audit": "provenance_payload_extension_no_parallel_ledger",
+    "policy_kernel": "action_wires_and_guarded_patch_no_new_authority_stage",
+    "brain_context": "profile_scoped_projection_vector_implemented",
+    "canonical_hashing": "strict_world_canonical_json_v1_implemented",
+    "memory_knowledge": "projection_invariants_and_canonical_reload",
+    "skills_workflows": "profile_and_action_contracts",
+    "inter_entity_relationships": "additive_envelope_dual_authority_preserved",
+    "external_effects": "entity_direct_io_forbidden",
+    "approval": "exact_immutable_binding_implemented",
+    "outbox_executor": "prepared_value_only_postgresql_and_live_executor_open",
+    "backup_restore_genesis": "candidate_overlays_canonical_first",
+    "repository": "adapters_outside_entity_private_code",
+    "foundry_evolution": "r0_first_refine_on_proven_need",
+    "autonomy_evidence": "explicitly_independent",
+    "secretary_001": "implemented_rc1_0.3.0-rc1",
+    "secretary_profiles": "single_json_artifact_source_v0.2.0",
+    "postgresql_integration": "not_run_not_claimed",
+    "crash_restore_security_live": "not_run_not_claimed",
+    "human_root_ratification": "not_recorded",
+    "production": "not_deployed_not_claimed"
+  },
+  "evidence": {
+    "level": "E2",
+    "candidate": "62/62 PASS",
+    "ancestor": "14/14 PASS",
+    "total": "76/76 PASS"
+  }
+}

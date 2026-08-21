@@ -1,0 +1,43 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc2/execution-capsule.schema.json",
+  "title": "World v6.2 RC2 Execution Capsule",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["capsule_id", "world_id", "entity_id", "principal_id", "conversation_id", "node_id", "node_version", "node_hash", "canonical_input_hash", "state_refs", "vector", "budget", "purpose", "expected_version", "data_class", "freshness", "parent_capsule_id"],
+  "properties": {
+    "capsule_id": {"$ref": "#/$defs/token"},
+    "world_id": {"$ref": "#/$defs/token"},
+    "entity_id": {"$ref": "#/$defs/token"},
+    "principal_id": {"$ref": "#/$defs/token"},
+    "conversation_id": {"$ref": "#/$defs/token"},
+    "node_id": {"$ref": "#/$defs/token"},
+    "node_version": {"$ref": "#/$defs/token"},
+    "node_hash": {"$ref": "#/$defs/hash"},
+    "canonical_input_hash": {"$ref": "#/$defs/hash"},
+    "state_refs": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+    "vector": {"$ref": "fractal-node.schema.json#/$defs/vector"},
+    "budget": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_input_tokens", "max_cost_micros", "max_latency_ms", "max_depth", "max_attempts", "max_council_rounds"],
+      "properties": {
+        "max_input_tokens": {"type": "integer", "minimum": 0},
+        "max_cost_micros": {"type": "integer", "minimum": 0},
+        "max_latency_ms": {"type": "integer", "minimum": 0},
+        "max_depth": {"type": "integer", "minimum": 0, "maximum": 12},
+        "max_attempts": {"type": "integer", "minimum": 1},
+        "max_council_rounds": {"type": "integer", "minimum": 0, "maximum": 5}
+      }
+    },
+    "purpose": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "expected_version": {"type": "integer", "minimum": 0},
+    "data_class": {"enum": ["PUBLIC", "INTERNAL", "RESTRICTED", "SECRET"]},
+    "freshness": {"enum": ["CURRENT", "STALE", "UNKNOWN"]},
+    "parent_capsule_id": {"oneOf": [{"$ref": "#/$defs/token"}, {"type": "null"}]}
+  },
+  "$defs": {
+    "token": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@#-]{0,191}$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+  }
+}

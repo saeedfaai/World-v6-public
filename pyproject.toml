@@ -1,0 +1,22 @@
+[project]
+name = "world-v6-fractal-multibrain-rc3"
+version = "6.2.0rc3"
+description = "World v6.2 complete Fractal Multi-Brain architecture ratification candidate"
+requires-python = ">=3.12,<3.14"
+dependencies = [
+  "python-pptx==1.0.2",
+  "weasyprint==69.0",
+]
+
+[dependency-groups]
+dev = [
+  "jsonschema==4.25.1",
+  "pytest==9.1.1",
+]
+
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+testpaths = ["candidate-v6.2/runtime/core/tests"]
+addopts = "-ra"

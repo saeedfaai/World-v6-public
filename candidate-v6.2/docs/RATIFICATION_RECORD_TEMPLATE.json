@@ -1,0 +1,17 @@
+{
+  "record_type": "WORLD_V6_2_RC1_RATIFICATION",
+  "status": "UNRATIFIED_TEMPLATE",
+  "release_manifest_sha256": null,
+  "package_sha256": null,
+  "decision": null,
+  "decision_scope": "FREEZE_SPEC_AND_AUTHORIZE_PHASE1_IMPLEMENTATION_ONLY",
+  "ratifier_role": "human-root",
+  "ratifier_ref": null,
+  "issued_at": null,
+  "conditions": [
+    "NOT_A_PRODUCTION_READINESS_CLAIM",
+    "NOT_AN_ENTITY_BIRTH_EVENT",
+    "CANONICAL_PROMOTION_REQUIRES_ALL_EVIDENCE_GATES"
+  ],
+  "signature_or_audit_ref": null
+}

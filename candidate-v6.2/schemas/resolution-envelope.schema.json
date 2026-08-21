@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc1/resolution-envelope.schema.json",
+  "title": "World v6.2 RC1 Consumer-Safe Resolution Envelope",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "profile_id",
+    "profile_version",
+    "profile_hash",
+    "source_ref",
+    "source_version",
+    "canonical_hash",
+    "canonical_resolution",
+    "effective_resolution",
+    "projection_hash",
+    "compiler_id",
+    "compiler_version",
+    "compiler_hash",
+    "purpose",
+    "data_class",
+    "freshness",
+    "projection_derived",
+    "projection_authoritative",
+    "value"
+  ],
+  "properties": {
+    "profile_id": {"$ref": "#/$defs/token"},
+    "profile_version": {"$ref": "#/$defs/token"},
+    "profile_hash": {"$ref": "#/$defs/hash"},
+    "source_ref": {"$ref": "#/$defs/token"},
+    "source_version": {"type": "integer", "minimum": 0},
+    "canonical_hash": {"$ref": "#/$defs/hash"},
+    "canonical_resolution": {"$ref": "#/$defs/resolution"},
+    "effective_resolution": {"$ref": "#/$defs/resolution"},
+    "projection_hash": {"$ref": "#/$defs/hash"},
+    "compiler_id": {"$ref": "#/$defs/token"},
+    "compiler_version": {"$ref": "#/$defs/token"},
+    "compiler_hash": {"$ref": "#/$defs/hash"},
+    "purpose": {"$ref": "#/$defs/token"},
+    "data_class": {"enum": ["PUBLIC", "INTERNAL", "CONFIDENTIAL", "RESTRICTED"]},
+    "freshness": {"$ref": "#/$defs/token"},
+    "projection_derived": {"const": true},
+    "projection_authoritative": {"const": false},
+    "value": {"type": "object"}
+  },
+  "$defs": {
+    "resolution": {"type": "string", "pattern": "^R(0|[1-9][0-9]*)$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "token": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$"}
+  }
+}

@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc1/resolution-patch.schema.json",
+  "title": "World v6.2 RC1 Bounded Resolution Patch",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "actor_resolution",
+    "expected_canonical_hash",
+    "expected_projection_hash",
+    "expected_version",
+    "source_ref",
+    "profile_id",
+    "profile_version",
+    "profile_hash",
+    "operations"
+  ],
+  "properties": {
+    "actor_resolution": {"$ref": "#/$defs/resolution"},
+    "expected_canonical_hash": {"$ref": "#/$defs/hash"},
+    "expected_projection_hash": {"$ref": "#/$defs/hash"},
+    "expected_version": {"type": "integer", "minimum": 0},
+    "source_ref": {"$ref": "#/$defs/token"},
+    "profile_id": {"$ref": "#/$defs/token"},
+    "profile_version": {"$ref": "#/$defs/token"},
+    "profile_hash": {"$ref": "#/$defs/hash"},
+    "operations": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["op", "path", "value"],
+        "properties": {
+          "op": {"const": "set"},
+          "path": {"$ref": "#/$defs/pointer"},
+          "value": {"type": ["string", "integer", "boolean", "null"]}
+        }
+      }
+    }
+  },
+  "$defs": {
+    "resolution": {"type": "string", "pattern": "^R(0|[1-9][0-9]*)$"},
+    "hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "token": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/-]{0,191}$"},
+    "pointer": {"type": "string", "minLength": 2, "maxLength": 512, "pattern": "^/(?:[^~/]|~[01])+(?:/(?:[^~/]|~[01])+)*$"}
+  }
+}

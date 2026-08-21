@@ -1,0 +1,29 @@
+{
+  "title": "World v6.2 — Fractal Multi-Brain Architecture",
+  "upload_type": "software",
+  "creators": [
+    {
+      "name": "Farokhi, Saeed"
+    }
+  ],
+  "version": "6.2.0-rc.3",
+  "description": "Ratification Candidate of the World v6.2 Fractal Multi-Brain Architecture. Non-Canonical, Not Deployed, E2 local component/contract evidence only. This is a public/source-available non-commercial release: original software is licensed for noncommercial purposes under PolyForm Noncommercial 1.0.0 and original documentation/architecture under CC BY-NC-SA 4.0. Commercial use requires a separate written license from Saeed Farokhi.",
+  "keywords": [
+    "multi-agent systems",
+    "fractal architecture",
+    "multi-brain architecture",
+    "deterministic kernel",
+    "resolution-native architecture",
+    "AI orchestration",
+    "agent governance",
+    "non-commercial source-available"
+  ],
+  "related_identifiers": [
+    {
+      "identifier": "https://github.com/saeedfaai/world-v6",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    }
+  ],
+  "notes": "This release is not OSI Open Source because commercial use is restricted. See LICENSE for the software/documentation license map, NOTICE for release status, and THIRD_PARTY_NOTICES.md for exclusions."
+}

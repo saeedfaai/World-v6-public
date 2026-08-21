@@ -1,0 +1,28 @@
+cff-version: 1.2.0
+message: "If you use, adapt, or discuss this work, please cite it using the metadata below and follow the non-commercial license map in LICENSE."
+title: "World v6.2 — Fractal Multi-Brain Architecture"
+type: software
+authors:
+  - family-names: "Farokhi"
+    given-names: "Saeed"
+version: "6.2.0-rc.3"
+repository-code: "https://github.com/saeedfaai/world-v6"
+keywords:
+  - multi-agent systems
+  - fractal architecture
+  - multi-brain architecture
+  - deterministic kernel
+  - resolution-native architecture
+  - AI orchestration
+  - agent governance
+  - non-extinction architecture
+abstract: >-
+  World v6.2 is a ratification-candidate architecture that separates canonical
+  identity, truth, policy, authority, effects, cognition, and evolution. It uses
+  a deterministic model-independent mother core with replaceable AI brains,
+  bounded fractal decomposition, resolution-aware context projection, councils,
+  shadow evaluation, staged compilation, and explicit evidence and rollback
+  gates. Version 6.2.0-rc.3 is non-canonical, not deployed, and claims E2 local
+  component/contract evidence only. Original software is made available for
+  noncommercial purposes under PolyForm Noncommercial 1.0.0 and original
+  documentation/architecture under CC BY-NC-SA 4.0, as mapped in LICENSE.

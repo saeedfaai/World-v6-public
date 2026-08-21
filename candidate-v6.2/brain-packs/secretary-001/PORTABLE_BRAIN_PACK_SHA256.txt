@@ -1,0 +1,4 @@
+38f9b5d7e3990b422daba73c430914bb9a51e0848cfd3a8d312c5dcf934d2146  portable-brain-pack.v1.0.0.json
+d65cd15805eb0f482da4910a713389bcad5cb282bb288b2314d1be03cbf5392a  secretary-dna-overlay.v1.3-rc2.json
+011b33758135ee31ef41f2f9834cff8038b1fb8604704623e4fe24662c9e7069  PROMPT_CONTRACT_v1.0_FA.md
+945a50c612924db2dabf949cb58b55a8e132b5c83594fcfce9b2da8417c926ae  ../../schemas/secretary-decision.schema.json

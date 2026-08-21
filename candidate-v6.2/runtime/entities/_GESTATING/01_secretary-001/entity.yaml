@@ -1,0 +1,187 @@
+entity_id: secretary-001
+entity_version: 0.4.0-rc2
+release_status: FRACTAL_MULTI_BRAIN_RATIFICATION_CANDIDATE_PRE_BIRTH_NOT_DEPLOYED
+dna_version: 1.2.0
+candidate_dna_extensions:
+  - world-v6.2-resolution-native-addendum-c-rc1
+  - world-v6.2-fractal-multibrain-overlay-rc2
+canonical_name: "Secretary 001"
+entity_type: secretary
+root_owner: human-root
+parent_relation: ROOT_DIRECT
+lifecycle_stage: EMBRYO
+operational_status: TESTING
+autonomy: L0
+birth_target:
+  lifecycle_stage: NEWBORN
+  operational_status: READY
+channels:
+  chatgpt:
+    status: ACTIVE_MANUAL_GATEWAY
+  telegram:
+    status: PLANNED_PENDING_SECRET_AND_WEBHOOK
+    owner_handle: saeedfaut
+    owner_handle_status: CLAIMED_PENDING_NUMERIC_USER_ID_VERIFICATION
+    owner_role: human-root
+    authority_rule: VERIFIED_TELEGRAM_NUMERIC_USER_ID_ONLY
+    outbound_documents: REGISTERED_ADAPTER_CANDIDATE_EXECUTOR_PATH_NOT_YET_INTEGRATED
+    outbound_rule: POLICY_PLUS_EXACT_APPROVAL_BINDING_PLUS_ATOMIC_OUTBOX_PLUS_EXECUTOR
+conversation_continuity:
+  enabled: true
+  canonical_principal: human-root
+  canonical_conversation_id: human-root:secretary-001
+  source_of_truth: POSTGRESQL_ENTITY_STORE
+  channel_session_is_not_memory: true
+  brain_provider_session_is_not_memory: true
+  cross_channel_resume: true
+  brain_handoff: LOAD_SAME_ENTITY_CONTEXT_THEN_INVOKE_COMPATIBLE_PROVIDER
+  rule: "Telegram, ChatGPT and future interfaces are interchangeable transports. OpenAI/Google/other compatible providers are interchangeable cognition backends. Identity, conversation history, tasks, prices, memory and policy live outside both transport and Brain provider."
+skills:
+  formal_letter_pdf:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  proforma_pdf:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  task_management:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  customer_price_lookup:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  cloud_letter_delivery:
+    version: 0.2.0-rc1
+    status: EFFECT_PROPOSAL_ONLY_DIRECT_ENTITY_IO_FORBIDDEN
+    source: GOOGLE_DRIVE_LETTERS_ARCHIVE
+    destination: TELEGRAM
+    latest_file_selection: MODIFIED_TIME_DESC_PDF_ONLY
+    filename_guard: EXACT_MATCH_WHEN_EXPECTED_FILENAME_IS_SUPPLIED
+policies:
+  external_send: POLICY_EXACT_APPROVAL_BINDING_ATOMIC_OUTBOX_EXECUTOR_REQUIRED
+  root_telegram_document_delivery: DIRECT_ENTITY_SEND_FORBIDDEN
+  archived_letter_telegram_delivery: DIRECT_DRIVE_TO_TELEGRAM_CHAIN_FORBIDDEN
+  new_or_changed_price: HUMAN_ROOT_APPROVAL_REQUIRED
+  quoted_price_reuse: ALLOW_ONLY_EXACT_MATCH_ACTIVE_NOT_EXPIRED
+  missing_price: ASK_HUMAN_ROOT_AND_KEEP_REQUEST_PENDING
+  legal_or_financial_commitment: FAIL_CLOSED_HUMAN_ROOT_APPROVAL_REQUIRED
+archives:
+  letters_drive_folder_id: 1CP3dc0EeC31us3GXneH3ftJaoAe_aefj
+  proformas_drive_folder_id: 1-_IabjWbxJbHV8jjX-CZhqeaDTPK49Zl
+brain:
+  binding: provider_neutral
+  mother_controller: WORLD_KERNEL_DETERMINISTIC
+  primary: CHEAPEST_SAFE_PROFILE_COMPATIBLE_HANDLER
+  fallbacks:
+    - MANUAL_CHATGPT_HOST
+    - MANUAL_GEMINI_HOST
+    - MANUAL_GROK_HOST
+    - LOCAL_MODEL_ADAPTER
+    - DETERMINISTIC_CODE
+    - HUMAN_ROOT
+  api_required: false
+  provider_is_identity_authority_or_memory: false
+  failover_rule: SAME_CAPSULE_SAME_CONTEXT_HASH_SAME_POLICY_SAME_MINIMUM_AXES
+  no_compatible_brain: DEFER_TO_HUMAN_ROOT_NEVER_WEAKEN_MINIMUM
+sleep:
+  enabled: true
+  day_one_behavior: nightly_task_and_memory_consolidation_candidate_only
+  self_mutation: FORBIDDEN
+  promotion: TEST_SHADOW_APPROVAL_REQUIRED
+resolution_native:
+  profile_version: 0.2.0
+  canonical_truth_rule: FULL_FIDELITY_NEVER_DOWNGRADED
+  execution_default: R0
+  runtime_binding_must_set_resolution: true
+  supported_execution_resolutions:
+    - R0
+    - R1
+  maturity_is_independent: true
+  entity_version_is_independent: true
+  autonomy_is_independent: true
+  projection:
+    type: DETERMINISTIC_STRUCTURAL
+    lower_view_is_derived: true
+    lower_view_is_authoritative: false
+    low_to_high_reconstruction: FORBIDDEN_RELOAD_CANONICAL_INSTEAD
+  writeback:
+    mode: PARTIAL_PATCH_ONLY
+    expected_canonical_hash_required: true
+    hidden_higher_resolution_state: PRESERVE
+    whole_object_replacement_from_lower_resolution: FORBIDDEN
+  semantic_projection:
+    current_status: PORTABLE_DECISION_NORMALIZATION_RC2_NON_CANONICAL
+    llm_summary_rule: DERIVED_NON_AUTHORITATIVE_UNTIL_EXISTING_PROMOTION_GATES
+  brain_negotiation:
+    rule: HIGHEST_SUPPORTED_NOT_BELOW_TASK_MINIMUM
+    no_compatible_resolution: QUEUE_DEGRADE_OR_ESCALATE_NEVER_LOWER_MINIMUM
+  action_minimums:
+    internal_draft_and_task: R0
+    approved_price_and_proforma: R1
+    telegram_external_delivery: R1_PLUS_EXISTING_ROOT_APPROVAL
+    legal_or_financial_commitment: R2_PLUS_EXISTING_ROOT_APPROVAL
+  profiles:
+    conversation: secretary.conversation@0.2.0+sha256
+    task: secretary.task@0.2.0+sha256
+    price: secretary.price@0.2.0+sha256
+    external_effect: secretary.external-effect@0.2.0+sha256
+  provenance:
+    consumer_envelope_required: true
+    profile_hash_required: true
+    compiler_hash_required: true
+    canonical_hash_required: true
+    projection_hash_required: true
+  canonical_json:
+    contract: WORLD_CANONICAL_JSON_V1_STRICT
+    implicit_stringification: FORBIDDEN
+  brain_negotiation_scope: PER_PROFILE_SEGMENT_VECTOR
+fractal_multi_brain:
+  contract_version: 1.0.0-rc2
+  portable_pack: world-v6.secretary-001.portable-brain@1.0.0-rc2
+  output_contract: world-v6.secretary-decision.v1
+  execution_levels:
+    - WORLD
+    - ENTITY
+    - MISSION
+    - SKILL
+    - WORKFLOW
+    - STEP
+    - TOOL
+    - FIELD
+  axes:
+    resolution: DOMAIN_LOCAL_R0_PLUS
+    granularity: X0_TO_X9
+    brain_delegation: B0_TO_B4_B5_FORBIDDEN
+    deliberation: D0_TO_D5
+    compilation_maturity: C0_TO_C6
+    authority: A0_TO_A5_POLICY_GATED
+    evidence: E0_TO_E5
+    model_capability: M0_TO_M9_PROFILE_SPECIFIC
+  paths:
+    hot: CHEAPEST_SAFE_HANDLER
+    shadow: NO_EFFECT_COMPARE_ONLY
+    non_extinction: RESTORE_PROVEN_CODE_ONLY_AT_C6
+  council:
+    trigger: HIGH_RISK_OR_HIGH_UNCERTAINTY
+    protocol: BLIND_REVEAL_REVISE_WEIGHTED_VOTE_WITH_VETO
+    grants_authority: false
+  runtime_network_enabled: false
+  runtime_api_tokens_enabled: false
+  direct_external_effect: FORBIDDEN
+recovery:
+  identity_survives_brain_failure: true
+  conversation_survives_brain_or_channel_failure: true
+  autonomous_uncontrolled_replication: false
+  canonical_restore_proof: NOT_PROVEN
+promotion_blockers:
+  - POSTGRESQL_STATE_EVENT_OUTBOX_INTEGRATION_NOT_PROVEN
+  - CRASH_REPLAY_AND_RECONCILIATION_NOT_PROVEN
+  - FRESH_RESTORE_NOT_PROVEN
+  - SECURITY_LOAD_CHAOS_NOT_PROVEN
+  - HUMAN_ROOT_RATIFICATION_NOT_RECORDED
+notes:
+  - "This file is a pre-birth manifest. created_at and creation_event_ref are generated only by the successful canonical Birth transaction."
+  - "Telegram/ChatGPT are transports, not identity or memory."
+  - "Brain providers are replaceable cognition backends, not identity or memory."
+  - "Telegram/Drive clients are registered-adapter candidates outside Entity private code; only a committed canonical Executor path may call them."
+  - "A boolean such as root_approved is not an approval. Approval must bind command, action, recipient, payload hash, effect hash, policy version, expected_version, control_epoch and expiry."
+  - "World v6.2 RC2 is not Canonical until explicit Human Root ratification and all blocking promotion evidence are recorded."

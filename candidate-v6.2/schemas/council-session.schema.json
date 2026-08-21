@@ -1,0 +1,32 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc2/council-session.schema.json",
+  "title": "World v6.2 RC2 Multi-Brain Council Configuration",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["session_contract", "max_rounds", "minimum_support_millis", "blind_first_round", "context_binding_required", "high_risk_veto", "proposal_only", "participants"],
+  "properties": {
+    "session_contract": {"const": "world-v6.brain-council.v1"},
+    "max_rounds": {"type": "integer", "minimum": 1, "maximum": 5},
+    "minimum_support_millis": {"type": "integer", "minimum": 501, "maximum": 1000},
+    "blind_first_round": {"const": true},
+    "context_binding_required": {"const": true},
+    "high_risk_veto": {"const": true},
+    "proposal_only": {"const": true},
+    "participants": {
+      "type": "array",
+      "minItems": 2,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["participant_id", "role", "weight_millis", "veto_capable"],
+        "properties": {
+          "participant_id": {"type": "string", "minLength": 1},
+          "role": {"type": "string", "minLength": 1},
+          "weight_millis": {"type": "integer", "minimum": 1, "maximum": 10000},
+          "veto_capable": {"type": "boolean"}
+        }
+      }
+    }
+  }
+}

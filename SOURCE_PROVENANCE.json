@@ -1,0 +1,43 @@
+{
+  "generated_at": "2026-08-21",
+  "release": "World v6.2 Fractal Multi-Brain RC3",
+  "basis": [
+    "World v6 canonical documents and Root Constitution v1.0",
+    "World v6.2 Fractal Multi-Brain RC2 preserved as a separate private ancestor release",
+    "preserved secretary-001 v0.1.3 source ancestor, with publication-only removal of uncertain-origin binary assets",
+    "Human Root instructions for cable refinement, Resolution, fractal Brain levels, provider switching, Council voting and background code evolution",
+    "Operation_V06 normative lifecycle, truth, policy, evidence and continuity constraints",
+    "RC2 tested runtime primitives retained and extended by RC3 contracts",
+    "SHARD was used only as an isolated research reference during private development and is excluded from the public RC3 payload"
+  ],
+  "parent_release": {
+    "name": "World v6.2 Fractal Multi-Brain RC2",
+    "manifest_sha256": "4c8e929d553534f5920d1cdfee5df43d3287362611830f0a813782207a65fa43",
+    "sha256sums_sha256": "00b2f0a4fd6ecb46e47623fea15bbc784e938fec39cb04d59ce3867d9b13b126",
+    "release_zip_sha256": "6a49fea3be989005d90622161c1a1bc77e6c8041955e52cbae93c095fc62e114"
+  },
+  "canonical_root_constitution_docx_sha256": "f9e99b3534e6b350dfbf4e90681c67ac344a200680167024cfc651cfa1026a3d",
+  "preservation_rule": "canonical baseline, source ancestor and parent RC2 remain privately preserved; the public RC3 payload excludes uncertain-origin/private reference binaries and generates publication-safe letter templates from source code at runtime",
+  "canonical_overwrite": false,
+  "canonical_dna_overwrite": false,
+  "research_promotion": false,
+  "live_api_input": false,
+  "secret_or_token_input": false,
+  "human_root_canonical_ratification_recorded": false,
+  "public_payload_exclusions": [
+    "research/SHARD_ssrn-6898739.pdf",
+    "legacy-reference/V_06_v6.1.1_CANONICAL_ALIGNED.zip",
+    "candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001/assets/proforma_reference.pdf",
+    "source-ancestor/secretary-v0.1.3/assets/proforma_reference.pdf",
+    "candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001/assets/letterhead_template.pptx",
+    "source-ancestor/secretary-v0.1.3/assets/letterhead_template.pptx"
+  ],
+  "publication_safe_letter_rendering": {
+    "binary_template_shipped": false,
+    "candidate_source": "candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001/src/letters.py",
+    "ancestor_source": "source-ancestor/secretary-v0.1.3/src/letters.py",
+    "method": "project-owned template generated from source code into a temporary PPTX at runtime; no legacy template bytes reused"
+  },
+  "repository_commit": null,
+  "release_tag": null
+}

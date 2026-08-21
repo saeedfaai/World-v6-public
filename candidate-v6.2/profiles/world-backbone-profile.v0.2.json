@@ -1,0 +1,91 @@
+{
+  "profile_id": "world-v6.backbone",
+  "version": "0.2.0",
+  "canonical_resolution": "R2",
+  "allow_unspecified": false,
+  "required_backbone_paths": [
+    "/identity/world_id",
+    "/identity/entity_id",
+    "/identity/root_owner_ref",
+    "/input/source_ref",
+    "/input/actor_ref",
+    "/input/classification",
+    "/command/command_id",
+    "/command/intent",
+    "/command/status",
+    "/proposal/proposal_ref",
+    "/proposal/requested_action",
+    "/policy/decision_ref",
+    "/policy/verdict",
+    "/approval/approval_ref",
+    "/approval/bound_effect_hash",
+    "/action/action_type",
+    "/action/target_ref",
+    "/action/effect_state",
+    "/event/event_id",
+    "/event/event_type",
+    "/event/entity_sequence",
+    "/event/outcome",
+    "/state/state_ref",
+    "/state/event_cursor",
+    "/state/memory_profile_ref"
+  ],
+  "fields": [
+    {"path":"/identity/world_id","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"IDENTITY","semantic_contract_id":"world-v6.identity.world-id.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/identity/entity_id","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"IDENTITY","semantic_contract_id":"world-v6.identity.entity-id.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/identity/root_owner_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"IDENTITY","semantic_contract_id":"world-v6.identity.root-owner.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":[]},
+    {"path":"/identity/lineage_ref","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"IDENTITY","semantic_contract_id":"world-v6.identity.lineage-ref.v1","data_class":"INTERNAL","expected_type":null,"required_for_actions":[]},
+
+    {"path":"/input/source_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"INPUT","semantic_contract_id":"world-v6.input.source-ref.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/input/actor_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"INPUT","semantic_contract_id":"world-v6.input.actor-ref.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":[]},
+    {"path":"/input/payload_ref","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"INPUT","semantic_contract_id":"world-v6.input.payload-ref.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":[]},
+    {"path":"/input/classification","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"INPUT","semantic_contract_id":"world-v6.input.classification.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":[]},
+
+    {"path":"/command/command_id","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"TASK_COMMAND","semantic_contract_id":"world-v6.command.id.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/command/intent","introduced_at":"R0","write_min_resolution":"R1","downgrade_policy":"SAFE_TO_PROJECT","cable_id":"TASK_COMMAND","semantic_contract_id":"world-v6.command.intent.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/command/subject_ref","introduced_at":"R1","write_min_resolution":"R1","downgrade_policy":"SAFE_TO_PROJECT","cable_id":"TASK_COMMAND","semantic_contract_id":"world-v6.command.subject-ref.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/command/status","introduced_at":"R0","write_min_resolution":"R1","downgrade_policy":"SAFE_TO_PROJECT","cable_id":"TASK_COMMAND","semantic_contract_id":"world-v6.command.status.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/command/expected_version","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"TASK_COMMAND","semantic_contract_id":"world-v6.expected-version.v1","data_class":"RESTRICTED","expected_type":"integer","required_for_actions":["EXECUTE_EXTERNAL"]},
+    {"path":"/command/control_epoch","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"TASK_COMMAND","semantic_contract_id":"world-v6.control-epoch.v1","data_class":"RESTRICTED","expected_type":"integer","required_for_actions":["EXECUTE_EXTERNAL"]},
+
+    {"path":"/proposal/proposal_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"PROPOSAL","semantic_contract_id":"world-v6.proposal.ref.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/proposal/requested_action","introduced_at":"R0","write_min_resolution":"R1","downgrade_policy":"SAFE_TO_PROJECT","cable_id":"PROPOSAL","semantic_contract_id":"world-v6.proposal.requested-action.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/proposal/payload_hash","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"PROPOSAL","semantic_contract_id":"world-v6.effect.payload-hash.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["EXECUTE_EXTERNAL"]},
+    {"path":"/proposal/recipient_ref","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"PROPOSAL","semantic_contract_id":"world-v6.effect.recipient-ref.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["EXECUTE_EXTERNAL"]},
+
+    {"path":"/policy/decision_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"POLICY","semantic_contract_id":"world-v6.policy.decision-ref.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["EXECUTE_EXTERNAL"]},
+    {"path":"/policy/verdict","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"POLICY","semantic_contract_id":"world-v6.policy.verdict.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":[]},
+    {"path":"/policy/policy_version","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"POLICY","semantic_contract_id":"world-v6.policy.version.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["EXECUTE_EXTERNAL"]},
+
+    {"path":"/approval/approval_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"APPROVAL","semantic_contract_id":"world-v6.approval.ref.v1","data_class":"RESTRICTED","expected_type":null,"required_for_actions":["EXECUTE_EXTERNAL"]},
+    {"path":"/approval/bound_effect_hash","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"APPROVAL","semantic_contract_id":"world-v6.effect.effect-hash.v1","data_class":"RESTRICTED","expected_type":null,"required_for_actions":["EXECUTE_EXTERNAL"]},
+    {"path":"/approval/expires_at","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"APPROVAL","semantic_contract_id":"world-v6.approval.expires-at.v1","data_class":"RESTRICTED","expected_type":null,"required_for_actions":[]},
+
+    {"path":"/action/action_type","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"ACTION","semantic_contract_id":"world-v6.effect.action.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/action/target_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"ACTION","semantic_contract_id":"world-v6.effect.target-ref.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":[]},
+    {"path":"/action/effect_state","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"ACTION","semantic_contract_id":"world-v6.effect.state.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/action/idempotency_key","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"ACTION","semantic_contract_id":"world-v6.effect.idempotency-key.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["EXECUTE_EXTERNAL"]},
+    {"path":"/action/effect_semantics","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"ACTION","semantic_contract_id":"world-v6.effect.semantics.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["EXECUTE_EXTERNAL"]},
+
+    {"path":"/event/event_id","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"EVENT","semantic_contract_id":"world-v6.event.id.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":["RECORD_EVENT"]},
+    {"path":"/event/event_type","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"EVENT","semantic_contract_id":"world-v6.event.type.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":["RECORD_EVENT"]},
+    {"path":"/event/entity_sequence","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"EVENT","semantic_contract_id":"world-v6.event.entity-sequence.v1","data_class":"INTERNAL","expected_type":"integer","required_for_actions":["RECORD_EVENT"]},
+    {"path":"/event/outcome","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"EVENT","semantic_contract_id":"world-v6.event.outcome.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":["RECORD_EVENT"]},
+    {"path":"/event/causation_id","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"EVENT","semantic_contract_id":"world-v6.event.causation-id.v1","data_class":"INTERNAL","expected_type":null,"required_for_actions":[]},
+    {"path":"/event/correlation_id","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"EVENT","semantic_contract_id":"world-v6.event.correlation-id.v1","data_class":"INTERNAL","expected_type":null,"required_for_actions":[]},
+
+    {"path":"/state/state_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"STATE_MEMORY","semantic_contract_id":"world-v6.state.ref.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/state/event_cursor","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"STATE_MEMORY","semantic_contract_id":"world-v6.state.event-cursor.v1","data_class":"INTERNAL","expected_type":"integer","required_for_actions":[]},
+    {"path":"/state/memory_profile_ref","introduced_at":"R0","write_min_resolution":"R2","downgrade_policy":"READ_ONLY_WHEN_PROJECTED","cable_id":"STATE_MEMORY","semantic_contract_id":"world-v6.memory.profile-ref.v1","data_class":"INTERNAL","expected_type":"string","required_for_actions":[]},
+    {"path":"/state/freshness","introduced_at":"R1","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"STATE_MEMORY","semantic_contract_id":"world-v6.state.freshness.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":[]},
+
+    {"path":"/commitment/legal_basis_ref","introduced_at":"R2","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"ACTION","semantic_contract_id":"world-v6.commitment.legal-basis-ref.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["LEGAL_FINANCIAL_COMMITMENT"]},
+    {"path":"/commitment/exact_amount","introduced_at":"R2","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"ACTION","semantic_contract_id":"world-v6.commitment.exact-amount-string.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["LEGAL_FINANCIAL_COMMITMENT"]},
+    {"path":"/commitment/currency","introduced_at":"R2","write_min_resolution":"R2","downgrade_policy":"NO_DOWNGRADE","cable_id":"ACTION","semantic_contract_id":"world-v6.commitment.currency.v1","data_class":"RESTRICTED","expected_type":"string","required_for_actions":["LEGAL_FINANCIAL_COMMITMENT"]}
+  ],
+  "actions": [
+    {"action":"RECORD_EVENT","minimum_resolution":"R0","required_paths":["/event/event_id","/event/event_type","/event/entity_sequence","/event/outcome"]},
+    {"action":"EXECUTE_EXTERNAL","minimum_resolution":"R1","required_paths":["/command/expected_version","/command/control_epoch","/proposal/payload_hash","/proposal/recipient_ref","/policy/decision_ref","/policy/policy_version","/approval/approval_ref","/approval/bound_effect_hash","/action/idempotency_key","/action/effect_semantics"]},
+    {"action":"LEGAL_FINANCIAL_COMMITMENT","minimum_resolution":"R2","required_paths":["/commitment/legal_basis_ref","/commitment/exact_amount","/commitment/currency","/approval/approval_ref","/approval/bound_effect_hash"]}
+  ]
+}

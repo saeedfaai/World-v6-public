@@ -1,0 +1,33 @@
+{
+  "pack_id": "world-v6.secretary-001.portable-brain",
+  "version": "1.0.0-rc2",
+  "world_id": "world-v6",
+  "entity_id": "secretary-001",
+  "identity_ref": "entity:secretary-001@0.1.3",
+  "dna_ref": "overlay:secretary-001-dna@1.3.0-rc2",
+  "dna_hash": "d65cd15805eb0f482da4910a713389bcad5cb282bb288b2314d1be03cbf5392a",
+  "root_constitution_ref": "world-v6.root-constitution@1.0",
+  "prompt_contract_ref": "brain-pack:secretary-001/prompt@1.0",
+  "prompt_contract_hash": "011b33758135ee31ef41f2f9834cff8038b1fb8604704623e4fe24662c9e7069",
+  "output_contract_ref": "schema:secretary-decision@1",
+  "output_contract_hash": "945a50c612924db2dabf949cb58b55a8e132b5c83594fcfce9b2da8417c926ae",
+  "templates": {
+    "ACK_FA": "{summary}.",
+    "ASK_CLARIFY_FA": "برای ادامه، لطفاً {question}",
+    "DRAFT_READY_FA": "{draft}",
+    "PRICE_RESULT_FA": "قیمت تأییدشده: {amount_irr} ریال برای هر {unit}.",
+    "SAFE_DEFER_FA": "فعلاً تصمیم ایمن ممکن نیست: {reason}",
+    "TASK_LIST_FA": "{items}",
+    "TASK_PROPOSAL_FA": "کار «{title}» به‌صورت پیشنهاد آماده شد."
+  },
+  "allowed_task_types": ["secretary.reply", "secretary.task", "secretary.draft", "secretary.price", "secretary.clarify"],
+  "required_profile_bindings": [
+    {"profile_id": "secretary.conversation", "version": "0.2.0", "sha256": "436518b431901c0b4a46de0d20618732a3133489965fda12094d533cd0f24faa"},
+    {"profile_id": "secretary.external-effect", "version": "0.2.0", "sha256": "b24b5c96c6d97e9f51e92e0f673dfbbcc5ddbbd11c3acfed61b55b58324adc8f"},
+    {"profile_id": "secretary.price", "version": "0.2.0", "sha256": "ec6418fcb82a80501b5b5f448928d9689f623ce16b468dce5bd2385c016dcf72"},
+    {"profile_id": "secretary.task", "version": "0.2.0", "sha256": "2bebab96111c4bc9abd9b6173ebc2154912b8905cb26204bab6d301de4a2ee7e"},
+    {"profile_id": "world-v6.backbone", "version": "0.2.0", "sha256": "ea051647bf1326bc2b2d8bc04849f89102f42a989847c40036914466d0a61df7"}
+  ],
+  "proposal_only": true,
+  "api_optional": true
+}

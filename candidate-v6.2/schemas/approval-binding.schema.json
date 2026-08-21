@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc1/approval-binding.schema.json",
+  "title": "World v6.2 RC1 Exact Human Root Approval Binding",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["approval_ref", "approver_ref", "decision", "command_id", "action", "recipient_ref", "payload_hash", "effect_hash", "policy_version", "expected_version", "control_epoch", "issued_at", "expires_at"],
+  "properties": {
+    "approval_ref": {"type":"string","minLength":1},
+    "approver_ref": {"const":"human-root"},
+    "decision": {"const":"APPROVE"},
+    "command_id": {"type":"string","minLength":1},
+    "action": {"type":"string","minLength":1},
+    "recipient_ref": {"type":"string","minLength":1},
+    "payload_hash": {"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "effect_hash": {"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "policy_version": {"type":"string","minLength":1},
+    "expected_version": {"type":"integer","minimum":0},
+    "control_epoch": {"type":"integer","minimum":1},
+    "issued_at": {"type":"string","format":"date-time"},
+    "expires_at": {"type":["string","null"],"format":"date-time"}
+  }
+}

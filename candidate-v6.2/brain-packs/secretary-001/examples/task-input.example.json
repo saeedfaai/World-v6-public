@@ -1,0 +1,12 @@
+{
+  "task_id": "task-example-001",
+  "title": "ارسال پیش‌نویس قرارداد",
+  "status": "OPEN",
+  "next_action": "DRAFT",
+  "due_at": null,
+  "priority": "NORMAL",
+  "domain": "general",
+  "goal_id": null,
+  "created_at": "2026-08-20T00:00:00Z",
+  "source_version": 0
+}

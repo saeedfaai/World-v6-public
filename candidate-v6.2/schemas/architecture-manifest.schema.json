@@ -1,0 +1,111 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc3/architecture-manifest.schema.json",
+  "title": "World v6.2 RC3 Architecture Manifest",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "architecture_id",
+    "architecture_version",
+    "release",
+    "status",
+    "document",
+    "immutable_foundation",
+    "planes",
+    "fractal_levels",
+    "execution_axes",
+    "operational_modes",
+    "components",
+    "invariants",
+    "evidence_boundary"
+  ],
+  "properties": {
+    "schema_version": {"const": "world-v6.architecture-manifest.v1"},
+    "architecture_id": {"const": "world-v6.2.fractal-multibrain-architecture"},
+    "architecture_version": {"const": "1.1.0-rc3"},
+    "release": {"const": "World v6.2 Fractal Multi-Brain RC3"},
+    "status": {"const": "RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED"},
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "sha256", "language"],
+      "properties": {
+        "path": {"type": "string", "minLength": 1, "maxLength": 240},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "language": {"const": "fa"}
+      }
+    },
+    "immutable_foundation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["root_constitution", "canonical_dna", "human_root", "parent_release"],
+      "properties": {
+        "root_constitution": {"const": "world-v6.root-constitution@1.0"},
+        "canonical_dna": {"const": "world-v6.entity-dna@1.2"},
+        "human_root": {"const": "human-root"},
+        "parent_release": {"const": "World v6.2 Fractal Multi-Brain RC2"}
+      }
+    },
+    "planes": {
+      "type": "array",
+      "minItems": 6,
+      "uniqueItems": true,
+      "items": {"enum": ["GOVERNANCE", "TRUTH", "CONTROL", "COGNITION", "EFFECT", "EVOLUTION", "OBSERVABILITY"]}
+    },
+    "fractal_levels": {
+      "type": "array",
+      "minItems": 8,
+      "maxItems": 8,
+      "uniqueItems": true,
+      "items": {"enum": ["WORLD", "ENTITY", "MISSION", "SKILL", "WORKFLOW", "STEP", "TOOL", "FIELD"]}
+    },
+    "execution_axes": {
+      "type": "array",
+      "minItems": 8,
+      "uniqueItems": true,
+      "items": {"enum": ["R", "X", "B", "D", "C", "A", "E", "M"]}
+    },
+    "operational_modes": {
+      "type": "array",
+      "minItems": 5,
+      "uniqueItems": true,
+      "items": {"enum": ["DETERMINISTIC_CODE", "UNIVERSAL_MANUAL_HOST", "LOCAL_MODEL", "REMOTE_API", "COUNCIL"]}
+    },
+    "components": {
+      "type": "array",
+      "minItems": 12,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["id", "plane", "kind", "truth_owner", "effect_authority", "implementation_status"],
+        "properties": {
+          "id": {"type": "string", "minLength": 1, "maxLength": 120},
+          "plane": {"enum": ["GOVERNANCE", "TRUTH", "CONTROL", "COGNITION", "EFFECT", "EVOLUTION", "OBSERVABILITY"]},
+          "kind": {"type": "string", "minLength": 1, "maxLength": 80},
+          "truth_owner": {"type": "boolean"},
+          "effect_authority": {"type": "boolean"},
+          "implementation_status": {"enum": ["IMPLEMENTED_E2", "CONTRACT_DEFINED_E1", "PLANNED_E0"]}
+        }
+      }
+    },
+    "invariants": {
+      "type": "array",
+      "minItems": 12,
+      "uniqueItems": true,
+      "items": {"type": "string", "minLength": 10, "maxLength": 400}
+    },
+    "evidence_boundary": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["current", "production_claim_minimum", "live_provider_verified", "postgresql_integration_verified", "restore_verified"],
+      "properties": {
+        "current": {"const": "E2"},
+        "production_claim_minimum": {"enum": ["E4", "E5"]},
+        "live_provider_verified": {"const": false},
+        "postgresql_integration_verified": {"const": false},
+        "restore_verified": {"const": false}
+      }
+    }
+  }
+}

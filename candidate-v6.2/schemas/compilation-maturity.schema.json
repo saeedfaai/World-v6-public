@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc2/compilation-maturity.schema.json",
+  "title": "World v6.2 RC2 Compilation Maturity State",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["candidate_id", "candidate_version", "candidate_hash", "maturity", "promotion_mode", "self_mutation"],
+  "properties": {
+    "candidate_id": {"type": "string", "minLength": 1},
+    "candidate_version": {"type": "string", "minLength": 1},
+    "candidate_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "maturity": {"enum": ["C0", "C1", "C2", "C3", "C4", "C5", "C6"]},
+    "promotion_mode": {"const": "ONE_STEP_EVIDENCE_GATED"},
+    "self_mutation": {"const": "FORBIDDEN"}
+  }
+}

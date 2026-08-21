@@ -1,0 +1,41 @@
+{
+  "release": "World v6.2 Resolution-Native RC1",
+  "date": "2026-08-20",
+  "evidence_level": "E2",
+  "claim_boundary": "local deterministic component and regression behavior only",
+  "environment": {
+    "python": "3.12.13",
+    "uv": "0.11.33",
+    "pytest": "9.1.1",
+    "dependency_lock": "uv.lock",
+    "portable_lock": "pylock.toml",
+    "sbom": "SBOM.cdx.json"
+  },
+  "tests": {
+    "core_rc1": {"passed": 41, "failed": 0},
+    "secretary_rc1": {"passed": 21, "failed": 0},
+    "candidate_combined": {"passed": 62, "failed": 0},
+    "preserved_ancestor": {"passed": 14, "failed": 0},
+    "total": {"passed": 76, "failed": 0}
+  },
+  "contract_checks": {
+    "active_profiles": 5,
+    "profile_schema_conformance": "PASS",
+    "envelope_schema_conformance": "PASS",
+    "patch_schema_conformance": "PASS",
+    "json_artifacts_parsed": 20,
+    "compileall": "PASS",
+    "release_cache_contamination": "NONE"
+  },
+  "not_proved": [
+    "PostgreSQL atomic integration",
+    "crash replay idempotency reconciliation",
+    "fresh-machine restore",
+    "live provider capability negotiation",
+    "live Telegram and Drive execution",
+    "security load chaos",
+    "version-control release tag",
+    "Human Root ratification",
+    "Canonical or production readiness"
+  ]
+}

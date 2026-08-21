@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc2/shadow-run.schema.json",
+  "title": "World v6.2 RC2 Shadow Run Evidence",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["run_id", "candidate_id", "candidate_version", "candidate_hash", "node_id", "input_hash", "primary_semantic_hash", "candidate_semantic_hash", "semantic_match", "invariant_failures", "forbidden_effect_attempts", "replay_match", "latency_ms", "estimated_cost_micros"],
+  "properties": {
+    "run_id": {"type": "string", "minLength": 1},
+    "candidate_id": {"type": "string", "minLength": 1},
+    "candidate_version": {"type": "string", "minLength": 1},
+    "candidate_hash": {"$ref": "#/$defs/hash"},
+    "node_id": {"type": "string", "minLength": 1},
+    "input_hash": {"$ref": "#/$defs/hash"},
+    "primary_semantic_hash": {"$ref": "#/$defs/hash"},
+    "candidate_semantic_hash": {"$ref": "#/$defs/hash"},
+    "semantic_match": {"type": "boolean"},
+    "invariant_failures": {"type": "integer", "minimum": 0},
+    "forbidden_effect_attempts": {"type": "integer", "minimum": 0},
+    "replay_match": {"type": "boolean"},
+    "latency_ms": {"type": "integer", "minimum": 0},
+    "estimated_cost_micros": {"type": "integer", "minimum": 0}
+  },
+  "$defs": {"hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}}
+}

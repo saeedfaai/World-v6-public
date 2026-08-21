@@ -1,0 +1,65 @@
+{
+  "schema_version": "world-v6.implementation-validation.v1",
+  "generated_at": "2026-08-20T20:15:45Z",
+  "target_repository": "saeedfaai/world-v6",
+  "target_branch": "main",
+  "source_release": "World v6.2 Fractal Multi-Brain RC3",
+  "source_version": "6.2.0-rc.3",
+  "source_status": "RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED",
+  "implementation_scope": {
+    "canonical_baseline_preserved": true,
+    "candidate_architecture_included": true,
+    "runtime_included": true,
+    "secretary_001_included": true,
+    "brain_packs_included": true,
+    "fractal_artifacts_included": true,
+    "schemas_included": true,
+    "full_documentation_included": true,
+    "source_ancestor_preserved": true,
+    "legacy_and_research_preserved": true,
+    "integrated_pdf_report_included": true
+  },
+  "verification": {
+    "repository_verifier": "PASS",
+    "json_documents": 61,
+    "secret_scan": "PASS",
+    "claim_boundary": "RC3_E2_NOT_CANONICAL_NOT_DEPLOYED",
+    "python_compileall": "PASS",
+    "mother_core_pytest": "78/78 PASS",
+    "secretary_pytest": "22/22 PASS",
+    "preserved_ancestor_pytest": "14/14 PASS",
+    "independent_pytest_total": "114/114 PASS",
+    "offline_chatgpt_fixture": "PASS",
+    "offline_gemini_fixture": "PASS",
+    "offline_grok_fixture": "PASS",
+    "offline_semantic_hash_equal": true,
+    "offline_semantic_hash": "cecab3bfff20debd53fc52c20264584b09ba7b735203a3b24d92b3685b57efcc",
+    "api_token_used": false,
+    "network_used_by_provider_demo": false,
+    "proposal_only": true,
+    "ancestor_pdf_test_dependency": "portable libreoffice shim supplied by validation environment"
+  },
+  "integrated_report": {
+    "path": "docs/reports/World_v6.2_ARCHITECTURE_PROOF_ROADMAP_SECRETARY_COMPLETE_FA.pdf",
+    "pages": 340,
+    "sha256": "6ae42a783141fc9ea173169343cdc6a50bf2a6fe82d3a2e3d9557a9a5e476347"
+  },
+  "git": {
+    "scope": "AT_VALIDATION_TIME",
+    "local_repository_initialized": true,
+    "files_staged": false,
+    "commit_created": false,
+    "push_performed": false,
+    "reason": "STAGE_COMMIT_PUSH_REQUIRE_SEPARATE_EXPLICIT_AUTHORIZATION"
+  },
+  "unproven_and_unclaimed": [
+    "POSTGRESQL_ATOMIC_INTEGRATION",
+    "CRASH_REPLAY_RECONCILIATION",
+    "FRESH_MACHINE_RESTORE",
+    "LIVE_PROVIDER_API_ADAPTERS",
+    "LIVE_TELEGRAM_AND_DRIVE_EFFECTS",
+    "SECURITY_LOAD_CHAOS",
+    "CANONICAL_RATIFICATION",
+    "PRODUCTION_READINESS"
+  ]
+}

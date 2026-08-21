@@ -1,0 +1,39 @@
+{
+  "release": "World v6.2 Fractal Multi-Brain RC2",
+  "date": "2026-08-20",
+  "environment": "local locked Python 3.12 test environment",
+  "evidence_level": "E2",
+  "results": {
+    "core": {"passed": 71, "failed": 0},
+    "secretary": {"passed": 22, "failed": 0},
+    "preserved_ancestor": {"passed": 14, "failed": 0},
+    "offline_provider_demos": {"passed": 3, "failed": 0},
+    "total_pytest": {"passed": 107, "failed": 0},
+    "compileall": "PASS",
+    "uv_sync_locked": "PASS",
+    "json_schema_and_artifact_conformance": "PASS",
+    "obvious_secret_pattern_scan": "PASS"
+  },
+  "test_scope": [
+    "strict canonical JSON and Resolution RC1 regression",
+    "capsule node/input hash binding and tamper rejection",
+    "bounded fractal expansion and global attempt budget",
+    "network/API-token adapter rejection in offline mode",
+    "provider switching without identity/state/profile drift",
+    "strict Secretary Decision normalization and deterministic rendering",
+    "ChatGPT/Gemini/Grok fixture semantic equality",
+    "Shadow evidence and C0..C6 promotion gates",
+    "blind Council, revision rounds, weighted vote, dissent and veto",
+    "real secretary Store bridge without provider-owned mutation",
+    "ancestor functional regression"
+  ],
+  "system_dependency_note": "The preserved ancestor hard-codes the executable name libreoffice. The environment supplied soffice; a temporary test-only alias to the same binary was used. RC2 candidate code already discovers either name and isolates the LibreOffice profile.",
+  "not_tested": [
+    "live provider/API calls",
+    "PostgreSQL transactionality",
+    "crash/replay/reconciliation",
+    "fresh-machine restore",
+    "security/load/chaos",
+    "production deployment"
+  ]
+}

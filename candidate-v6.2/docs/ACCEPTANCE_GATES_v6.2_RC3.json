@@ -1,0 +1,29 @@
+{
+  "release": "World v6.2 Fractal Multi-Brain RC3",
+  "gate_model": "FAIL_CLOSED_ALL_REQUIRED",
+  "evidence_level": "E2_LOCAL_CONTRACT",
+  "gates": [
+    {"id": "R3-G01", "name": "parent_rc2_canonical_baseline_and_source_ancestor_preserved", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G02", "name": "root_constitution_v1_and_canonical_dna_v1_2_unchanged", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G03", "name": "complete_architecture_covers_governance_truth_control_cognition_effect_evolution_observability", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G04", "name": "architecture_document_and_machine_manifest_sha256_binding", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G05", "name": "fractal_levels_expansion_triggers_stop_conditions_and_budget_specified", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G06", "name": "resolution_memory_lifecycle_council_shadow_effect_and_failure_protocols_specified", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G07", "name": "model_capability_manual_exchange_and_portable_bundle_schemas_valid", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G08", "name": "universal_manual_host_accepts_arbitrary_provider_label", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G09", "name": "universal_bundle_is_self_contained_r0_projected_no_runtime_network_no_runtime_token", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G10", "name": "bundle_projection_tamper_is_rejected_by_hash", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G11", "name": "chatgpt_gemini_grok_semantic_and_deterministic_render_equivalence", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G12", "name": "model_output_cannot_smuggle_authority_state_write_or_external_effect", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G13", "name": "candidate_core_secretary_and_preserved_ancestor_regression", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G14", "name": "dependency_lock_sbom_compileall_json_schema_and_secret_scan", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G15", "name": "human_root_requested_complete_operational_architecture_candidate", "required_for": "RC3_FREEZE", "status": "PASS"},
+    {"id": "R3-G16", "name": "live_model_adapters_pass_mc3_cross_provider_conformance", "required_for": "CANONICAL_PROMOTION", "status": "OPEN"},
+    {"id": "R3-G17", "name": "postgresql_registry_event_state_outbox_atomic_integration", "required_for": "CANONICAL_PROMOTION", "status": "OPEN"},
+    {"id": "R3-G18", "name": "crash_replay_idempotency_and_reconciliation", "required_for": "CANONICAL_PROMOTION", "status": "OPEN"},
+    {"id": "R3-G19", "name": "fresh_restore_verified_and_c6_non_extinction_proof", "required_for": "CANONICAL_PROMOTION", "status": "OPEN"},
+    {"id": "R3-G20", "name": "security_privacy_load_and_chaos_evidence", "required_for": "CANONICAL_PROMOTION", "status": "OPEN"},
+    {"id": "R3-G21", "name": "version_control_commit_and_signed_release_tag", "required_for": "CANONICAL_PROMOTION", "status": "OPEN"},
+    {"id": "R3-G22", "name": "human_root_canonical_ratification_on_final_release_hash", "required_for": "CANONICAL_PROMOTION", "status": "OPEN"}
+  ]
+}

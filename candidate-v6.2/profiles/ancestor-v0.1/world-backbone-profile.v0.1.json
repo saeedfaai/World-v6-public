@@ -1,0 +1,18 @@
+{
+  "profile_id": "world-v6.backbone",
+  "version": "0.1.0",
+  "status": "CANDIDATE",
+  "resolution": "R0",
+  "cables": [
+    {"name": "IDENTITY", "must_preserve": ["world_id", "entity_id", "root_owner_ref", "lineage_ref"]},
+    {"name": "INPUT", "must_preserve": ["source", "actor", "payload_or_ref", "classification"]},
+    {"name": "TASK_COMMAND", "must_preserve": ["command_id", "intent", "subject", "status"]},
+    {"name": "PROPOSAL", "must_preserve": ["proposal_ref", "requested_action"]},
+    {"name": "POLICY", "must_preserve": ["policy_decision_ref", "allow_deny_or_approval"]},
+    {"name": "APPROVAL", "must_preserve": ["approval_ref_or_none", "bound_effect_hash_or_none"]},
+    {"name": "ACTION", "must_preserve": ["action_type", "target_ref", "effect_state"]},
+    {"name": "EVENT", "must_preserve": ["event_id", "event_type", "entity_sequence", "outcome"]},
+    {"name": "STATE_MEMORY", "must_preserve": ["state_ref", "event_cursor", "memory_profile_ref"]}
+  ],
+  "rule": "higher-resolution refinements may add wires but may not replace or reinterpret backbone authority semantics"
+}

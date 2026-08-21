@@ -1,0 +1,200 @@
+{
+  "schema_version": "world-v6.architecture-manifest.v1",
+  "architecture_id": "world-v6.2.fractal-multibrain-architecture",
+  "architecture_version": "1.1.0-rc3",
+  "release": "World v6.2 Fractal Multi-Brain RC3",
+  "status": "RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED",
+  "document": {
+    "path": "candidate-v6.2/docs/WORLD_V6_2_FRACTAL_MULTI_BRAIN_ARCHITECTURE_v1.1_FA.md",
+    "sha256": "cd5fa150cdfeb23b95b94893af27b484efa23f481b7a0ae02933906097d2bf80",
+    "language": "fa"
+  },
+  "immutable_foundation": {
+    "root_constitution": "world-v6.root-constitution@1.0",
+    "canonical_dna": "world-v6.entity-dna@1.2",
+    "human_root": "human-root",
+    "parent_release": "World v6.2 Fractal Multi-Brain RC2"
+  },
+  "planes": [
+    "GOVERNANCE",
+    "TRUTH",
+    "CONTROL",
+    "COGNITION",
+    "EFFECT",
+    "EVOLUTION",
+    "OBSERVABILITY"
+  ],
+  "fractal_levels": [
+    "WORLD",
+    "ENTITY",
+    "MISSION",
+    "SKILL",
+    "WORKFLOW",
+    "STEP",
+    "TOOL",
+    "FIELD"
+  ],
+  "execution_axes": ["R", "X", "B", "D", "C", "A", "E", "M"],
+  "operational_modes": [
+    "DETERMINISTIC_CODE",
+    "UNIVERSAL_MANUAL_HOST",
+    "LOCAL_MODEL",
+    "REMOTE_API",
+    "COUNCIL"
+  ],
+  "components": [
+    {
+      "id": "root-constitution",
+      "plane": "GOVERNANCE",
+      "kind": "immutable-contract",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "CONTRACT_DEFINED_E1"
+    },
+    {
+      "id": "human-root",
+      "plane": "GOVERNANCE",
+      "kind": "authority-principal",
+      "truth_owner": false,
+      "effect_authority": true,
+      "implementation_status": "CONTRACT_DEFINED_E1"
+    },
+    {
+      "id": "world-registry",
+      "plane": "TRUTH",
+      "kind": "identity-registry",
+      "truth_owner": true,
+      "effect_authority": false,
+      "implementation_status": "CONTRACT_DEFINED_E1"
+    },
+    {
+      "id": "event-state-store",
+      "plane": "TRUTH",
+      "kind": "transactional-truth-store",
+      "truth_owner": true,
+      "effect_authority": false,
+      "implementation_status": "CONTRACT_DEFINED_E1"
+    },
+    {
+      "id": "world-api",
+      "plane": "CONTROL",
+      "kind": "control-boundary",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "PLANNED_E0"
+    },
+    {
+      "id": "fractal-runtime",
+      "plane": "CONTROL",
+      "kind": "bounded-dag-executor",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "resolution-compiler",
+      "plane": "CONTROL",
+      "kind": "projection-compiler",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "brain-gateway",
+      "plane": "COGNITION",
+      "kind": "model-router",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "portable-brain-pack",
+      "plane": "COGNITION",
+      "kind": "provider-neutral-contract",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "universal-manual-bridge",
+      "plane": "COGNITION",
+      "kind": "zero-api-model-adapter",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "brain-council",
+      "plane": "COGNITION",
+      "kind": "bounded-deliberation",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "policy-gate",
+      "plane": "EFFECT",
+      "kind": "authorization-gate",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "approval-binding",
+      "plane": "EFFECT",
+      "kind": "exact-intent-binding",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "outbox-executor",
+      "plane": "EFFECT",
+      "kind": "external-effect-boundary",
+      "truth_owner": false,
+      "effect_authority": true,
+      "implementation_status": "CONTRACT_DEFINED_E1"
+    },
+    {
+      "id": "shadow-compiler",
+      "plane": "EVOLUTION",
+      "kind": "maturity-promotion",
+      "truth_owner": false,
+      "effect_authority": false,
+      "implementation_status": "IMPLEMENTED_E2"
+    },
+    {
+      "id": "evidence-ledger",
+      "plane": "OBSERVABILITY",
+      "kind": "append-only-evidence",
+      "truth_owner": true,
+      "effect_authority": false,
+      "implementation_status": "CONTRACT_DEFINED_E1"
+    }
+  ],
+  "invariants": [
+    "Entity identity is independent of model, provider, channel, session, process and workflow.",
+    "Root Constitution v1.0 and canonical Entity DNA v1.2 remain unchanged in this candidate.",
+    "Only Registry, Event and State records may constitute canonical operational truth.",
+    "Every model, council and shadow result is proposal-only and has zero inherent authority.",
+    "No fallback may reduce minimum Resolution, policy, authority, evidence or data-class constraints.",
+    "Up-resolution reloads canonical state and never reconstructs fields omitted by a lower projection.",
+    "Fractal expansion is local, trigger-driven, depth-bounded, attempt-bounded and budget-bounded.",
+    "Every model sees only an allowlisted projection bound to an exact profile version and hash.",
+    "Provider switching preserves the request, pack, projection, policy and output-contract bindings.",
+    "Structured decisions are normalized before deterministic rendering and semantic comparison.",
+    "External effects require Policy pass, exact ApprovalBinding and an idempotent Outbox intent.",
+    "Approval is bound to the exact normalized intent hash and cannot authorize a changed effect.",
+    "Shadow learning cannot mutate production behavior directly and promotion is one maturity step at a time.",
+    "C5 promotion requires Human Root approval and C6 additionally requires verified restore evidence.",
+    "Sensitive decisions may use Council, but consensus never overrides policy, evidence or Human Root.",
+    "Claims above E2 remain false until live integration, crash, replay, reconciliation and restore tests pass."
+  ],
+  "evidence_boundary": {
+    "current": "E2",
+    "production_claim_minimum": "E4",
+    "live_provider_verified": false,
+    "postgresql_integration_verified": false,
+    "restore_verified": false
+  }
+}

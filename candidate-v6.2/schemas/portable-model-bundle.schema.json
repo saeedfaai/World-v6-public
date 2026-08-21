@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc3/portable-model-bundle.schema.json",
+  "title": "World v6.2 RC3 Self-Contained Portable Model Bundle",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "bundle_contract",
+    "architecture_ref",
+    "model_instruction",
+    "brain_pack",
+    "prompt_contract",
+    "decision_schema",
+    "exchange",
+    "integrity",
+    "runtime_claims"
+  ],
+  "properties": {
+    "bundle_contract": {"const": "world-v6.portable-model-bundle.v1"},
+    "architecture_ref": {"const": "world-v6.2.fractal-multibrain-architecture@1.1.0-rc3"},
+    "model_instruction": {"type": "string", "minLength": 20, "maxLength": 2000},
+    "brain_pack": {"type": "object"},
+    "prompt_contract": {"type": "string", "minLength": 20},
+    "decision_schema": {"type": "object"},
+    "exchange": {"$ref": "manual-brain-exchange.schema.json"},
+    "integrity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["brain_pack_file_sha256", "prompt_contract_sha256", "decision_schema_sha256", "bundle_payload_hash"],
+      "properties": {
+        "brain_pack_file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "prompt_contract_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "decision_schema_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "bundle_payload_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    },
+    "runtime_claims": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["network_used", "api_token_used", "authoritative", "external_effect_enabled"],
+      "properties": {
+        "network_used": {"const": false},
+        "api_token_used": {"const": false},
+        "authoritative": {"const": false},
+        "external_effect_enabled": {"const": false}
+      }
+    }
+  }
+}

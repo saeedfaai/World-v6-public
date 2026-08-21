@@ -1,0 +1,49 @@
+World v6.2 — Non-Commercial Public License Map
+
+Copyright (c) 2026 Saeed Farokhi. All rights reserved except for the limited licenses expressly granted below.
+
+This repository is PUBLIC / SOURCE-AVAILABLE / NON-COMMERCIAL. It is not an OSI Open Source project.
+
+1. SOFTWARE MATERIALS
+
+Unless a file states otherwise, original World v6 source code, runtime code, tools, scripts, schemas, machine-readable contracts, configuration examples, and other software materials are licensed under:
+
+PolyForm Noncommercial License 1.0.0
+SPDX-License-Identifier: PolyForm-Noncommercial-1.0.0
+https://polyformproject.org/licenses/noncommercial/1.0.0
+
+Required Notice: Copyright (c) 2026 Saeed Farokhi — World v6.2, Fractal Multi-Brain Architecture.
+
+The PolyForm Noncommercial License permits the software uses described in that license for noncommercial purposes. Commercial use requires a separate written commercial license from the copyright holder.
+
+2. DOCUMENTATION AND ARCHITECTURE MATERIALS
+
+Unless a file states otherwise, original World v6 documentation, architecture descriptions, diagrams, reports, explanatory Markdown, and publication materials are licensed under:
+
+Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+SPDX-License-Identifier: CC-BY-NC-SA-4.0
+https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+Attribution must identify Saeed Farokhi as the author/creator and identify World v6.2 — Fractal Multi-Brain Architecture as the work. Commercial use is not permitted under this license. Adaptations that are shared must comply with the ShareAlike terms of CC BY-NC-SA 4.0.
+
+3. COMMERCIAL RIGHTS RESERVED
+
+No commercial-use license is granted by this repository. Any commercial deployment, incorporation into a paid product or service, commercial consulting deliverable, resale, sublicensing for commercial advantage, or other commercial exploitation requires a separate written license from Saeed Farokhi.
+
+4. PATENTS, TRADEMARKS, IDENTITY, AND BRANDING
+
+No patent rights are granted except the limited patent license, if any, expressly granted by the PolyForm Noncommercial License for software uses permitted under that license. Creative Commons licensing of documentation does not grant patent or trademark rights.
+
+Names, marks, logos, project identity, release identity, entity identity, and branding associated with World v6, World v6.2, Fractal Multi-Brain Architecture, and Secretary-001 are not licensed as trademarks or source identifiers by this file.
+
+5. THIRD-PARTY MATERIALS
+
+Third-party, preserved ancestor, research-reference, imported, or otherwise separately licensed materials are excluded from the licenses above unless their file or an accompanying notice expressly says otherwise. See THIRD_PARTY_NOTICES.md and PUBLICATION_GATES.md.
+
+6. NO IMPLIED PRODUCTION OR SAFETY CLAIM
+
+Publication and licensing do not imply canonical ratification, deployment, production readiness, safety certification, security certification, or fitness for a particular purpose. Current evidence claims remain limited to the evidence explicitly recorded by the repository.
+
+7. COMMERCIAL LICENSING
+
+For commercial permission, obtain a separate written license from the copyright holder.

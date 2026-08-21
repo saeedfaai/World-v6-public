@@ -1,0 +1,89 @@
+entity_id: secretary-001
+entity_version: 0.1.3
+dna_version: 1.2.0
+canonical_name: "Secretary 001"
+entity_type: secretary
+root_owner: human-root
+parent_relation: ROOT_DIRECT
+lifecycle_stage: EMBRYO
+operational_status: TESTING
+autonomy: L0
+birth_target:
+  lifecycle_stage: NEWBORN
+  operational_status: READY
+channels:
+  chatgpt:
+    status: ACTIVE_MANUAL_GATEWAY
+  telegram:
+    status: PLANNED_PENDING_SECRET_AND_WEBHOOK
+    owner_handle: saeedfaut
+    owner_handle_status: CLAIMED_PENDING_NUMERIC_USER_ID_VERIFICATION
+    owner_role: human-root
+    authority_rule: VERIFIED_TELEGRAM_NUMERIC_USER_ID_ONLY
+    outbound_documents: SOURCE_IMPLEMENTED_SENDDOCUMENT_PENDING_RUNTIME_REDEPLOY
+    outbound_rule: EXPLICIT_HUMAN_ROOT_APPROVAL_TO_BOUND_ROOT_CHAT
+conversation_continuity:
+  enabled: true
+  canonical_principal: human-root
+  canonical_conversation_id: human-root:secretary-001
+  source_of_truth: POSTGRESQL_ENTITY_STORE
+  channel_session_is_not_memory: true
+  brain_provider_session_is_not_memory: true
+  cross_channel_resume: true
+  brain_handoff: LOAD_SAME_ENTITY_CONTEXT_THEN_INVOKE_COMPATIBLE_PROVIDER
+  rule: "Telegram, ChatGPT and future interfaces are interchangeable transports. OpenAI/Google/other compatible providers are interchangeable cognition backends. Identity, conversation history, tasks, prices, memory and policy live outside both transport and Brain provider."
+skills:
+  formal_letter_pdf:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  proforma_pdf:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  task_management:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  customer_price_lookup:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+  cloud_letter_delivery:
+    version: 0.1.0
+    status: ACTIVE_TESTING
+    source: GOOGLE_DRIVE_LETTERS_ARCHIVE
+    destination: TELEGRAM
+    latest_file_selection: MODIFIED_TIME_DESC_PDF_ONLY
+    filename_guard: EXACT_MATCH_WHEN_EXPECTED_FILENAME_IS_SUPPLIED
+policies:
+  external_send: HUMAN_ROOT_APPROVAL_REQUIRED
+  root_telegram_document_delivery: ALLOW_ONLY_WITH_EXPLICIT_HUMAN_ROOT_REQUEST_TO_BOUND_ROOT_CHAT
+  archived_letter_telegram_delivery: EXPLICIT_HUMAN_ROOT_APPROVAL_REQUIRED_FOR_ANY_RECIPIENT
+  new_or_changed_price: HUMAN_ROOT_APPROVAL_REQUIRED
+  quoted_price_reuse: ALLOW_ONLY_EXACT_MATCH_ACTIVE_NOT_EXPIRED
+  missing_price: ASK_HUMAN_ROOT_AND_KEEP_REQUEST_PENDING
+  legal_or_financial_commitment: FAIL_CLOSED_HUMAN_ROOT_APPROVAL_REQUIRED
+archives:
+  letters_drive_folder_id: 1CP3dc0EeC31us3GXneH3ftJaoAe_aefj
+  proformas_drive_folder_id: 1-_IabjWbxJbHV8jjX-CZhqeaDTPK49Zl
+brain:
+  binding: provider_neutral
+  primary: OPENAI_COMPATIBLE
+  fallbacks:
+    - GOOGLE_COMPATIBLE
+    - OTHER_COMPATIBLE_PROVIDER
+  failover_rule: LOAD_ENTITY_CONTEXT_THEN_TRY_NEXT_COMPATIBLE_POLICY_SAFE_PROVIDER
+  no_compatible_brain: QUEUE_AND_DEGRADE_NEVER_WEAKEN_POLICY
+sleep:
+  enabled: true
+  day_one_behavior: nightly_task_and_memory_consolidation_candidate_only
+  self_mutation: FORBIDDEN
+  promotion: TEST_SHADOW_APPROVAL_REQUIRED
+recovery:
+  identity_survives_brain_failure: true
+  conversation_survives_brain_or_channel_failure: true
+  autonomous_uncontrolled_replication: false
+  canonical_restore_proof: NOT_PROVEN
+notes:
+  - "This file is a pre-birth manifest. created_at and creation_event_ref are generated only by the successful canonical Birth transaction."
+  - "Telegram/ChatGPT are transports, not identity or memory."
+  - "Brain providers are replaceable cognition backends, not identity or memory."
+  - "Telegram document sending is implemented in source with Bot API sendDocument, but is not considered live until the running bot is redeployed/restarted with the updated source."
+  - "Cloud letter delivery can select the newest PDF from the canonical Drive letters archive, optionally verify the exact expected filename, then deliver that exact byte payload to a Root-approved Telegram chat."

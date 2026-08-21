@@ -1,0 +1,413 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.5",
+  "version": 1,
+  "serialNumber": "urn:uuid:b211bcd7-b8b6-530d-8fc4-2d9b54ad547a",
+  "metadata": {
+    "timestamp": "2026-08-20T12:47:25.228238569Z",
+    "tools": [
+      {
+        "vendor": "Astral Software Inc.",
+        "name": "uv",
+        "version": "0.11.33"
+      }
+    ],
+    "component": {
+      "type": "library",
+      "bom-ref": "world-v6-fractal-multibrain-rc3-1@6.2.0rc3",
+      "name": "world-v6-fractal-multibrain-rc3",
+      "version": "6.2.0rc3",
+      "properties": [
+        {
+          "name": "uv:package:is_project_root",
+          "value": "true"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "type": "library",
+      "bom-ref": "attrs-2@26.1.0",
+      "name": "attrs",
+      "version": "26.1.0",
+      "purl": "pkg:pypi/attrs@26.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "brotli-3@1.2.0",
+      "name": "brotli",
+      "version": "1.2.0",
+      "purl": "pkg:pypi/brotli@1.2.0",
+      "properties": [
+        {
+          "name": "uv:package:marker",
+          "value": "platform_python_implementation == 'CPython'"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "brotlicffi-4@1.2.0.1",
+      "name": "brotlicffi",
+      "version": "1.2.0.1",
+      "purl": "pkg:pypi/brotlicffi@1.2.0.1",
+      "properties": [
+        {
+          "name": "uv:package:marker",
+          "value": "platform_python_implementation != 'CPython'"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "cffi-5@2.1.1",
+      "name": "cffi",
+      "version": "2.1.1",
+      "purl": "pkg:pypi/cffi@2.1.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "colorama-6@0.4.6",
+      "name": "colorama",
+      "version": "0.4.6",
+      "purl": "pkg:pypi/colorama@0.4.6",
+      "properties": [
+        {
+          "name": "uv:package:marker",
+          "value": "sys_platform == 'win32'"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "cssselect2-7@0.9.0",
+      "name": "cssselect2",
+      "version": "0.9.0",
+      "purl": "pkg:pypi/cssselect2@0.9.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "fonttools-8@4.63.0",
+      "name": "fonttools",
+      "version": "4.63.0",
+      "purl": "pkg:pypi/fonttools@4.63.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "iniconfig-9@2.3.0",
+      "name": "iniconfig",
+      "version": "2.3.0",
+      "purl": "pkg:pypi/iniconfig@2.3.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "jsonschema-10@4.25.1",
+      "name": "jsonschema",
+      "version": "4.25.1",
+      "purl": "pkg:pypi/jsonschema@4.25.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "jsonschema-specifications-11@2025.9.1",
+      "name": "jsonschema-specifications",
+      "version": "2025.9.1",
+      "purl": "pkg:pypi/jsonschema-specifications@2025.9.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "lxml-12@6.1.2",
+      "name": "lxml",
+      "version": "6.1.2",
+      "purl": "pkg:pypi/lxml@6.1.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "packaging-13@26.3",
+      "name": "packaging",
+      "version": "26.3",
+      "purl": "pkg:pypi/packaging@26.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pillow-14@12.3.0",
+      "name": "pillow",
+      "version": "12.3.0",
+      "purl": "pkg:pypi/pillow@12.3.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pluggy-15@1.6.0",
+      "name": "pluggy",
+      "version": "1.6.0",
+      "purl": "pkg:pypi/pluggy@1.6.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pycparser-16@3.0",
+      "name": "pycparser",
+      "version": "3.0",
+      "purl": "pkg:pypi/pycparser@3.0",
+      "properties": [
+        {
+          "name": "uv:package:marker",
+          "value": "implementation_name != 'PyPy'"
+        }
+      ]
+    },
+    {
+      "type": "library",
+      "bom-ref": "pydyf-17@0.12.1",
+      "name": "pydyf",
+      "version": "0.12.1",
+      "purl": "pkg:pypi/pydyf@0.12.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pygments-18@2.21.0",
+      "name": "pygments",
+      "version": "2.21.0",
+      "purl": "pkg:pypi/pygments@2.21.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pyphen-19@0.18.1",
+      "name": "pyphen",
+      "version": "0.18.1",
+      "purl": "pkg:pypi/pyphen@0.18.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "pytest-20@9.1.1",
+      "name": "pytest",
+      "version": "9.1.1",
+      "purl": "pkg:pypi/pytest@9.1.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "python-pptx-21@1.0.2",
+      "name": "python-pptx",
+      "version": "1.0.2",
+      "purl": "pkg:pypi/python-pptx@1.0.2"
+    },
+    {
+      "type": "library",
+      "bom-ref": "referencing-22@0.37.0",
+      "name": "referencing",
+      "version": "0.37.0",
+      "purl": "pkg:pypi/referencing@0.37.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "rpds-py-23@2026.6.3",
+      "name": "rpds-py",
+      "version": "2026.6.3",
+      "purl": "pkg:pypi/rpds-py@2026.6.3"
+    },
+    {
+      "type": "library",
+      "bom-ref": "tinycss2-24@1.5.1",
+      "name": "tinycss2",
+      "version": "1.5.1",
+      "purl": "pkg:pypi/tinycss2@1.5.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "tinyhtml5-25@2.1.0",
+      "name": "tinyhtml5",
+      "version": "2.1.0",
+      "purl": "pkg:pypi/tinyhtml5@2.1.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "typing-extensions-26@4.16.0",
+      "name": "typing-extensions",
+      "version": "4.16.0",
+      "purl": "pkg:pypi/typing-extensions@4.16.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "weasyprint-27@69.0",
+      "name": "weasyprint",
+      "version": "69.0",
+      "purl": "pkg:pypi/weasyprint@69.0"
+    },
+    {
+      "type": "library",
+      "bom-ref": "webencodings-28@0.6.1",
+      "name": "webencodings",
+      "version": "0.6.1",
+      "purl": "pkg:pypi/webencodings@0.6.1"
+    },
+    {
+      "type": "library",
+      "bom-ref": "xlsxwriter-29@3.2.9",
+      "name": "xlsxwriter",
+      "version": "3.2.9",
+      "purl": "pkg:pypi/xlsxwriter@3.2.9"
+    },
+    {
+      "type": "library",
+      "bom-ref": "zopfli-30@0.4.3",
+      "name": "zopfli",
+      "version": "0.4.3",
+      "purl": "pkg:pypi/zopfli@0.4.3"
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "attrs-2@26.1.0"
+    },
+    {
+      "ref": "brotli-3@1.2.0"
+    },
+    {
+      "ref": "brotlicffi-4@1.2.0.1",
+      "dependsOn": [
+        "cffi-5@2.1.1"
+      ]
+    },
+    {
+      "ref": "cffi-5@2.1.1",
+      "dependsOn": [
+        "pycparser-16@3.0"
+      ]
+    },
+    {
+      "ref": "colorama-6@0.4.6"
+    },
+    {
+      "ref": "cssselect2-7@0.9.0",
+      "dependsOn": [
+        "tinycss2-24@1.5.1",
+        "webencodings-28@0.6.1"
+      ]
+    },
+    {
+      "ref": "fonttools-8@4.63.0",
+      "dependsOn": [
+        "brotli-3@1.2.0",
+        "brotlicffi-4@1.2.0.1",
+        "zopfli-30@0.4.3"
+      ]
+    },
+    {
+      "ref": "iniconfig-9@2.3.0"
+    },
+    {
+      "ref": "jsonschema-10@4.25.1",
+      "dependsOn": [
+        "attrs-2@26.1.0",
+        "jsonschema-specifications-11@2025.9.1",
+        "referencing-22@0.37.0",
+        "rpds-py-23@2026.6.3"
+      ]
+    },
+    {
+      "ref": "jsonschema-specifications-11@2025.9.1",
+      "dependsOn": [
+        "referencing-22@0.37.0"
+      ]
+    },
+    {
+      "ref": "lxml-12@6.1.2"
+    },
+    {
+      "ref": "packaging-13@26.3"
+    },
+    {
+      "ref": "pillow-14@12.3.0"
+    },
+    {
+      "ref": "pluggy-15@1.6.0"
+    },
+    {
+      "ref": "pycparser-16@3.0"
+    },
+    {
+      "ref": "pydyf-17@0.12.1"
+    },
+    {
+      "ref": "pygments-18@2.21.0"
+    },
+    {
+      "ref": "pyphen-19@0.18.1"
+    },
+    {
+      "ref": "pytest-20@9.1.1",
+      "dependsOn": [
+        "colorama-6@0.4.6",
+        "iniconfig-9@2.3.0",
+        "packaging-13@26.3",
+        "pluggy-15@1.6.0",
+        "pygments-18@2.21.0"
+      ]
+    },
+    {
+      "ref": "python-pptx-21@1.0.2",
+      "dependsOn": [
+        "lxml-12@6.1.2",
+        "pillow-14@12.3.0",
+        "typing-extensions-26@4.16.0",
+        "xlsxwriter-29@3.2.9"
+      ]
+    },
+    {
+      "ref": "referencing-22@0.37.0",
+      "dependsOn": [
+        "attrs-2@26.1.0",
+        "rpds-py-23@2026.6.3",
+        "typing-extensions-26@4.16.0"
+      ]
+    },
+    {
+      "ref": "rpds-py-23@2026.6.3"
+    },
+    {
+      "ref": "tinycss2-24@1.5.1",
+      "dependsOn": [
+        "webencodings-28@0.6.1"
+      ]
+    },
+    {
+      "ref": "tinyhtml5-25@2.1.0",
+      "dependsOn": [
+        "webencodings-28@0.6.1"
+      ]
+    },
+    {
+      "ref": "typing-extensions-26@4.16.0"
+    },
+    {
+      "ref": "weasyprint-27@69.0",
+      "dependsOn": [
+        "cffi-5@2.1.1",
+        "cssselect2-7@0.9.0",
+        "fonttools-8@4.63.0",
+        "pillow-14@12.3.0",
+        "pydyf-17@0.12.1",
+        "pyphen-19@0.18.1",
+        "tinycss2-24@1.5.1",
+        "tinyhtml5-25@2.1.0"
+      ]
+    },
+    {
+      "ref": "webencodings-28@0.6.1"
+    },
+    {
+      "ref": "world-v6-fractal-multibrain-rc3-1@6.2.0rc3",
+      "dependsOn": [
+        "jsonschema-10@4.25.1",
+        "pytest-20@9.1.1",
+        "python-pptx-21@1.0.2",
+        "weasyprint-27@69.0"
+      ]
+    },
+    {
+      "ref": "xlsxwriter-29@3.2.9"
+    },
+    {
+      "ref": "zopfli-30@0.4.3"
+    }
+  ]
+}

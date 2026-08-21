@@ -1,0 +1,171 @@
+{
+  "release": "World v6.2 Fractal Multi-Brain RC3",
+  "version": "6.2.0-rc.3",
+  "release_date": "2026-08-21",
+  "status": "RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED",
+  "ratification": "NOT_RECORDED",
+  "root_constitution": "v1.0 UNCHANGED",
+  "canonical_baseline_preserved": true,
+  "license_map": {
+    "software": "PolyForm-Noncommercial-1.0.0",
+    "documentation_and_architecture": "CC-BY-NC-SA-4.0",
+    "commercial_use": "SEPARATE_WRITTEN_LICENSE_REQUIRED",
+    "patent_license": "NOT_GRANTED_EXCEPT_AS_EXPRESSLY_STATED_BY_APPLICABLE_LICENSE"
+  },
+  "parent_release": {
+    "release": "World v6.2 Fractal Multi-Brain RC2",
+    "manifest_sha256": "4c8e929d553534f5920d1cdfee5df43d3287362611830f0a813782207a65fa43",
+    "sha256sums_sha256": "00b2f0a4fd6ecb46e47623fea15bbc784e938fec39cb04d59ce3867d9b13b126",
+    "release_zip_sha256": "6a49fea3be989005d90622161c1a1bc77e6c8041955e52cbae93c095fc62e114",
+    "preserved_as_separate_private_ancestor": true
+  },
+  "source_ancestor": {
+    "secretary_entity_version": "0.1.3",
+    "runtime_status": "PRE_BIRTH_NOT_DEPLOYED",
+    "code_and_contract_semantics_preserved": true,
+    "publication_binary_letterhead_shipped": false,
+    "publication_letter_rendering_source": "source-ancestor/secretary-v0.1.3/src/letters.py"
+  },
+  "public_payload": {
+    "excluded_private_or_uncertain_origin_files": [
+      "research/SHARD_ssrn-6898739.pdf",
+      "legacy-reference/V_06_v6.1.1_CANONICAL_ALIGNED.zip",
+      "candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001/assets/proforma_reference.pdf",
+      "source-ancestor/secretary-v0.1.3/assets/proforma_reference.pdf",
+      "candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001/assets/letterhead_template.pptx",
+      "source-ancestor/secretary-v0.1.3/assets/letterhead_template.pptx"
+    ],
+    "binary_letterhead_template_shipped": false,
+    "runtime_letterhead_generation": true,
+    "candidate_letter_rendering_source": "candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001/src/letters.py",
+    "ancestor_letter_rendering_source": "source-ancestor/secretary-v0.1.3/src/letters.py",
+    "binary_privacy_scan": "CI_ENFORCED",
+    "legacy_history_cleared_for_publication": false
+  },
+  "candidate": {
+    "secretary_entity_version": "0.4.0-rc2 PRESERVED",
+    "canonical_dna_version": "1.2.0",
+    "dna_overlay_version": "1.3.0-rc2 PRESERVED",
+    "dna_overlay_canonical": false,
+    "architecture_version": "1.1.0-rc3",
+    "default_execution_resolution": "R0",
+    "supported_secretary_resolutions": ["R0", "R1"],
+    "runtime_network_enabled": false,
+    "runtime_api_tokens_enabled": false,
+    "direct_entity_external_io": "FORBIDDEN",
+    "all_brain_outputs": "PROPOSAL_ONLY"
+  },
+  "architecture": {
+    "id": "world-v6.2.fractal-multibrain-architecture",
+    "version": "1.1.0-rc3",
+    "document": "candidate-v6.2/docs/WORLD_V6_2_FRACTAL_MULTI_BRAIN_ARCHITECTURE_v1.1_FA.md",
+    "document_sha256": "cd5fa150cdfeb23b95b94893af27b484efa23f481b7a0ae02933906097d2bf80",
+    "manifest": "candidate-v6.2/architecture/ARCHITECTURE_MANIFEST_v1.1.0-rc3.json",
+    "manifest_sha256": "bec6dbd16d1d4b9cd58efb66bd8dc6ecff557f24b8dc5078d693a8dc3faff3fe",
+    "planes": ["GOVERNANCE", "TRUTH", "CONTROL", "COGNITION", "EFFECT", "EVOLUTION", "OBSERVABILITY"],
+    "levels": ["WORLD", "ENTITY", "MISSION", "SKILL", "WORKFLOW", "STEP", "TOOL", "FIELD"],
+    "orthogonal_axes": ["R", "X", "B", "D", "C", "A", "E", "M"],
+    "continuity_modes": ["F0_FULL", "F1_SANITIZED", "F2_LOCAL_SAFE", "F3_DEFERRED", "F4_HUMAN"]
+  },
+  "universal_model_path": {
+    "mode": "MANUAL_HOST_CONTRACT_TESTED",
+    "supported_provider_family": "ANY_CONFORMING_MODEL",
+    "live_api_verified": false,
+    "automated_cross_provider_claimed": false,
+    "runtime_network_used": false,
+    "runtime_api_token_used": false,
+    "model_output_authoritative": false,
+    "model_card": "candidate-v6.2/brain-packs/secretary-001/model-cards/universal-manual-host.v1.json",
+    "model_card_sha256": "3e0e0b27864cdba2e07d3cb34b86677944cd695d974affdf9d200801c63a1e54",
+    "provider_overlay": "candidate-v6.2/brain-packs/secretary-001/provider-overlays/universal-manual.v1.json",
+    "provider_overlay_sha256": "37efb4d433e015e83e0f9320de0fcb0dc85c924390b7fcd8533529b06f5a208d",
+    "bridge": "tools/universal_model_bridge.py",
+    "bridge_sha256": "3f0094432ba5029208a26ff71d55a400db7ba3a1d39d84cfded850c7d58639ab",
+    "schemas": {
+      "model_capability_card_sha256": "e15d8517ed78f406b4fd0e972d5f887d980101c31b844f8998cd47febb8e8d0f",
+      "manual_exchange_sha256": "d1755813f357e0d0dc9eae2e7f6f57747d06908584d0648ff7ecb93a0932eefd",
+      "portable_model_bundle_sha256": "855af18ed593373ee0e506e10b0b26c3c738efe74531b7ea24e1d05a0dd374f8",
+      "architecture_manifest_sha256": "c7bda93b9e28bbd8ee42b7de0bcb69adde9987edf58f1114025f073e457abaca"
+    }
+  },
+  "fractal_runtime": {
+    "contract_version": "1.0.0-rc2 PRESERVED",
+    "levels": ["WORLD", "ENTITY", "MISSION", "SKILL", "WORKFLOW", "STEP", "TOOL", "FIELD"],
+    "orthogonal_axes": ["R", "X", "B", "D", "C", "A", "E", "M"],
+    "brain_delegation_max": "B4",
+    "brain_ownership_level": "B5_FORBIDDEN",
+    "bounded_depth": true,
+    "bounded_attempts": true,
+    "fail_closed": true
+  },
+  "portable_brain_pack": {
+    "id": "world-v6.secretary-001.portable-brain",
+    "version": "1.0.0-rc2 PRESERVED",
+    "file": "candidate-v6.2/brain-packs/secretary-001/portable-brain-pack.v1.0.0.json",
+    "file_sha256": "38f9b5d7e3990b422daba73c430914bb9a51e0848cfd3a8d312c5dcf934d2146",
+    "canonical_sha256": "a0337d1ef0fde90860869964612f24bb8ea46e1ff85973743c68eec499119c98",
+    "dna_overlay_sha256": "d65cd15805eb0f482da4910a713389bcad5cb282bb288b2314d1be03cbf5392a",
+    "prompt_contract_sha256": "011b33758135ee31ef41f2f9834cff8038b1fb8604704623e4fe24662c9e7069",
+    "output_schema_sha256": "945a50c612924db2dabf949cb58b55a8e132b5c83594fcfce9b2da8417c926ae",
+    "manual_hosts": ["UNIVERSAL_MANUAL_HOST", "CHATGPT_HOST", "GEMINI_HOST", "GROK_HOST"],
+    "local_and_code_interfaces": true,
+    "live_api_verified": false
+  },
+  "canonical_json": {
+    "contract": "World Canonical JSON v1 strict",
+    "hash": "SHA-256",
+    "implicit_stringification": "FORBIDDEN",
+    "float_and_non_finite_numbers": "FORBIDDEN"
+  },
+  "compiler": {
+    "id": "world-v6.structural-resolution-compiler",
+    "version": "0.2.0",
+    "contract_sha256": "4e060d392c819cfdf5ba6d6633308b6f549e5776a5aa5d723a9540d00df031a7"
+  },
+  "profiles": [
+    {"id": "secretary.conversation", "version": "0.2.0", "sha256": "436518b431901c0b4a46de0d20618732a3133489965fda12094d533cd0f24faa"},
+    {"id": "secretary.external-effect", "version": "0.2.0", "sha256": "b24b5c96c6d97e9f51e92e0f673dfbbcc5ddbbd11c3acfed61b55b58324adc8f"},
+    {"id": "secretary.price", "version": "0.2.0", "sha256": "ec6418fcb82a80501b5b5f448928d9689f623ce16b468dce5bd2385c016dcf72"},
+    {"id": "secretary.task", "version": "0.2.0", "sha256": "2bebab96111c4bc9abd9b6173ebc2154912b8905cb26204bab6d301de4a2ee7e"},
+    {"id": "world-v6.backbone", "version": "0.2.0", "sha256": "ea051647bf1326bc2b2d8bc04849f89102f42a989847c40036914466d0a61df7"}
+  ],
+  "invariants": [
+    "model/provider/channel/session is never identity, authority, memory or canonical truth",
+    "canonical truth never downgraded",
+    "fallback cannot lower task minimum Resolution, authority, evidence, data class or policy",
+    "up-resolution reloads canonical state and never reconstructs omitted fields",
+    "fractal expansion is local, trigger-based and budget-bounded",
+    "brain/council/shadow outputs are non-authoritative proposals",
+    "provider switching preserves request, pack, profile, projection, policy and output bindings",
+    "standard provider answers are normalized and deterministically rendered",
+    "compilation promotion is one-step, evidence-gated and never self-mutating",
+    "C5 requires Human Root approval and C6 additionally requires restore proof",
+    "external effects require Policy, exact ApprovalBinding and atomic Outbox/Executor",
+    "E2 evidence cannot be represented as E3, E4, E5 or production readiness"
+  ],
+  "dependencies": {
+    "python_lock": "uv.lock",
+    "portable_lock": "pylock.toml",
+    "sbom": "SBOM.cdx.json",
+    "system_dependencies": "SYSTEM_DEPENDENCIES.md"
+  },
+  "evidence": {
+    "level": "E2",
+    "core_rc3": "78/78 PASS",
+    "secretary_rc3": "22/22 PASS (repository-recorded baseline; publication CI rerun required after payload changes)",
+    "candidate_combined": "100/100 PASS (repository-recorded baseline)",
+    "preserved_ancestor": "14/14 PASS (repository-recorded baseline; publication CI rerun required)",
+    "total_independent": "114/114 PASS (repository-recorded baseline)",
+    "offline_provider_demo": "3/3 PASS (repository-recorded baseline; publication CI rerun required)",
+    "universal_manual_host_contract": "7/7 RC3 ARCHITECTURE TESTS PASS",
+    "schema_profile_pack_compile_lock_sbom": "PASS",
+    "publication_binary_privacy_scan": "CI_ENFORCED_PENDING_FINAL_RUN",
+    "postgresql_integration": "NOT_RUN_NOT_CLAIMED",
+    "crash_replay_reconciliation": "NOT_RUN_NOT_CLAIMED",
+    "fresh_restore": "NOT_RUN_NOT_CLAIMED",
+    "live_provider_api_adapters": "NOT_RUN_NOT_CLAIMED",
+    "security_load_chaos": "NOT_RUN_NOT_CLAIMED",
+    "canonical_ratification": "NOT_DONE",
+    "production_readiness": "NOT_CLAIMED"
+  }
+}

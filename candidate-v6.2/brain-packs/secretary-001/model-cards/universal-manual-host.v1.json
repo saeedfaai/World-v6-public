@@ -1,0 +1,76 @@
+{
+  "schema_version": "world-v6.model-capability-card.v1",
+  "adapter_id": "world-v6.adapter.universal-manual-host",
+  "adapter_version": "1.0.0-rc3",
+  "provider_family": "ANY_CONFORMING_MODEL",
+  "model_id": null,
+  "invocation_mode": "MANUAL_HOST",
+  "capabilities": {
+    "task_types": [
+      "secretary.reply",
+      "secretary.task",
+      "secretary.draft",
+      "secretary.price",
+      "secretary.clarify"
+    ],
+    "languages": ["fa", "en"],
+    "input_modalities": ["TEXT", "STRUCTURED_DATA"],
+    "structured_output": true,
+    "tool_calling": false,
+    "max_input_tokens": 4000,
+    "max_output_tokens": 2000,
+    "resolution_bindings": [
+      {
+        "profile_id": "secretary.conversation",
+        "profile_version": "0.2.0",
+        "profile_hash": "436518b431901c0b4a46de0d20618732a3133489965fda12094d533cd0f24faa",
+        "max_resolution": "R1"
+      },
+      {
+        "profile_id": "secretary.external-effect",
+        "profile_version": "0.2.0",
+        "profile_hash": "b24b5c96c6d97e9f51e92e0f673dfbbcc5ddbbd11c3acfed61b55b58324adc8f",
+        "max_resolution": "R1"
+      },
+      {
+        "profile_id": "secretary.price",
+        "profile_version": "0.2.0",
+        "profile_hash": "ec6418fcb82a80501b5b5f448928d9689f623ce16b468dce5bd2385c016dcf72",
+        "max_resolution": "R1"
+      },
+      {
+        "profile_id": "secretary.task",
+        "profile_version": "0.2.0",
+        "profile_hash": "2bebab96111c4bc9abd9b6173ebc2154912b8905cb26204bab6d301de4a2ee7e",
+        "max_resolution": "R1"
+      },
+      {
+        "profile_id": "world-v6.backbone",
+        "profile_version": "0.2.0",
+        "profile_hash": "ea051647bf1326bc2b2d8bc04849f89102f42a989847c40036914466d0a61df7",
+        "max_resolution": "R1"
+      }
+    ]
+  },
+  "governance": {
+    "network_required_by_runtime": false,
+    "api_token_required_by_runtime": false,
+    "supported_data_classes": ["PUBLIC", "INTERNAL"],
+    "processing_location": "USER_CONTROLLED_HOST",
+    "retention_profile": "provider-terms-must-be-reviewed-per-host",
+    "training_use": "UNKNOWN",
+    "legal_profile_ref": "policy:manual-host-explicit-human-root-choice@1",
+    "proposal_only": true
+  },
+  "continuity": {
+    "allowed_modes": ["F0_FULL", "F1_SANITIZED", "F3_DEFERRED", "F4_HUMAN"],
+    "fallback_adapter_ids": ["secretary.code-safe-defer"],
+    "on_total_failure": "QUEUE_AND_ESCALATE"
+  },
+  "evidence": {
+    "level": "E2",
+    "conformance_status": "CONTRACT_TESTED",
+    "conformance_report_ref": "evidence:v6.2-rc3-universal-manual-host",
+    "verified_at": "2026-08-20T00:00:00Z"
+  }
+}

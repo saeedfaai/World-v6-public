@@ -1,0 +1,59 @@
+{
+  "release": "World v6.2 Resolution-Native Candidate",
+  "evidence_level": "E2",
+  "claim_boundary": "local deterministic component/regression behavior only",
+  "date": "2026-08-20",
+  "environment": {
+    "python": "3.13.5",
+    "platform": "Linux-6.18.35-x86_64-with-glibc2.41"
+  },
+  "pre_change_latest_secretary_baseline": {
+    "entity_version": "0.1.3",
+    "tests": 14,
+    "passed": 14,
+    "failed": 0
+  },
+  "candidate": {
+    "core_resolution_tests": {
+      "tests": 10,
+      "passed": 10,
+      "failed": 0
+    },
+    "secretary_regression_and_resolution_tests": {
+      "tests": 21,
+      "passed": 21,
+      "failed": 0
+    },
+    "combined": {
+      "tests": 31,
+      "passed": 31,
+      "failed": 0
+    }
+  },
+  "proved_at_e2": [
+    "non-destructive structural projection",
+    "R0 projection preserves same object identity/backbone fields",
+    "low-resolution partial patch preserves hidden higher-resolution state",
+    "stale canonical hash blocks low-resolution patch",
+    "unseen/protected field write blocks",
+    "brain resolution negotiation never lowers task minimum",
+    "legacy brain defaults to R0 without breaking existing BrainRequest callers",
+    "secretary legacy API regression remains passing",
+    "secretary R0 conversation/task views project to same underlying records",
+    "secretary R0 price view does not expose financial amount",
+    "proforma and Telegram external delivery require higher resolution in explicit v6.2 mode",
+    "existing Human Root approval still remains required"
+  ],
+  "not_proved": [
+    "PostgreSQL integration/conformance",
+    "state-event-outbox crash safety with resolution metadata",
+    "fresh-machine restore with resolution profiles",
+    "live provider multi-resolution negotiation",
+    "live Telegram runtime deployment",
+    "security/penetration review",
+    "load/chaos testing",
+    "formal verification",
+    "canonical ratification",
+    "production readiness"
+  ]
+}

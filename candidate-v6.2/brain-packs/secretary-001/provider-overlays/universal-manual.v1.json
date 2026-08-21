@@ -1,0 +1,13 @@
+{
+  "overlay_contract": "world-v6.provider-overlay.v1",
+  "provider_family": "ANY_CONFORMING_MODEL",
+  "binding_mode": "MANUAL_HOST",
+  "integration_status": "RC3_SELF_CONTAINED_BUNDLE_CONTRACT_TESTED",
+  "network_required_by_runtime": false,
+  "api_token_required_by_runtime": false,
+  "identity_authority_memory": false,
+  "proposal_only": true,
+  "response_format": "STRICT_JSON_OBJECT",
+  "prompt_wrapper": "Paste the complete Portable Model Bundle into any model that can follow the contract; return only the Secretary Decision object.",
+  "fallback": "DETERMINISTIC_CODE_THEN_HUMAN_ROOT"
+}

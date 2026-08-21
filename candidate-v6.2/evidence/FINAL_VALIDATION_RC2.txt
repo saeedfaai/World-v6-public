@@ -1,0 +1,34 @@
+World v6.2 Fractal Multi-Brain RC2 — FINAL LOCAL VALIDATION
+Date: 2026-08-20
+Status: RATIFICATION CANDIDATE / NOT CANONICAL / NOT DEPLOYED
+Evidence: E2 LOCAL ONLY
+
+LOCKED ENVIRONMENT
+- uv sync --locked --all-groups: PASS
+- Python: 3.12
+- Runtime network/API tokens: DISABLED / NOT USED
+
+TESTS
+- Core RC2: 71/71 PASS
+- Secretary RC2: 22/22 PASS
+- Candidate combined: 93/93 PASS
+- Preserved v0.1.3 ancestor: 14/14 PASS
+- Total independent pytest: 107/107 PASS
+- Offline ChatGPT/Gemini/Grok demos: 3/3 PASS
+- compileall: PASS
+- Schema/artifact/hash/secret conformance: PASS
+
+BOUNDARIES
+- Root Constitution v1.0: UNCHANGED
+- Canonical DNA v1.2: UNCHANGED
+- RC2 DNA file: NON-CANONICAL EXECUTION OVERLAY
+- External effect execution: NOT ENABLED
+- Live provider APIs: NOT RUN / NOT CLAIMED
+- PostgreSQL/crash/restore/security/load/chaos: NOT RUN / NOT CLAIMED
+- Human Root canonical ratification: NOT RECORDED
+- Production readiness: NOT CLAIMED
+
+NOTE
+The preserved ancestor expects the executable name `libreoffice`; the environment
+provided the same LibreOffice engine as `soffice`. A test-only alias was used.
+The RC2 candidate already supports either executable and an isolated user profile.

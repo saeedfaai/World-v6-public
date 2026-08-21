@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc2/brain-handler-profile.schema.json",
+  "title": "World v6.2 RC2 Brain Handler Profile",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["handler_id", "version", "kind", "maturity", "evidence", "supported_node_ids", "deterministic", "network_required", "api_token_required", "proposal_only", "provider_family"],
+  "properties": {
+    "handler_id": {"$ref": "#/$defs/token"},
+    "version": {"$ref": "#/$defs/token"},
+    "kind": {"enum": ["CODE", "BRAIN", "MANUAL_HOST", "LOCAL_MODEL", "COUNCIL"]},
+    "maturity": {"type": "string", "pattern": "^C[0-6]$"},
+    "evidence": {"type": "string", "pattern": "^E[0-5]$"},
+    "supported_node_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+    "deterministic": {"type": "boolean"},
+    "network_required": {"type": "boolean"},
+    "api_token_required": {"type": "boolean"},
+    "proposal_only": {"const": true},
+    "provider_family": {"$ref": "#/$defs/token"}
+  },
+  "$defs": {"token": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@#-]{0,191}$"}}
+}

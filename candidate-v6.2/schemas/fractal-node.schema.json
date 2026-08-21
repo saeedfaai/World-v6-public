@@ -1,0 +1,44 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc2/fractal-node.schema.json",
+  "title": "World v6.2 RC2 Fractal Node",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["node_id", "version", "purpose", "input_contract_ref", "output_contract_ref", "handler_ids", "fallback_handler_ids", "parent_id", "child_ids", "expandable", "risk_class", "minimum_vector"],
+  "properties": {
+    "node_id": {"$ref": "#/$defs/token"},
+    "version": {"$ref": "#/$defs/token"},
+    "purpose": {"type": "string", "minLength": 1, "maxLength": 1000},
+    "input_contract_ref": {"$ref": "#/$defs/token"},
+    "output_contract_ref": {"$ref": "#/$defs/token"},
+    "handler_ids": {"type": "array", "minItems": 1, "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+    "fallback_handler_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+    "parent_id": {"oneOf": [{"$ref": "#/$defs/token"}, {"type": "null"}]},
+    "child_ids": {"type": "array", "uniqueItems": true, "items": {"$ref": "#/$defs/token"}},
+    "expandable": {"type": "boolean"},
+    "risk_class": {"enum": ["LOW", "MEDIUM", "HIGH", "CRITICAL"]},
+    "minimum_vector": {"$ref": "#/$defs/vector"}
+  },
+  "allOf": [
+    {"if": {"properties": {"expandable": {"const": false}}}, "then": {"properties": {"child_ids": {"maxItems": 0}}}}
+  ],
+  "$defs": {
+    "token": {"type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/@#-]{0,191}$"},
+    "resolution": {"type": "string", "pattern": "^R(0|[1-9][0-9]*)$"},
+    "vector": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["resolutions", "granularity", "brain_delegation", "deliberation", "compilation", "authority", "evidence", "model_capability"],
+      "properties": {
+        "resolutions": {"type": "object", "minProperties": 1, "propertyNames": {"$ref": "#/$defs/token"}, "additionalProperties": {"$ref": "#/$defs/resolution"}},
+        "granularity": {"type": "string", "pattern": "^X[0-9]$"},
+        "brain_delegation": {"type": "string", "pattern": "^B[0-4]$"},
+        "deliberation": {"type": "string", "pattern": "^D[0-5]$"},
+        "compilation": {"type": "string", "pattern": "^C[0-6]$"},
+        "authority": {"type": "string", "pattern": "^A[0-5]$"},
+        "evidence": {"type": "string", "pattern": "^E[0-5]$"},
+        "model_capability": {"type": "string", "pattern": "^M[0-9]$"}
+      }
+    }
+  }
+}

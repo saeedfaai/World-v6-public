@@ -1,0 +1,37 @@
+{
+  "schema_version": "world-v6.repository-status.v1",
+  "world_version": "6.2.0-rc.3",
+  "architecture_version": "1.1.0-rc3",
+  "status": "RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED",
+  "canonical": false,
+  "deployed": false,
+  "production_ready": false,
+  "ratification": "NOT_RECORDED",
+  "human_root": "REQUIRED_FOR_RATIFICATION_AND_EXTERNAL_EFFECT",
+  "entity": {
+    "id": "secretary-001",
+    "location": "candidate-v6.2/runtime/entities/_GESTATING/01_secretary-001",
+    "lifecycle": "GESTATING",
+    "birth_declared": false,
+    "deployed": false
+  },
+  "evidence": {
+    "level": "E2",
+    "core_tests": "78/78 PASS",
+    "secretary_tests": "22/22 PASS",
+    "ancestor_tests": "14/14 PASS",
+    "total_tests": "114/114 PASS",
+    "architecture_tests": "7/7 PASS",
+    "offline_provider_portability": "3/3 PASS"
+  },
+  "unproven_gates": [
+    "POSTGRESQL_ATOMIC_INTEGRATION",
+    "CRASH_REPLAY_RECONCILIATION",
+    "FRESH_MACHINE_RESTORE",
+    "LIVE_PROVIDER_ADAPTERS",
+    "LIVE_TELEGRAM_AND_DRIVE_EFFECTS",
+    "SECURITY_LOAD_CHAOS",
+    "CANONICAL_RATIFICATION",
+    "PRODUCTION_READINESS"
+  ]
+}

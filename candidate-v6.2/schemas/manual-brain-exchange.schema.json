@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc3/manual-brain-exchange.schema.json",
+  "title": "World v6.2 RC3 Manual Brain Exchange",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "exchange_contract",
+    "pack_id",
+    "pack_version",
+    "pack_hash",
+    "provider_hint",
+    "request",
+    "response_contract_ref",
+    "proposal_only",
+    "network_performed_by_runtime",
+    "api_token_used_by_runtime",
+    "effective_resolutions"
+  ],
+  "properties": {
+    "exchange_contract": {"const": "world-v6.manual-brain-exchange.v1"},
+    "pack_id": {"type": "string", "minLength": 1, "maxLength": 192},
+    "pack_version": {"type": "string", "minLength": 1, "maxLength": 80},
+    "pack_hash": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "provider_hint": {"type": "string", "minLength": 1, "maxLength": 192},
+    "request": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["contract_version", "task_type", "world_id", "entity_id", "principal_id", "conversation_id", "inputs"],
+      "properties": {
+        "contract_version": {"const": "world-v6.brain-request.v2"},
+        "task_type": {"type": "string", "minLength": 1, "maxLength": 160},
+        "world_id": {"type": "string", "minLength": 1, "maxLength": 160},
+        "entity_id": {"type": "string", "minLength": 1, "maxLength": 160},
+        "principal_id": {"type": "string", "minLength": 1, "maxLength": 160},
+        "conversation_id": {"type": "string", "minLength": 1, "maxLength": 192},
+        "inputs": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["segment_id", "envelope"],
+            "properties": {
+              "segment_id": {"type": "string", "minLength": 1, "maxLength": 160},
+              "envelope": {"type": "object"}
+            }
+          }
+        }
+      }
+    },
+    "response_contract_ref": {"type": "string", "minLength": 1, "maxLength": 192},
+    "proposal_only": {"const": true},
+    "network_performed_by_runtime": {"const": false},
+    "api_token_used_by_runtime": {"const": false},
+    "effective_resolutions": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": "string", "pattern": "^R(?:0|[1-9][0-9]*)$"}
+    }
+  }
+}

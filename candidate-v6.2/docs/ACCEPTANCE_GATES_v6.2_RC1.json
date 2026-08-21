@@ -1,0 +1,22 @@
+{
+  "release": "World v6.2 Resolution-Native RC1",
+  "gate_model": "FAIL_CLOSED_ALL_REQUIRED",
+  "gates": [
+    {"id":"G01","name":"input_package_integrity","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G02","name":"root_constitution_unchanged","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G03","name":"strict_canonical_hashing","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G04","name":"profile_schema_and_hash_conformance","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G05","name":"projection_monotonicity_and_provenance","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G06","name":"bounded_patch_guards","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G07","name":"profile_scoped_brain_projection","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G08","name":"entity_external_io_boundary","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G09","name":"dependency_lock_and_sbom","required_for":"RC_FREEZE","status":"PASS"},
+    {"id":"G10","name":"human_root_rc_freeze_decision","required_for":"PHASE1_START","status":"NOT_RECORDED"},
+    {"id":"G11","name":"version_control_commit_and_release_tag","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"G12","name":"postgresql_atomic_integration","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"G13","name":"crash_replay_reconciliation","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"G14","name":"fresh_restore","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"G15","name":"security_load_chaos","required_for":"CANONICAL_PROMOTION","status":"OPEN"},
+    {"id":"G16","name":"human_root_canonical_ratification","required_for":"CANONICAL_PROMOTION","status":"OPEN"}
+  ]
+}

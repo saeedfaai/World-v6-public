@@ -1,0 +1,25 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://world-v6.local/schemas/v6.2-rc1/external-effect-proposal.schema.json",
+  "title": "World v6.2 RC1 External Effect Proposal",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["world_id", "entity_id", "command_id", "destination", "action", "resource_ref", "recipient_ref", "payload_ref", "payload_hash", "policy_version", "expected_version", "control_epoch", "idempotency_scope", "idempotency_key", "effect_semantics"],
+  "properties": {
+    "world_id": {"type":"string","minLength":1},
+    "entity_id": {"type":"string","minLength":1},
+    "command_id": {"type":"string","minLength":1},
+    "destination": {"type":"string","minLength":1},
+    "action": {"type":"string","minLength":1},
+    "resource_ref": {"type":"string","minLength":1},
+    "recipient_ref": {"type":"string","minLength":1},
+    "payload_ref": {"type":"string","minLength":1},
+    "payload_hash": {"type":"string","pattern":"^[0-9a-f]{64}$"},
+    "policy_version": {"type":"string","minLength":1},
+    "expected_version": {"type":"integer","minimum":0},
+    "control_epoch": {"type":"integer","minimum":1},
+    "idempotency_scope": {"type":"string","minLength":1},
+    "idempotency_key": {"type":"string","minLength":1},
+    "effect_semantics": {"enum":["NATIVE_IDEMPOTENT","RECONCILABLE","NON_IDEMPOTENT"]}
+  }
+}

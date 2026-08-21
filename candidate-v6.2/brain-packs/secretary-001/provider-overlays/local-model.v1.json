@@ -1,0 +1,13 @@
+{
+  "overlay_contract": "world-v6.provider-overlay.v1",
+  "provider_family": "LOCAL_MODEL",
+  "binding_mode": "LOCAL_OFFLINE_ADAPTER",
+  "integration_status": "INTERFACE_DEFINED_NOT_MODEL_BENCHMARKED",
+  "network_required_by_runtime": false,
+  "api_token_required_by_runtime": false,
+  "identity_authority_memory": false,
+  "proposal_only": true,
+  "response_format": "STRICT_JSON_OBJECT",
+  "prompt_wrapper": "Constrain decoding to the Secretary Decision JSON schema and reject malformed output.",
+  "fallback": "DETERMINISTIC_CODE_THEN_HUMAN_ROOT"
+}
