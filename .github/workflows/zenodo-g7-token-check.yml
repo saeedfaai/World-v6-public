@@ -1,0 +1,63 @@
+name: Check Zenodo G7 token
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .zenodo-g7-check-trigger
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  check-token:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check Zenodo token safely
+        id: check
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set +e
+          if [ -z "${ZENODO_TOKEN:-}" ]; then
+            echo "result=MISSING_SECRET" >> "$GITHUB_OUTPUT"
+            echo "legacy=NA" >> "$GITHUB_OUTPUT"
+            echo "modern=NA" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          LEGACY=$(curl -sS -o /tmp/legacy.json -w '%{http_code}' -H "Authorization: Bearer ${ZENODO_TOKEN}" 'https://zenodo.org/api/deposit/depositions?status=draft&size=1')
+          MODERN=$(curl -sS -o /tmp/modern.json -w '%{http_code}' -H "Authorization: Bearer ${ZENODO_TOKEN}" 'https://zenodo.org/api/user/records?size=1')
+          echo "legacy=$LEGACY" >> "$GITHUB_OUTPUT"
+          echo "modern=$MODERN" >> "$GITHUB_OUTPUT"
+          if [ "$LEGACY" = "200" ] || [ "$MODERN" = "200" ]; then
+            echo "result=VALID" >> "$GITHUB_OUTPUT"
+          elif [ "$LEGACY" = "401" ] || [ "$MODERN" = "401" ]; then
+            echo "result=UNAUTHORIZED" >> "$GITHUB_OUTPUT"
+          elif [ "$LEGACY" = "403" ] || [ "$MODERN" = "403" ]; then
+            echo "result=FORBIDDEN_SCOPE" >> "$GITHUB_OUTPUT"
+          else
+            echo "result=API_ERROR" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Report token check
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RESULT: ${{ steps.check.outputs.result }}
+          LEGACY: ${{ steps.check.outputs.legacy }}
+          MODERN: ${{ steps.check.outputs.modern }}
+        run: |
+          cat >/tmp/body.md <<EOF
+          Zenodo G7 token diagnostic (no secret value exposed).
+
+          - Result: ${RESULT}
+          - Legacy deposition API HTTP: ${LEGACY}
+          - Modern user-records API HTTP: ${MODERN}
+          - Commit: ${GITHUB_SHA}
+          - Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          EOF
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo G7 token check - ${RESULT}" --body-file /tmp/body.md
