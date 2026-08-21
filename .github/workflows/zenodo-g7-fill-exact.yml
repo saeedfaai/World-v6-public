@@ -1,0 +1,131 @@
+name: Fill exact Zenodo G7 draft
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .zenodo-g7-fill-exact-trigger
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  fill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Fill exact draft
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, json, requests
+          token=os.environ.get('ZENODO_TOKEN','')
+          dep_id='22040348'
+          target_file='World_v6.2_RC3_FINAL_RELEASE.zip'
+          target_size=8005594
+          out='/tmp/fill.md'
+          lines=['Zenodo G7 exact draft fill result (no token exposed).','']
+          if not token:
+              lines += ['- Result: `MISSING_SECRET`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          jh={**h,'Content-Type':'application/json'}
+          r=requests.get(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=h,timeout=30)
+          lines += [f'- Read draft HTTP: `{r.status_code}`']
+          if not r.ok:
+              lines += ['- Result: `READ_FAILED`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          d=r.json()
+          files=d.get('files') or []
+          matched=False
+          for f in files:
+              name=f.get('filename') or f.get('key')
+              size=f.get('filesize') or f.get('size')
+              if name==target_file and (size is None or int(size)==target_size): matched=True
+          if not matched or d.get('submitted'):
+              lines += [f'- Result: `SAFETY_STOP`', f'- File matched: `{matched}`', f'- Submitted: `{d.get("submitted")}`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+
+          # Resolve PolyForm from Zenodo's license registry.
+          lic_id=None
+          for query in ['PolyForm-Noncommercial-1.0.0','PolyForm Noncommercial License 1.0.0','PolyForm Noncommercial']:
+              lr=requests.get('https://zenodo.org/api/licenses/',params={'q':query,'size':100},timeout=30)
+              if not lr.ok: continue
+              data=lr.json()
+              items=data.get('hits',{}).get('hits',[]) if isinstance(data,dict) else data
+              for item in items or []:
+                  mdx=item.get('metadata') or item
+                  iid=(mdx.get('id') or item.get('id') or '')
+                  title=(mdx.get('title') or item.get('title') or '')
+                  if 'polyform' in (iid+' '+title).lower() and 'noncommercial' in (iid+' '+title).lower():
+                      lic_id=iid; break
+              if lic_id: break
+          if not lic_id:
+              lines += ['- Result: `LICENSE_NOT_FOUND`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+
+          md=dict(d.get('metadata') or {})
+          md.update({
+            'upload_type':'software',
+            'publication_date':'2026-08-21',
+            'title':'World v6.2 — Fractal Multi-Brain Architecture',
+            'creators':[{'name':'Farokhi, Saeed'}],
+            'description':(
+              '<p>Ratification Candidate of the World v6.2 Fractal Multi-Brain Architecture. '
+              'Status: NON-CANONICAL, NOT DEPLOYED, with E2 local component/contract evidence only.</p>'
+              '<p>This is a PUBLIC / SOURCE-AVAILABLE / NON-COMMERCIAL release. Original software is licensed '
+              'under the PolyForm Noncommercial License 1.0.0. Original documentation and architecture are '
+              'licensed under CC BY-NC-SA 4.0. Commercial use requires a separate written license from Saeed Farokhi.</p>'
+              '<p>Exact release ZIP SHA-256: 44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b.</p>'
+            ),
+            'access_right':'open',
+            'license':lic_id,
+            'version':'6.2.0-rc.3',
+            'keywords':['multi-agent systems','fractal architecture','multi-brain architecture','deterministic kernel','resolution-native architecture','AI orchestration','agent governance','source-available','non-commercial'],
+            'notes':(
+              'Mixed-license release. Software: PolyForm Noncommercial License 1.0.0. '
+              'Documentation/architecture: CC BY-NC-SA 4.0. Commercial use requires a separate written license. '
+              'RC3 is a Ratification Candidate, NON-CANONICAL, NOT DEPLOYED. '
+              'Exact release ZIP SHA-256: 44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b.'
+            ),
+            'related_identifiers':[
+              {'identifier':'https://github.com/saeedfaai/World-v6-public','relation':'isSupplementTo','scheme':'url'},
+              {'identifier':'https://github.com/saeedfaai/World-v6-public/releases/tag/v6.2.0-rc.3','relation':'isSupplementTo','scheme':'url'}
+            ]
+          })
+          u=requests.put(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=jh,data=json.dumps({'metadata':md}),timeout=30)
+          lines += [f'- Update HTTP: `{u.status_code}`', f'- PolyForm license id: `{lic_id}`']
+          if not u.ok:
+              lines += ['- Result: `UPDATE_FAILED`']
+              try:
+                  ej=u.json(); lines += [f"- Message: `{ej.get('message','')}`", f"- Errors: `{json.dumps(ej.get('errors'),ensure_ascii=False)}`"]
+              except Exception:
+                  lines += [f'- Body: `{u.text[:1000]}`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          ud=u.json(); um=ud.get('metadata') or {}
+          checks={
+            'title':um.get('title')=='World v6.2 — Fractal Multi-Brain Architecture',
+            'upload_type':um.get('upload_type')=='software',
+            'creator':bool(um.get('creators')),
+            'version':um.get('version')=='6.2.0-rc.3',
+            'description':bool(um.get('description')),
+            'access_right':um.get('access_right')=='open',
+            'license':um.get('license')==lic_id,
+            'keywords':len(um.get('keywords') or [])>=5,
+            'related_identifiers':len(um.get('related_identifiers') or [])==2,
+          }
+          ok=all(checks.values())
+          lines += [f'- Result: `{"SUCCESS" if ok else "VERIFY_FAILED"}`', f'- Checks: `{json.dumps(checks,ensure_ascii=False)}`', f'- Final title: `{um.get("title")}`', f'- Final license: `{um.get("license")}`', f'- Final version: `{um.get("version")}`']
+          open(out,'w').write('\n'.join(lines))
+          PY
+
+      - name: Report fill result
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo G7 exact draft fill - ${GITHUB_RUN_ID}" --body-file /tmp/fill.md
