@@ -1,0 +1,81 @@
+name: Publish Zenodo G7 record
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .zenodo-g7-publish-trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  issues: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Verify draft and publish
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, json, requests
+          token=os.environ.get('ZENODO_TOKEN','')
+          dep_id='22040348'
+          out='/tmp/zenodo-publish.md'
+          lines=['Zenodo G7 guarded publish result (no token exposed).','']
+          if not token:
+              lines += ['- Result: `MISSING_SECRET`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          legacy=requests.get(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=h,timeout=30)
+          modern=requests.get(f'https://zenodo.org/api/records/{dep_id}/draft',headers=h,timeout=30)
+          lines += [f'- Legacy read HTTP: `{legacy.status_code}`', f'- Modern read HTTP: `{modern.status_code}`']
+          if not legacy.ok or not modern.ok:
+              lines += ['- Result: `READ_FAILED`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          ld=legacy.json(); md=ld.get('metadata') or {}; mo=modern.json()
+          files=ld.get('files') or []
+          file_ok=any((f.get('filename') or f.get('key'))=='World_v6.2_RC3_FINAL_RELEASE.zip' and int(f.get('filesize') or f.get('size') or 0)==8005594 for f in files)
+          core_ok=(
+              md.get('title')=='World v6.2 — Fractal Multi-Brain Architecture' and
+              md.get('upload_type')=='software' and
+              md.get('version')=='6.2.0-rc.3' and
+              bool(md.get('creators')) and
+              bool(md.get('description')) and
+              md.get('access_right')=='open' and
+              file_ok and
+              not ld.get('submitted')
+          )
+          blob=json.dumps({'legacy':ld,'modern':mo},ensure_ascii=False).lower()
+          poly_ok=('polyform-noncommercial-1.0.0' in blob or 'polyform noncommercial license 1.0.0' in blob)
+          cc_ok=('cc-by-nc-sa-4.0' in blob or 'attribution-noncommercial-sharealike 4.0' in blob or 'creativecommons.org/licenses/by-nc-sa/4.0' in blob)
+          lines += [f'- Core metadata check: `{core_ok}`', f'- Exact file check: `{file_ok}`', f'- PolyForm detected: `{poly_ok}`', f'- CC BY-NC-SA 4.0 detected: `{cc_ok}`']
+          if not (core_ok and poly_ok and cc_ok):
+              lines += ['- Result: `SAFETY_STOP`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          pub=requests.post(f'https://zenodo.org/api/records/{dep_id}/draft/actions/publish',headers={**h,'Content-Type':'application/json'},timeout=60)
+          lines += [f'- Publish HTTP: `{pub.status_code}`']
+          if not pub.ok:
+              lines += ['- Result: `PUBLISH_FAILED`']
+              try:
+                  ej=pub.json(); lines += [f"- Message: `{ej.get('message','')}`", f"- Errors: `{json.dumps(ej.get('errors'),ensure_ascii=False)}`"]
+              except Exception:
+                  lines += [f'- Body: `{pub.text[:1000]}`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          pj=pub.json()
+          doi=(pj.get('pids') or {}).get('doi',{}).get('identifier') or pj.get('doi') or (pj.get('metadata') or {}).get('doi')
+          recid=pj.get('id') or pj.get('recid') or dep_id
+          lines += ['- Result: `PUBLISHED`', f'- Record id: `{recid}`', f'- DOI: `{doi}`', f'- Record URL: `https://zenodo.org/records/{recid}`']
+          open(out,'w').write('\n'.join(lines))
+          PY
+
+      - name: Report result
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo G7 guarded publish - ${GITHUB_RUN_ID}" --body-file /tmp/zenodo-publish.md
