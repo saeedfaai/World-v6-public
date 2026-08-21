@@ -1,4 +1,4 @@
-name: Import and publish verified World v6.2 RC3
+name: Stage verified World v6.2 RC3 snapshot
 
 on:
   push:
@@ -14,7 +14,7 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  import-and-release:
+  stage-snapshot:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -47,11 +47,11 @@ jobs:
           COUNT="$(find "$ROOT" -type f | wc -l | tr -d ' ')"
           echo "payload_count=$COUNT"
           test "$COUNT" = "207"
-          for f in README.md LICENSE RELEASE_MANIFEST.json SBOM.cdx.json FILE_INVENTORY.txt SHA256SUMS.txt; do
+          for f in README.md LICENSE RELEASE_MANIFEST.json SBOM.cdx.json FILE_INVENTORY.txt SHA256SUMS.txt .github/workflows/verify.yml; do
             test -f "$ROOT/$f"
           done
 
-      - name: Replace bootstrap tree with exact release payload
+      - name: Stage snapshot while preserving current workflow
         id: import
         if: steps.verify.outcome == 'success' && steps.extract.outcome == 'success'
         continue-on-error: true
@@ -59,81 +59,34 @@ jobs:
         run: |
           set -euo pipefail
           ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
+          mkdir -p /tmp/bootstrap-workflows
+          cp -a .github/workflows/. /tmp/bootstrap-workflows/
           find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
           cp -a "$ROOT"/. .
+          rm -rf .github/workflows
+          mkdir -p .github/workflows
+          cp -a /tmp/bootstrap-workflows/. .github/workflows/
           git config user.name "World v6 Publication Bot"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -A
           git add -f FILE_INVENTORY.txt SHA256SUMS.txt
           TRACKED="$(git ls-files | wc -l | tr -d ' ')"
-          echo "tracked_count=$TRACKED"
+          echo "staged_tracked_count=$TRACKED"
           test "$TRACKED" = "207"
-          git commit -m "Publish World v6.2.0-rc.3 clean snapshot"
+          git commit -m "Stage World v6.2.0-rc.3 clean snapshot"
           git push origin HEAD:main
 
-      - name: Create annotated RC3 tag
-        id: tag
-        if: steps.import.outcome == 'success'
-        continue-on-error: true
-        shell: bash
-        run: |
-          set -euo pipefail
-          git tag -a v6.2.0-rc.3 -m "World v6.2.0-rc.3"
-          git push origin v6.2.0-rc.3
-
-      - name: Create GitHub pre-release with verified assets
-        id: release
-        if: steps.tag.outcome == 'success'
-        continue-on-error: true
-        shell: bash
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          set -euo pipefail
-          ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
-          cat >/tmp/RELEASE_NOTES.md <<'EOF'
-          # World v6.2 Fractal Multi-Brain Architecture — RC3
-
-          Status: Ratification Candidate / Non-Canonical / Not Deployed.
-
-          Publication model: PUBLIC / SOURCE-AVAILABLE / NON-COMMERCIAL.
-
-          Software license: PolyForm Noncommercial 1.0.0.
-          Documentation/architecture: CC BY-NC-SA 4.0.
-          Commercial use requires a separate written license from Saeed Farokhi.
-
-          Exact release ZIP SHA-256:
-          `44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b`
-
-          Clean snapshot payload: 207 files.
-          Historical private development repository is intentionally not published.
-          EOF
-          gh release create v6.2.0-rc.3 \
-            /tmp/World_v6.2_RC3_FINAL_RELEASE.zip \
-            "$ROOT/FILE_INVENTORY.txt" \
-            "$ROOT/SHA256SUMS.txt" \
-            "$ROOT/RELEASE_MANIFEST.json" \
-            "$ROOT/SBOM.cdx.json" \
-            --repo "$GITHUB_REPOSITORY" \
-            --verify-tag \
-            --prerelease \
-            --latest=false \
-            --title "World v6.2 Fractal Multi-Brain Architecture — RC3" \
-            --notes-file /tmp/RELEASE_NOTES.md
-
-      - name: Publish diagnostic issue on failure
-        if: always() && (steps.verify.outcome != 'success' || steps.extract.outcome != 'success' || steps.import.outcome != 'success' || steps.tag.outcome != 'success' || steps.release.outcome != 'success')
+      - name: Report staging failure
+        if: always() && (steps.verify.outcome != 'success' || steps.extract.outcome != 'success' || steps.import.outcome != 'success')
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
           VERIFY: ${{ steps.verify.outcome }}
           EXTRACT: ${{ steps.extract.outcome }}
           IMPORT: ${{ steps.import.outcome }}
-          TAG: ${{ steps.tag.outcome }}
-          RELEASE: ${{ steps.release.outcome }}
         run: |
           cat >/tmp/diag.md <<EOF
-          Automated RC3 publication diagnostic.
+          Automated RC3 staging diagnostic.
 
           Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
           Commit: ${GITHUB_SHA}
@@ -141,11 +94,6 @@ jobs:
           - verify: ${VERIFY}
           - extract: ${EXTRACT}
           - import: ${IMPORT}
-          - tag: ${TAG}
-          - release: ${RELEASE}
-
-          Expected ZIP SHA-256: 44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b
-          Expected payload files: 207
           EOF
-          gh issue create --repo "$GITHUB_REPOSITORY" --title "RC3 publication diagnostic - run ${GITHUB_RUN_ID}" --body-file /tmp/diag.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "RC3 staging diagnostic - run ${GITHUB_RUN_ID}" --body-file /tmp/diag.md
           exit 1
