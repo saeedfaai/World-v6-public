@@ -20,10 +20,15 @@
   ],
   "related_identifiers": [
     {
-      "identifier": "https://github.com/saeedfaai/world-v6",
+      "identifier": "https://github.com/saeedfaai/World-v6-public",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
+      "identifier": "https://github.com/saeedfaai/World-v6-public/releases/tag/v6.2.0-rc.3",
       "relation": "isSupplementTo",
       "scheme": "url"
     }
   ],
-  "notes": "This release is not OSI Open Source because commercial use is restricted. See LICENSE for the software/documentation license map, NOTICE for release status, and THIRD_PARTY_NOTICES.md for exclusions."
+  "notes": "This release is not OSI Open Source because commercial use is restricted. See LICENSE for the software/documentation license map, NOTICE for release status, and THIRD_PARTY_NOTICES.md for exclusions. Zenodo version DOI: 10.5281/zenodo.22040348; concept DOI: 10.5281/zenodo.22040347."
 }
