@@ -1,0 +1,137 @@
+name: Publish World v6.2 RC3 final release
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .github/workflows/publish-rc3-final.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  issues: write
+
+concurrency:
+  group: world-v6-rc3-final-publish
+  cancel-in-progress: true
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    env:
+      TARGET_SHA: f918ae13aaee072b2107ec6532bc8c290be3e70a
+      SOURCE_ZIP_COMMIT: b0b9789b3b78090399b20b8bf996725211d59d35
+      TAG: v6.2.0-rc.3
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Reconstruct and verify exact release assets
+        id: assets
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e "${TARGET_SHA}^{commit}"
+          git show "${SOURCE_ZIP_COMMIT}:World_v6.2_RC3_FINAL_RELEASE.zip" > /tmp/World_v6.2_RC3_FINAL_RELEASE.zip
+          echo "44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b  /tmp/World_v6.2_RC3_FINAL_RELEASE.zip" | sha256sum -c -
+          rm -rf /tmp/world-v6-rc3
+          mkdir -p /tmp/world-v6-rc3
+          unzip -q /tmp/World_v6.2_RC3_FINAL_RELEASE.zip -d /tmp/world-v6-rc3
+          ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
+          test "$(find "$ROOT" -type f | wc -l | tr -d ' ')" = "207"
+          test -f "$ROOT/FILE_INVENTORY.txt"
+          test -f "$ROOT/SHA256SUMS.txt"
+          test -f "$ROOT/RELEASE_MANIFEST.json"
+          test -f "$ROOT/SBOM.cdx.json"
+
+      - name: Create annotated tag on exact clean snapshot
+        id: tag
+        if: steps.assets.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --tags --force
+          if git rev-parse -q --verify "refs/tags/${TAG}" >/dev/null; then
+            EXISTING="$(git rev-list -n 1 "${TAG}")"
+            test "$EXISTING" = "$TARGET_SHA"
+          else
+            git config user.name "World v6 Publication Bot"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git tag -a "$TAG" "$TARGET_SHA" -m "World v6.2.0-rc.3"
+            git push origin "refs/tags/${TAG}"
+          fi
+
+      - name: Create GitHub pre-release
+        id: release
+        if: steps.tag.outcome == 'success'
+        continue-on-error: true
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
+          cat >/tmp/RELEASE_NOTES.md <<'EOF'
+          # World v6.2 Fractal Multi-Brain Architecture — RC3
+
+          Status: Ratification Candidate / Non-Canonical / Not Deployed.
+
+          Publication model: PUBLIC / SOURCE-AVAILABLE / NON-COMMERCIAL.
+
+          Software license: PolyForm Noncommercial 1.0.0.
+          Documentation/architecture: CC BY-NC-SA 4.0.
+          Commercial use requires a separate written license from Saeed Farokhi.
+
+          Exact release ZIP SHA-256:
+          `44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b`
+
+          Clean snapshot payload: 207 files.
+          Historical private development repository is intentionally not published.
+          EOF
+          if gh release view "$TAG" --repo "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            gh release view "$TAG" --repo "$GITHUB_REPOSITORY" --json url --jq .url
+          else
+            gh release create "$TAG" \
+              /tmp/World_v6.2_RC3_FINAL_RELEASE.zip \
+              "$ROOT/FILE_INVENTORY.txt" \
+              "$ROOT/SHA256SUMS.txt" \
+              "$ROOT/RELEASE_MANIFEST.json" \
+              "$ROOT/SBOM.cdx.json" \
+              --repo "$GITHUB_REPOSITORY" \
+              --verify-tag \
+              --prerelease \
+              --latest=false \
+              --title "World v6.2 Fractal Multi-Brain Architecture — RC3" \
+              --notes-file /tmp/RELEASE_NOTES.md
+          fi
+
+      - name: Report result
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          ASSETS: ${{ steps.assets.outcome }}
+          TAG_OUTCOME: ${{ steps.tag.outcome }}
+          RELEASE_OUTCOME: ${{ steps.release.outcome }}
+        run: |
+          cat >/tmp/result.md <<EOF
+          Automated RC3 final publication result.
+
+          Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          Exact snapshot commit: ${TARGET_SHA}
+          Tag: ${TAG}
+
+          - assets: ${ASSETS}
+          - tag: ${TAG_OUTCOME}
+          - release: ${RELEASE_OUTCOME}
+          EOF
+          if [ "$ASSETS" = success ] && [ "$TAG_OUTCOME" = success ] && [ "$RELEASE_OUTCOME" = success ]; then
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "RC3 publication SUCCESS - run ${GITHUB_RUN_ID}" --body-file /tmp/result.md
+          else
+            gh issue create --repo "$GITHUB_REPOSITORY" --title "RC3 publication FAILURE - run ${GITHUB_RUN_ID}" --body-file /tmp/result.md
+            exit 1
+          fi
