@@ -1,0 +1,79 @@
+name: Commercial Licensing / Partnership Inquiry
+description: Propose a commercial license, revenue share, JV, OEM deal, paid pilot, or other business arrangement for World v6.2.
+title: "[Commercial Inquiry] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thank you for your interest in World v6.2. This issue is PUBLIC. Do not include confidential business terms, customer data, credentials, trade secrets, or non-public source code. Use this form to establish contact and describe the opportunity at a non-confidential level.
+
+  - type: input
+    id: organization
+    attributes:
+      label: Organization / project
+      description: Company, institution, fund, project, or independent team name.
+      placeholder: Example Corp / Project Name
+    validations:
+      required: true
+
+  - type: dropdown
+    id: proposal_type
+    attributes:
+      label: Proposal type
+      options:
+        - Commercial license purchase
+        - Royalty / revenue share
+        - Strategic partnership / joint venture
+        - OEM / embedded / white-label license
+        - Paid pilot / enterprise deployment
+        - Technology transfer / negotiated exclusivity
+        - Other
+    validations:
+      required: true
+
+  - type: textarea
+    id: use_case
+    attributes:
+      label: Intended commercial use
+      description: Describe what you want to build, deploy, sell, integrate, or operate using World v6.2. Keep this non-confidential.
+    validations:
+      required: true
+
+  - type: textarea
+    id: scale
+    attributes:
+      label: Expected scale, market, and territory
+      description: Users, deployments, transaction scale, industry/vertical, geography, and expected timeline.
+    validations:
+      required: true
+
+  - type: textarea
+    id: economics
+    attributes:
+      label: Proposed commercial structure
+      description: If possible, state your preferred economics or commercial range (license fee, royalty %, revenue share, pilot budget, JV structure, etc.). Do not disclose anything you consider confidential.
+    validations:
+      required: false
+
+  - type: dropdown
+    id: exclusivity
+    attributes:
+      label: Exclusivity requested?
+      options:
+        - No
+        - Yes — territory-specific
+        - Yes — industry/vertical-specific
+        - Yes — field-of-use-specific
+        - To be discussed
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: public_ack
+    attributes:
+      label: Public issue acknowledgement
+      options:
+        - label: I understand this GitHub issue is public and I have not included confidential information.
+          required: true
+        - label: I understand no commercial rights are granted unless a separate written agreement is executed.
+          required: true
