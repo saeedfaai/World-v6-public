@@ -7,10 +7,11 @@ on:
 
 permissions:
   contents: write
+  issues: write
 
 concurrency:
   group: world-v6-rc3-import
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
   import-and-release:
@@ -22,6 +23,8 @@ jobs:
           fetch-depth: 0
 
       - name: Verify exact release ZIP
+        id: verify
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -30,6 +33,9 @@ jobs:
           cp World_v6.2_RC3_FINAL_RELEASE.zip /tmp/World_v6.2_RC3_FINAL_RELEASE.zip
 
       - name: Extract and validate clean payload
+        id: extract
+        if: steps.verify.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -39,16 +45,16 @@ jobs:
           ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
           test -d "$ROOT"
           COUNT="$(find "$ROOT" -type f | wc -l | tr -d ' ')"
+          echo "payload_count=$COUNT"
           test "$COUNT" = "207"
-          test -f "$ROOT/README.md"
-          test -f "$ROOT/LICENSE"
-          test -f "$ROOT/RELEASE_MANIFEST.json"
-          test -f "$ROOT/SBOM.cdx.json"
-          test -f "$ROOT/FILE_INVENTORY.txt"
-          test -f "$ROOT/SHA256SUMS.txt"
-          echo "Validated payload files: $COUNT"
+          for f in README.md LICENSE RELEASE_MANIFEST.json SBOM.cdx.json FILE_INVENTORY.txt SHA256SUMS.txt; do
+            test -f "$ROOT/$f"
+          done
 
       - name: Replace bootstrap tree with exact release payload
+        id: import
+        if: steps.verify.outcome == 'success' && steps.extract.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -60,11 +66,15 @@ jobs:
           git add -A
           git add -f FILE_INVENTORY.txt SHA256SUMS.txt
           TRACKED="$(git ls-files | wc -l | tr -d ' ')"
+          echo "tracked_count=$TRACKED"
           test "$TRACKED" = "207"
           git commit -m "Publish World v6.2.0-rc.3 clean snapshot"
           git push origin HEAD:main
 
       - name: Create annotated RC3 tag
+        id: tag
+        if: steps.import.outcome == 'success'
+        continue-on-error: true
         shell: bash
         run: |
           set -euo pipefail
@@ -72,6 +82,9 @@ jobs:
           git push origin v6.2.0-rc.3
 
       - name: Create GitHub pre-release with verified assets
+        id: release
+        if: steps.tag.outcome == 'success'
+        continue-on-error: true
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
@@ -107,3 +120,32 @@ jobs:
             --latest=false \
             --title "World v6.2 Fractal Multi-Brain Architecture — RC3" \
             --notes-file /tmp/RELEASE_NOTES.md
+
+      - name: Publish diagnostic issue on failure
+        if: always() && (steps.verify.outcome != 'success' || steps.extract.outcome != 'success' || steps.import.outcome != 'success' || steps.tag.outcome != 'success' || steps.release.outcome != 'success')
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+          VERIFY: ${{ steps.verify.outcome }}
+          EXTRACT: ${{ steps.extract.outcome }}
+          IMPORT: ${{ steps.import.outcome }}
+          TAG: ${{ steps.tag.outcome }}
+          RELEASE: ${{ steps.release.outcome }}
+        run: |
+          cat >/tmp/diag.md <<EOF
+          Automated RC3 publication diagnostic.
+
+          Run: https://github.com/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}
+          Commit: ${GITHUB_SHA}
+
+          - verify: ${VERIFY}
+          - extract: ${EXTRACT}
+          - import: ${IMPORT}
+          - tag: ${TAG}
+          - release: ${RELEASE}
+
+          Expected ZIP SHA-256: 44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b
+          Expected payload files: 207
+          EOF
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "RC3 publication diagnostic - run ${GITHUB_RUN_ID}" --body-file /tmp/diag.md
+          exit 1
