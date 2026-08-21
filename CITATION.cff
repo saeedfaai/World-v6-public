@@ -6,7 +6,10 @@ authors:
   - family-names: "Farokhi"
     given-names: "Saeed"
 version: "6.2.0-rc.3"
-repository-code: "https://github.com/saeedfaai/world-v6"
+date-released: "2026-08-21"
+doi: "10.5281/zenodo.22040348"
+url: "https://zenodo.org/records/22040348"
+repository-code: "https://github.com/saeedfaai/World-v6-public"
 keywords:
   - multi-agent systems
   - fractal architecture
