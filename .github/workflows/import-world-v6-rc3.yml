@@ -1,0 +1,62 @@
+name: Import verified World v6.2 RC3 snapshot
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - World_v6.2_RC3_FINAL_RELEASE.zip
+
+permissions:
+  contents: write
+
+concurrency:
+  group: world-v6-rc3-import
+  cancel-in-progress: false
+
+jobs:
+  import:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Verify exact release ZIP
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -f World_v6.2_RC3_FINAL_RELEASE.zip
+          echo "44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b  World_v6.2_RC3_FINAL_RELEASE.zip" | sha256sum -c -
+
+      - name: Extract and validate clean payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/world-v6-rc3
+          mkdir -p /tmp/world-v6-rc3
+          unzip -q World_v6.2_RC3_FINAL_RELEASE.zip -d /tmp/world-v6-rc3
+          ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
+          test -d "$ROOT"
+          COUNT="$(find "$ROOT" -type f | wc -l | tr -d ' ')"
+          test "$COUNT" = "207"
+          test -f "$ROOT/README.md"
+          test -f "$ROOT/LICENSE"
+          test -f "$ROOT/RELEASE_MANIFEST.json"
+          test -f "$ROOT/SBOM.cdx.json"
+          echo "Validated payload files: $COUNT"
+
+      - name: Replace bootstrap tree with exact release payload
+        shell: bash
+        run: |
+          set -euo pipefail
+          ROOT=/tmp/world-v6-rc3/World_v6.2_Fractal_Multi_Brain_RC3
+          find . -mindepth 1 -maxdepth 1 ! -name .git -exec rm -rf {} +
+          cp -a "$ROOT"/. .
+          git config user.name "World v6 Publication Bot"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -A
+          TRACKED="$(git ls-files | wc -l | tr -d ' ')"
+          test "$TRACKED" = "207"
+          git commit -m "Publish World v6.2.0-rc.3 clean snapshot"
+          git push origin HEAD:main
