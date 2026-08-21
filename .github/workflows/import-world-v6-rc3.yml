@@ -3,8 +3,7 @@ name: Import and publish verified World v6.2 RC3
 on:
   push:
     branches: [main]
-    paths:
-      - World_v6.2_RC3_FINAL_RELEASE.zip
+  workflow_dispatch:
 
 permissions:
   contents: write
