@@ -1,4 +1,4 @@
-name: Inspect Zenodo G7 draft
+name: Fill and verify Zenodo G7 draft
 
 on:
   push:
@@ -12,83 +12,155 @@ permissions:
   contents: read
 
 jobs:
-  inspect:
+  fill:
     runs-on: ubuntu-latest
     steps:
-      - name: Inspect matching Zenodo draft safely
-        id: inspect
+      - name: Fill exact Zenodo draft safely
         shell: bash
         env:
           ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
         run: |
           python - <<'PY'
           import os, json, requests
-          token=os.environ.get('ZENODO_TOKEN','')
-          out='/tmp/zenodo-inspect.md'
-          lines=['Zenodo G7 draft inspection (no token value exposed).','']
+
+          token = os.environ.get('ZENODO_TOKEN', '')
+          dep_id = '22040348'
+          target_file = 'World_v6.2_RC3_FINAL_RELEASE.zip'
+          target_size = 8005594
+          out = '/tmp/zenodo-fill.md'
+          lines = ['Zenodo G7 fill + verify result (no token exposed).', '']
+
+          def finish():
+              open(out, 'w').write('\n'.join(lines))
+
           if not token:
-              lines += ['- Result: `MISSING_SECRET`']
-              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
-          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
-          r=requests.get('https://zenodo.org/api/deposit/depositions',params={'status':'draft','sort':'-mostrecent','size':100},headers=h,timeout=30)
-          lines += [f'- List drafts HTTP: `{r.status_code}`']
+              lines.append('- Result: `MISSING_SECRET`')
+              finish(); raise SystemExit(0)
+
+          h = {'Authorization': 'Bearer ' + token, 'Accept': 'application/json'}
+          jh = dict(h); jh['Content-Type'] = 'application/json'
+
+          r = requests.get('https://zenodo.org/api/deposit/depositions/' + dep_id, headers=h, timeout=30)
+          lines.append('- Read draft HTTP: `%s`' % r.status_code)
           if not r.ok:
-              lines += ['- Result: `LIST_FAILED`']
-              try:
-                  j=r.json(); lines += [f"- Message: `{j.get('message','')}`"]
-              except Exception: pass
-              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
-          drafts=r.json()
-          if isinstance(drafts,dict): drafts=drafts.get('hits',{}).get('hits',[]) or drafts.get('entries',[]) or []
-          def fnames(d):
-              return [(f.get('filename') or f.get('key') or '') for f in (d.get('files') or [])]
-          cand=[d for d in drafts if 'World_v6.2_RC3_FINAL_RELEASE.zip' in fnames(d)]
-          match_mode='exact-file'
-          if not cand:
-              cand=[d for d in drafts if 'World v6.2' in (d.get('title') or (d.get('metadata') or {}).get('title') or '')]
-              match_mode='title'
-          if not cand and len(drafts)==1:
-              cand=[drafts[0]]
-              match_mode='sole-draft-fallback'
-          if not cand:
-              lines += ['- Result: `NO_MATCHING_DRAFT`', f'- Draft count visible: `{len(drafts)}`']
-              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
-          dep=cand[0]; dep_id=dep.get('id')
-          rr=requests.get(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=h,timeout=30)
-          lines += [f'- Match mode: `{match_mode}`', f'- Read draft HTTP: `{rr.status_code}`']
-          if not rr.ok:
-              lines += ['- Result: `READ_FAILED`']
-              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
-          d=rr.json(); md=d.get('metadata') or {}
-          files=[]
+              lines.append('- Result: `READ_FAILED`')
+              finish(); raise SystemExit(0)
+
+          d = r.json()
+          matched = False
           for f in d.get('files') or []:
-              files.append({'name':f.get('filename') or f.get('key'),'size':f.get('filesize') or f.get('size'),'checksum':f.get('checksum')})
-          creator_names=[c.get('name') for c in (md.get('creators') or []) if isinstance(c,dict)]
-          lines += [
-              '- Result: `FOUND`',
-              f"- Draft id: `{dep_id}`",
-              f"- Submitted: `{d.get('submitted')}`",
-              f"- State: `{d.get('state')}`",
-              f"- Title: `{md.get('title')}`",
-              f"- Resource type: `{md.get('upload_type')}`",
-              f"- Publication date: `{md.get('publication_date')}`",
-              f"- Creators: `{creator_names}`",
-              f"- Version: `{md.get('version')}`",
-              f"- Access right: `{md.get('access_right')}`",
-              f"- Legacy license field: `{md.get('license')}`",
-              f"- Description present: `{bool(md.get('description'))}`",
-              f"- Keywords count: `{len(md.get('keywords') or [])}`",
-              f"- Related identifiers count: `{len(md.get('related_identifiers') or [])}`",
-              f"- Files: `{json.dumps(files, ensure_ascii=False)}`",
-              f"- Metadata keys: `{sorted(md.keys())}`",
+              name = f.get('filename') or f.get('key')
+              size = f.get('filesize') or f.get('size')
+              if name == target_file and (size is None or int(size) == target_size):
+                  matched = True
+          if (not matched) or d.get('submitted'):
+              lines += ['- Result: `SAFETY_STOP`', '- File matched: `%s`' % matched, '- Submitted: `%s`' % d.get('submitted')]
+              finish(); raise SystemExit(0)
+
+          lic_id = None
+          lr = requests.get('https://zenodo.org/api/licenses/', params={'q':'PolyForm Noncommercial','size':100}, timeout=30)
+          lines.append('- License search HTTP: `%s`' % lr.status_code)
+          if lr.ok:
+              data = lr.json()
+              items = data.get('hits', {}).get('hits', []) if isinstance(data, dict) else data
+              for item in items or []:
+                  lm = item.get('metadata') or item
+                  iid = lm.get('id') or item.get('id') or ''
+                  title = lm.get('title') or item.get('title') or ''
+                  combined = (str(iid) + ' ' + str(title)).lower()
+                  if 'polyform' in combined and 'noncommercial' in combined:
+                      lic_id = iid
+                      break
+          if not lic_id:
+              for candidate in ['PolyForm-Noncommercial-1.0.0', 'polyform-noncommercial-1.0.0']:
+                  tr = requests.get('https://zenodo.org/api/licenses/' + candidate, timeout=30)
+                  if tr.ok:
+                      tj = tr.json(); tm = tj.get('metadata') or tj
+                      lic_id = tm.get('id') or tj.get('id') or candidate
+                      break
+          if not lic_id:
+              lines.append('- Result: `POLYFORM_LICENSE_NOT_FOUND`')
+              finish(); raise SystemExit(0)
+
+          md = dict(d.get('metadata') or {})
+          md['upload_type'] = 'software'
+          md['publication_date'] = '2026-08-21'
+          md['title'] = 'World v6.2 — Fractal Multi-Brain Architecture'
+          md['creators'] = [{'name':'Farokhi, Saeed'}]
+          md['description'] = (
+              '<p>Ratification Candidate of the World v6.2 Fractal Multi-Brain Architecture. '
+              'Status: NON-CANONICAL, NOT DEPLOYED, with E2 local component/contract evidence only.</p>'
+              '<p>PUBLIC / SOURCE-AVAILABLE / NON-COMMERCIAL. Original software is licensed under '
+              'PolyForm Noncommercial License 1.0.0. Original documentation and architecture are licensed '
+              'under CC BY-NC-SA 4.0. Commercial use requires a separate written license from Saeed Farokhi.</p>'
+              '<p>Exact release ZIP SHA-256: 44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b.</p>'
+          )
+          md['access_right'] = 'open'
+          md['license'] = lic_id
+          md['version'] = '6.2.0-rc.3'
+          md['keywords'] = [
+              'multi-agent systems','fractal architecture','multi-brain architecture','deterministic kernel',
+              'resolution-native architecture','AI orchestration','agent governance','source-available','non-commercial'
           ]
-          open(out,'w').write('\n'.join(lines))
+          md['notes'] = (
+              'Mixed-license release. Software: PolyForm Noncommercial License 1.0.0. '
+              'Documentation/architecture: CC BY-NC-SA 4.0. Commercial use requires a separate written license. '
+              'RC3 is a Ratification Candidate, NON-CANONICAL, NOT DEPLOYED. '
+              'Exact release ZIP SHA-256: 44c47e7d37ba7f6d34a8439ee0917b5b328c23cfbdb53b4cb917402e5869ea4b.'
+          )
+          md['related_identifiers'] = [
+              {'identifier':'https://github.com/saeedfaai/World-v6-public','relation':'isSupplementTo','scheme':'url'},
+              {'identifier':'https://github.com/saeedfaai/World-v6-public/releases/tag/v6.2.0-rc.3','relation':'isSupplementTo','scheme':'url'}
+          ]
+
+          u = requests.put(
+              'https://zenodo.org/api/deposit/depositions/' + dep_id,
+              headers=jh,
+              data=json.dumps({'metadata': md}),
+              timeout=30
+          )
+          lines += ['- Update HTTP: `%s`' % u.status_code, '- PolyForm license id: `%s`' % lic_id]
+          if not u.ok:
+              lines.append('- Result: `UPDATE_FAILED`')
+              try:
+                  ej = u.json()
+                  lines.append('- Message: `%s`' % ej.get('message',''))
+                  lines.append('- Errors: `%s`' % json.dumps(ej.get('errors'), ensure_ascii=False))
+              except Exception:
+                  lines.append('- Body: `%s`' % u.text[:800])
+              finish(); raise SystemExit(0)
+
+          vr = requests.get('https://zenodo.org/api/deposit/depositions/' + dep_id, headers=h, timeout=30)
+          vm = (vr.json().get('metadata') or {}) if vr.ok else {}
+          checks = {
+              'title': vm.get('title') == 'World v6.2 — Fractal Multi-Brain Architecture',
+              'resource_type': vm.get('upload_type') == 'software',
+              'creator': bool(vm.get('creators')),
+              'version': vm.get('version') == '6.2.0-rc.3',
+              'description': bool(vm.get('description')),
+              'access': vm.get('access_right') == 'open',
+              'license': vm.get('license') == lic_id,
+              'keywords': len(vm.get('keywords') or []) >= 5,
+              'links': len(vm.get('related_identifiers') or []) == 2,
+          }
+          result = 'SUCCESS' if all(checks.values()) else 'VERIFY_FAILED'
+          lines += [
+              '- Verify HTTP: `%s`' % vr.status_code,
+              '- Result: `%s`' % result,
+              '- Checks: `%s`' % json.dumps(checks, ensure_ascii=False),
+              '- Final title: `%s`' % vm.get('title'),
+              '- Final type: `%s`' % vm.get('upload_type'),
+              '- Final version: `%s`' % vm.get('version'),
+              '- Final license: `%s`' % vm.get('license'),
+          ]
+          finish()
           PY
 
-      - name: Report inspection
+      - name: Report fill result
         if: always()
         shell: bash
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo G7 draft inspection - ${GITHUB_RUN_ID}" --body-file /tmp/zenodo-inspect.md
+          test -f /tmp/zenodo-fill.md || printf '%s\n' 'Zenodo fill script failed before producing a report.' > /tmp/zenodo-fill.md
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo G7 fill verify - ${GITHUB_RUN_ID}" --body-file /tmp/zenodo-fill.md
