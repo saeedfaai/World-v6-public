@@ -1,0 +1,89 @@
+name: Inspect Zenodo G7 draft
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .zenodo-g7-inspect-trigger
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect matching Zenodo draft safely
+        id: inspect
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, json, requests
+          token=os.environ.get('ZENODO_TOKEN','')
+          out='/tmp/zenodo-inspect.md'
+          lines=['Zenodo G7 draft inspection (no token value exposed).','']
+          if not token:
+              lines += ['- Result: `MISSING_SECRET`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          r=requests.get('https://zenodo.org/api/deposit/depositions',params={'status':'draft','sort':'-mostrecent','size':100},headers=h,timeout=30)
+          lines += [f'- List drafts HTTP: `{r.status_code}`']
+          if not r.ok:
+              lines += ['- Result: `LIST_FAILED`']
+              try:
+                  j=r.json(); lines += [f"- Message: `{j.get('message','')}`"]
+              except Exception: pass
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          drafts=r.json()
+          if isinstance(drafts,dict): drafts=drafts.get('hits',{}).get('hits',[]) or drafts.get('entries',[]) or []
+          def fnames(d):
+              return [(f.get('filename') or f.get('key') or '') for f in (d.get('files') or [])]
+          cand=[d for d in drafts if 'World_v6.2_RC3_FINAL_RELEASE.zip' in fnames(d)]
+          if not cand:
+              cand=[d for d in drafts if 'World v6.2' in (d.get('title') or (d.get('metadata') or {}).get('title') or '')]
+          if not cand:
+              lines += ['- Result: `NO_MATCHING_DRAFT`', f'- Draft count visible: `{len(drafts)}`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          dep=cand[0]; dep_id=dep.get('id')
+          rr=requests.get(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=h,timeout=30)
+          lines += [f'- Read draft HTTP: `{rr.status_code}`']
+          if not rr.ok:
+              lines += ['- Result: `READ_FAILED`']
+              open(out,'w').write('\n'.join(lines)); raise SystemExit(0)
+          d=rr.json(); md=d.get('metadata') or {}
+          files=[]
+          for f in d.get('files') or []:
+              files.append({'name':f.get('filename') or f.get('key'),'size':f.get('filesize') or f.get('size'),'checksum':f.get('checksum')})
+          creator_names=[c.get('name') for c in (md.get('creators') or []) if isinstance(c,dict)]
+          lines += [
+              '- Result: `FOUND`',
+              f"- Draft id: `{dep_id}`",
+              f"- Submitted: `{d.get('submitted')}`",
+              f"- State: `{d.get('state')}`",
+              f"- Title: `{md.get('title')}`",
+              f"- Resource type: `{md.get('upload_type')}`",
+              f"- Publication date: `{md.get('publication_date')}`",
+              f"- Creators: `{creator_names}`",
+              f"- Version: `{md.get('version')}`",
+              f"- Access right: `{md.get('access_right')}`",
+              f"- Legacy license field: `{md.get('license')}`",
+              f"- Description present: `{bool(md.get('description'))}`",
+              f"- Keywords count: `{len(md.get('keywords') or [])}`",
+              f"- Related identifiers count: `{len(md.get('related_identifiers') or [])}`",
+              f"- Files: `{json.dumps(files, ensure_ascii=False)}`",
+              f"- Metadata keys: `{sorted(md.keys())}`",
+          ]
+          open(out,'w').write('\n'.join(lines))
+          PY
+
+      - name: Report inspection
+        if: always()
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo G7 draft inspection - ${GITHUB_RUN_ID}" --body-file /tmp/zenodo-inspect.md
