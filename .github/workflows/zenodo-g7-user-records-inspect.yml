@@ -1,0 +1,58 @@
+name: Inspect Zenodo user records for mixed rights
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - .zenodo-g7-user-records-trigger
+  workflow_dispatch:
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect user records
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, json, requests
+          token=os.environ['ZENODO_TOKEN']
+          h={'Authorization':'Bearer '+token,'Accept':'application/json'}
+          r=requests.get('https://zenodo.org/api/user/records',params={'size':25},headers=h,timeout=30)
+          lines=['Zenodo user-records inspection (sanitized).','',f'- HTTP: `{r.status_code}`']
+          if r.ok:
+              j=r.json(); hits=(j.get('hits') or {}).get('hits') or []
+              lines.append(f'- Hit count: `{len(hits)}`')
+              for idx,hit in enumerate(hits[:10]):
+                  md=hit.get('metadata') or {}
+                  title=md.get('title')
+                  if title and 'World v6.2' not in title and len(hits)>1:
+                      continue
+                  links=hit.get('links') or {}
+                  safe_links={k:v for k,v in links.items() if k in ['self','self_html','draft','edit','publish','latest','versions','files']}
+                  lines += [
+                    f'- Hit `{idx}` id: `{hit.get("id")}`',
+                    f'  - title: `{title}`',
+                    f'  - resource_type: `{json.dumps(md.get("resource_type"),ensure_ascii=False)}`',
+                    f'  - rights: `{json.dumps(md.get("rights"),ensure_ascii=False)}`',
+                    f'  - access: `{json.dumps(hit.get("access"),ensure_ascii=False)}`',
+                    f'  - is_published: `{hit.get("is_published")}`',
+                    f'  - links: `{json.dumps(safe_links,ensure_ascii=False)}`',
+                  ]
+          else:
+              try:
+                  ej=r.json(); lines += [f'- Message: `{ej.get("message","")}`']
+              except Exception: pass
+          open('/tmp/user-records.md','w').write('\n'.join(lines))
+          PY
+      - name: Report
+        shell: bash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh issue create --repo "$GITHUB_REPOSITORY" --title "Zenodo user records inspection - ${GITHUB_RUN_ID}" --body-file /tmp/user-records.md
