@@ -7,6 +7,17 @@
 وضعیت رسمی:
 `RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED`
 
+
+## همکاری تجاری و پیشنهاد مالی
+
+World v6.2 برای **پیشنهادهای تجاری و مالی** باز است؛ از جمله خرید لایسنس تجاری، اجرای Enterprise، OEM/White-label، سهم از درآمد یا Royalty، شراکت راهبردی و Joint Venture. پیشنهادهای دارای ساختار مالی مشخص در اولویت بررسی هستند.
+
+انتشار عمومی این مخزن هیچ حق استفادهٔ تجاری ایجاد نمی‌کند. هر استفادهٔ تجاری نیازمند **قرارداد کتبی جداگانه با Saeed Farokhi** است.
+
+**[مدل‌های همکاری و راهنمای پیشنهاد تجاری](COMMERCIAL.md)** · **[ارسال Commercial Inquiry](https://github.com/saeedfaai/World-v6-public/issues/new?template=commercial-inquiry.yml)**
+
+> Issueهای GitHub عمومی‌اند؛ اطلاعات محرمانه یا جزئیات خصوصی معامله را در Issue ننویسید. Issue فقط برای شروع ارتباط و انتقال مذاکره به کانال خصوصی است.
+
 Root Constitution v1.0 و Canonical Entity DNA v1.2 تغییر نکرده‌اند. RC2 به‌عنوان
 والد مستقل و قابل Rollback محفوظ است. RC3 هیچ Deployment، Migration، Provider API
 زنده یا Canonical promotion را ادعا نمی‌کند.

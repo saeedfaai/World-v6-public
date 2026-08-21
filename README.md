@@ -6,6 +6,16 @@
 **Author:** Saeed Farokhi  
 **Repository:** `saeedfaai/World-v6-public`
 
+## Commercial licensing & partnerships — proposals welcome
+
+World v6.2 is open to **commercial licensing, paid enterprise deployment, OEM/embedded licensing, royalty or revenue-share arrangements, strategic partnerships, and joint ventures**. Concrete financial proposals are welcome.
+
+The public release does **not** grant commercial rights. Commercial use requires a separate written agreement with **Saeed Farokhi**.
+
+**[Commercial options & proposal guidance](COMMERCIAL.md)** · **[Open a commercial inquiry](https://github.com/saeedfaai/World-v6-public/issues/new?template=commercial-inquiry.yml)**
+
+> GitHub Issues are public. Do not post confidential deal terms or private business information; use the inquiry only to establish a private negotiation channel.
+
 > World v6.2 is a model-independent architecture in which identity, canonical truth,
 > policy, authority, effects, memory, and lifecycle remain outside any individual AI
 > model or provider. AI systems act as replaceable proposal-producing cognitive
