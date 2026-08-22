@@ -1,0 +1,62 @@
+name: Submit World 7 to Substrate-Rooted Identity
+
+on:
+  push:
+    branches:
+      - release/world7-v0.2-rc1
+
+permissions:
+  contents: write
+
+jobs:
+  submit:
+    if: contains(github.event.head_commit.message, 'Submit World 7 to Substrate-Rooted Identity')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/world7-v0.2-rc1
+      - name: Submit published record
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os,json,requests,pathlib,datetime
+          rid='22058813'; slug='substrate-rooted-identity'
+          token=os.environ.get('ZENODO_TOKEN','')
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          jh={**h,'Content-Type':'application/json'}
+          out={'record_id':rid,'doi':'10.5281/zenodo.22058813','community_slug':slug,'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'token_present':bool(token)}
+          if not token:
+              out['status']='MISSING_ZENODO_TOKEN'
+          else:
+              rr=requests.get(f'https://zenodo.org/api/records/{rid}',headers=h,timeout=60)
+              out['record_http']=rr.status_code
+              if rr.ok:
+                  rec=rr.json(); communities_url=(rec.get('links') or {}).get('communities') or f'https://zenodo.org/api/records/{rid}/communities'
+                  c=requests.get(f'https://zenodo.org/api/communities/{slug}',headers=h,timeout=60)
+                  out['community_http']=c.status_code
+                  if c.ok:
+                      cj=c.json(); cid=cj.get('id') or slug
+                      out['community_id']=cid; out['community_title']=(cj.get('metadata') or {}).get('title'); out['community_access']=cj.get('access')
+                      p=requests.post(communities_url,headers=jh,data=json.dumps({'communities':[{'id':cid}]}),timeout=60)
+                      out['submit_http']=p.status_code
+                      try: body=p.json()
+                      except Exception: body={'raw':p.text[:1500]}
+                      out['response']=body
+                      text=json.dumps(body,ensure_ascii=False).lower()
+                      if p.status_code in (200,201,202): out['status']='SUBMITTED_OR_INCLUDED'
+                      elif p.status_code in (400,409) and ('already' in text or 'existing' in text or 'included' in text): out['status']='ALREADY_INCLUDED_OR_PENDING'
+                      elif p.status_code==403: out['status']='COMMUNITY_POLICY_FORBIDS_SUBMISSION'
+                      else: out['status']='SUBMISSION_FAILED'
+                  else:
+                      out['status']='COMMUNITY_NOT_FOUND_OR_UNREADABLE'; out['body']=c.text[:800]
+              else:
+                  out['status']='RECORD_READ_FAILED'; out['body']=rr.text[:800]
+          pathlib.Path('world7/ZENODO_SUBSTRATE_ROOTED_IDENTITY_SUBMISSION_v7.0.0-rc.1.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add world7/ZENODO_SUBSTRATE_ROOTED_IDENTITY_SUBMISSION_v7.0.0-rc.1.json
+          git commit -m "[community-marker] Record substrate-rooted identity submission" || true
+          git push origin HEAD:release/world7-v0.2-rc1
