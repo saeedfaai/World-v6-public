@@ -1,0 +1,28 @@
+{
+  "record_id": "22058813",
+  "doi": "10.5281/zenodo.22058813",
+  "community_slug": "substrate-rooted-identity",
+  "checked_at_utc": "2026-08-22T16:04:46.070463+00:00",
+  "token_present": true,
+  "record_http": 200,
+  "community_http": 200,
+  "community_id": "13ab791f-923e-423e-82ff-b660e21e7f35",
+  "community_title": "Substrate-Rooted Identity",
+  "community_access": {
+    "visibility": "public",
+    "members_visibility": "public",
+    "member_policy": "open",
+    "record_submission_policy": "closed",
+    "review_policy": "members"
+  },
+  "submit_http": 400,
+  "response": {
+    "errors": [
+      {
+        "community_id": "13ab791f-923e-423e-82ff-b660e21e7f35",
+        "message": "Submission to this community is only allowed to community members."
+      }
+    ]
+  },
+  "status": "SUBMISSION_FAILED"
+}
