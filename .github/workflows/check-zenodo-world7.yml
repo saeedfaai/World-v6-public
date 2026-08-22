@@ -15,12 +15,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - name: Poll Zenodo for World 7 record
-        env:
-          GH_TOKEN: ${{ github.token }}
         run: |
-          set -euo pipefail
+          set -u
           mkdir -p world7
           found=0
+          last_rc=1
           for i in 1 2 3 4 5 6; do
             python - <<'PY'
 import json, urllib.parse, urllib.request, pathlib, sys
@@ -29,7 +28,7 @@ url='https://zenodo.org/api/records/?q='+urllib.parse.quote(q)+'&size=100&sort=m
 try:
     data=json.load(urllib.request.urlopen(url, timeout=30))
 except Exception as e:
-    pathlib.Path('world7/ZENODO_CHECK.json').write_text(json.dumps({'status':'QUERY_ERROR','error':str(e)},indent=2),encoding='utf-8')
+    pathlib.Path('world7/ZENODO_CHECK.json').write_text(json.dumps({'status':'QUERY_ERROR','query':q,'error':str(e)},indent=2),encoding='utf-8')
     sys.exit(2)
 hits=[]
 for h in data.get('hits',{}).get('hits',[]):
@@ -42,12 +41,10 @@ for h in data.get('hits',{}).get('hits',[]):
         hits.append({'id':h.get('id'),'doi':h.get('doi'),'links':h.get('links',{}),'metadata':md})
 out={'status':'FOUND' if hits else 'NOT_FOUND','query':q,'hits':hits}
 pathlib.Path('world7/ZENODO_CHECK.json').write_text(json.dumps(out,indent=2,ensure_ascii=False),encoding='utf-8')
-if hits:
-    sys.exit(0)
-sys.exit(1)
+sys.exit(0 if hits else 1)
 PY
-            rc=$?
-            if [ "$rc" = 0 ]; then found=1; break; fi
+            last_rc=$?
+            if [ "$last_rc" = 0 ]; then found=1; break; fi
             sleep 20
           done
           git config user.name github-actions[bot]
@@ -55,4 +52,4 @@ PY
           git add world7/ZENODO_CHECK.json
           git commit -m "Record Zenodo check for World 7" || true
           git push
-          if [ "$found" = 0 ]; then exit 0; fi
+          exit 0
