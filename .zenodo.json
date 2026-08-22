@@ -1,22 +1,26 @@
 {
-  "title": "World v6.2 — Fractal Multi-Brain Architecture",
+  "title": "World 7 v0.2 — Living Genome Architecture for Persistent Digital Organisms",
   "upload_type": "software",
   "creators": [
     {
       "name": "Farokhi, Saeed"
     }
   ],
-  "version": "6.2.0-rc.3",
-  "description": "Ratification Candidate of the World v6.2 Fractal Multi-Brain Architecture. Non-Canonical, Not Deployed, E2 local component/contract evidence only. This is a public/source-available non-commercial release: original software is licensed for noncommercial purposes under PolyForm Noncommercial 1.0.0 and original documentation/architecture under CC BY-NC-SA 4.0. Commercial use requires a separate written license from Saeed Farokhi.",
+  "version": "7.0.0-rc.1",
+  "description": "World 7 is a ratification-candidate genomic runtime architecture for persistent digital organisms. It separates identity, canonical state, memory, authority, lineage, development, genesis, repair, reconstruction and evolution from replaceable AI models and providers. The v0.2 candidate begins with secretary-001 at G0/G0.5, treats ChatGPT and Grok as proposal-only cognitive hosts, defines a 19-chromosome Universal Genome, governed inheritance and birth gates, RoleBinding-based authority, a deterministic proposal-to-commit Spine with CAS/idempotency/hash chaining, Pulse/Tempo/Resolution controls, and an evidence-driven G0→G10 roadmap. Evidence is bounded: 2048 proof obligations are registered, 4096/4096 bounded local model assertions pass, 18/18 seed reference tests pass, while live shared ChatGPT/Grok canonical state, clean-host restore, PostgreSQL atomicity, security/load/chaos and production readiness remain open. This is a public/source-available non-commercial release; see LICENSE for the software/documentation license map.",
   "keywords": [
+    "persistent digital organisms",
+    "genomic runtime",
+    "AI agents",
     "multi-agent systems",
-    "fractal architecture",
-    "multi-brain architecture",
-    "deterministic kernel",
-    "resolution-native architecture",
-    "AI orchestration",
+    "multi-model AI",
     "agent governance",
-    "non-commercial source-available"
+    "event sourcing",
+    "hash chain",
+    "AI memory",
+    "digital organisms",
+    "evidence-driven architecture",
+    "non-extinction architecture"
   ],
   "related_identifiers": [
     {
@@ -25,10 +29,10 @@
       "scheme": "url"
     },
     {
-      "identifier": "https://github.com/saeedfaai/World-v6-public/releases/tag/v6.2.0-rc.3",
-      "relation": "isSupplementTo",
-      "scheme": "url"
+      "identifier": "10.5281/zenodo.22040348",
+      "relation": "isNewVersionOf",
+      "scheme": "doi"
     }
   ],
-  "notes": "This release is not OSI Open Source because commercial use is restricted. See LICENSE for the software/documentation license map, NOTICE for release status, and THIRD_PARTY_NOTICES.md for exclusions. Zenodo version DOI: 10.5281/zenodo.22040348; concept DOI: 10.5281/zenodo.22040347."
+  "notes": "Release status: RATIFICATION_CANDIDATE / GENESIS_STARTED_CANDIDATE / NON-CANONICAL / NOT DEPLOYED / NOT PRODUCTION. Previous World v6.2 version DOI: 10.5281/zenodo.22040348; concept DOI: 10.5281/zenodo.22040347. The new World 7 DOI is intentionally not prefilled and must be assigned by Zenodo after the GitHub Release is archived."
 }
