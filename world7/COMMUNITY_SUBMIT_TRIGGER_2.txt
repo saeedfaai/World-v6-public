@@ -1,0 +1,5 @@
+Second isolated World 7 Zenodo community submission trigger
+Record: 22058813
+DOI: 10.5281/zenodo.22058813
+Targets: ai_ml, intelligent
+Release workflow suppressed by marker.
