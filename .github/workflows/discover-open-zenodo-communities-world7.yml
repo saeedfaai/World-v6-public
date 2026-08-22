@@ -1,0 +1,68 @@
+name: Discover Open Zenodo Communities for World 7
+
+on:
+  push:
+    branches:
+      - release/world7-v0.2-rc1
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    if: contains(github.event.head_commit.message, 'Discover open Zenodo communities')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/world7-v0.2-rc1
+
+      - name: Discover relevant open-submission communities
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os,json,requests,pathlib,datetime,re
+          token=os.environ.get('ZENODO_TOKEN','')
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'} if token else {'Accept':'application/json'}
+          queries=['artificial intelligence','multi-agent','multi agent','autonomous agents','intelligent systems','AI agents','agent systems']
+          seen={}
+          for q in queries:
+              r=requests.get('https://zenodo.org/api/communities',headers=h,params={'q':q,'size':100},timeout=60)
+              if not r.ok: continue
+              data=r.json(); hits=data.get('hits',{}).get('hits',[]) if isinstance(data,dict) else data
+              for c in hits or []:
+                  cid=c.get('id')
+                  if cid: seen[cid]=c
+          rows=[]
+          for cid,c in seen.items():
+              try:
+                  rr=requests.get(f'https://zenodo.org/api/communities/{cid}',headers=h,timeout=30)
+                  if not rr.ok: continue
+                  cj=rr.json(); md=cj.get('metadata') or {}; access=cj.get('access') or {}
+                  if access.get('record_submission_policy')!='open': continue
+                  blob=' '.join(str(x or '') for x in [md.get('title'),md.get('description'),md.get('page')]).lower()
+                  score=0
+                  for kw,w in [('multi-agent',6),('multi agent',6),('ai agent',5),('intelligent agent',5),('autonomous agent',5),('intelligent systems',4),('artificial intelligence',3),('agent',2),('machine learning',1)]:
+                      if kw in blob: score+=w
+                  # Avoid obviously institution/project-specific collections unless highly relevant.
+                  penalty=0
+                  for bad in ['conference proceedings','university repository','institutional repository','thesis repository','project deliverables']:
+                      if bad in blob: penalty+=4
+                  score-=penalty
+                  if score>=4:
+                      rows.append({'id':cid,'slug':cj.get('slug') or cid,'title':md.get('title'),'description':md.get('description'),'access':access,'score':score,'links':cj.get('links')})
+              except Exception:
+                  pass
+          rows=sorted(rows,key=lambda x:(-x['score'],x.get('title') or ''))[:20]
+          out={'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'count':len(rows),'candidates':rows}
+          pathlib.Path('world7/ZENODO_OPEN_COMMUNITIES_DISCOVERY_v7.0.0-rc.1.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          PY
+
+      - name: Commit discovery receipt
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add world7/ZENODO_OPEN_COMMUNITIES_DISCOVERY_v7.0.0-rc.1.json
+          git commit -m "[community-discovery-marker] Record open Zenodo communities for World 7" || true
+          git push origin HEAD:release/world7-v0.2-rc1
