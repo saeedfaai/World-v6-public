@@ -1,0 +1,11 @@
+{
+  "release": "World 7 v0.2 RC1",
+  "tag": "v7.0.0-rc.1",
+  "name": "World 7 v0.2 \u2014 Living Genome Architecture for Persistent Digital Organisms",
+  "url": "https://github.com/saeedfaai/World-v6-public/releases/tag/v7.0.0-rc.1",
+  "isDraft": false,
+  "isPrerelease": false,
+  "workflow_commit": "a3e5d1cf61bcc0dca6ab990f6afe0a166e4ccda4",
+  "verified_at_utc": "2026-08-22T15:21:09.409933+00:00",
+  "status": "GITHUB_RELEASE_PUBLISHED_OR_VERIFIED"
+}
