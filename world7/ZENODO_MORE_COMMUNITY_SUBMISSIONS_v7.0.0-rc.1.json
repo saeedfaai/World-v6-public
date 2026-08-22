@@ -1,0 +1,79 @@
+{
+  "record_id": "22058813",
+  "doi": "10.5281/zenodo.22058813",
+  "checked_at_utc": "2026-08-22T16:09:36.137640+00:00",
+  "results": [
+    {
+      "slug": "ai_andone_research",
+      "label": "AI information and research",
+      "community_http": 200,
+      "community_id": "34f3f63d-3593-408f-a1b7-52915fc842d8",
+      "title": "AI information and research",
+      "access": {
+        "visibility": "public",
+        "members_visibility": "public",
+        "member_policy": "open",
+        "record_submission_policy": "open",
+        "review_policy": "closed"
+      },
+      "submit_http": 400,
+      "response": {
+        "errors": [
+          {
+            "community_id": "34f3f63d-3593-408f-a1b7-52915fc842d8",
+            "message": "There is already an open inclusion request for this community."
+          }
+        ]
+      },
+      "status": "ALREADY_PENDING"
+    },
+    {
+      "slug": "computing-perspectives",
+      "label": "Computing Perspectives",
+      "community_http": 200,
+      "community_id": "b8bbdfd1-4bef-4156-b517-630eb6f4485d",
+      "title": "Computing Perspectives",
+      "access": {
+        "visibility": "public",
+        "members_visibility": "public",
+        "member_policy": "open",
+        "record_submission_policy": "open",
+        "review_policy": "open"
+      },
+      "submit_http": 400,
+      "response": {
+        "errors": [
+          {
+            "community_id": "b8bbdfd1-4bef-4156-b517-630eb6f4485d",
+            "message": "There is already an open inclusion request for this community."
+          }
+        ]
+      },
+      "status": "ALREADY_PENDING"
+    },
+    {
+      "slug": "rse",
+      "label": "Research Software Engineering",
+      "community_http": 200,
+      "community_id": "5ca0f144-78b9-4807-8043-0a78215456f6",
+      "title": "Research Software Engineering",
+      "access": {
+        "visibility": "public",
+        "members_visibility": "public",
+        "member_policy": "open",
+        "record_submission_policy": "open",
+        "review_policy": "open"
+      },
+      "submit_http": 400,
+      "response": {
+        "errors": [
+          {
+            "community_id": "5ca0f144-78b9-4807-8043-0a78215456f6",
+            "message": "There is already an open inclusion request for this community."
+          }
+        ]
+      },
+      "status": "ALREADY_PENDING"
+    }
+  ]
+}
