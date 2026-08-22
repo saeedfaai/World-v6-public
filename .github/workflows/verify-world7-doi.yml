@@ -1,0 +1,40 @@
+name: Verify World 7 Zenodo DOI
+
+on:
+  push:
+    branches:
+      - release/world7-v0.2-rc1
+
+permissions:
+  contents: write
+
+jobs:
+  verify-doi:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Resolve exact Zenodo record
+        run: |
+          python - <<'PY'
+import json, pathlib, urllib.request, urllib.error
+record_id='22058813'
+url=f'https://zenodo.org/api/records/{record_id}'
+out={'record_id':record_id,'doi':'10.5281/zenodo.22058813','api_url':url}
+try:
+    with urllib.request.urlopen(url, timeout=30) as r:
+        data=json.load(r)
+        out.update({'status':'VERIFIED_PUBLISHED','http_status':r.status,'title':data.get('metadata',{}).get('title'),'record':data})
+except urllib.error.HTTPError as e:
+    out.update({'status':'NOT_VERIFIED','http_status':e.code,'error':str(e)})
+except Exception as e:
+    out.update({'status':'QUERY_ERROR','error':str(e)})
+pathlib.Path('world7/ZENODO_DOI_VERIFICATION.json').write_text(json.dumps(out,indent=2,ensure_ascii=False),encoding='utf-8')
+PY
+      - name: Commit verification receipt
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add world7/ZENODO_DOI_VERIFICATION.json
+          git commit -m "Verify World 7 Zenodo DOI" || true
+          git push
