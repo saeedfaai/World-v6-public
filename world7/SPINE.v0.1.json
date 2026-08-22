@@ -1,0 +1,77 @@
+{
+  "brain_rule": {
+    "authority": "NONE_FROM_PROVIDER_CONFIDENCE",
+    "chatgpt": "PROPOSAL_ONLY",
+    "grok": "PROPOSAL_ONLY",
+    "other_brains": "PROPOSAL_ONLY"
+  },
+  "canonicalization": {
+    "encoding": "UTF-8",
+    "reference_implementation_rule": "implementations MUST use a conformant JCS serializer; simplified sort_keys serializers are test fixtures only",
+    "standard": "RFC8785_JCS"
+  },
+  "cas_commit": {
+    "on_conflict": "REJECT_AS_CONFLICT; reread current state; reconcile by idempotency/payload semantics; create a new proposal; never overwrite",
+    "on_success": [
+      "previous_head_hash := current_state.head_hash",
+      "event_hash := deterministic hash formula",
+      "append committed event atomically",
+      "state_version := state_version + 1",
+      "head_event_id := event_id",
+      "head_hash := event_hash",
+      "materialize checkpoint according to policy"
+    ],
+    "preconditions": [
+      "proposal.expected_head_hash == current_state.head_hash",
+      "proposal.entity_id == current_state.entity_id",
+      "idempotency rule passes",
+      "proposal validates against event contract",
+      "authority and policy gates pass"
+    ]
+  },
+  "committed_event": {
+    "event_hash_formula": "SHA-256(JCS({event_id,entity_id,event_type,timestamp,idempotency_key,payload,provenance}) || previous_head_hash)",
+    "hash_excludes": ["event_hash","status","commit_metadata"],
+    "status": "COMMITTED",
+    "writer_class": "ACTIVE_SEQUENCER_ONLY"
+  },
+  "document_status": "RATIFICATION_CANDIDATE_NOT_CANONICAL_NOT_DEPLOYED",
+  "external_effects": {
+    "enabled_in_g0": false,
+    "future_requirement": "policy + exact approval + outbox + idempotent executor + reconciliation",
+    "proposal_only": true
+  },
+  "genesis_head_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+  "idempotency": {
+    "primary_key": "idempotency_key",
+    "same_key_different_payload_hash": "REJECT_IDEMPOTENCY_COLLISION",
+    "same_key_same_payload_hash": "RETURN_EXISTING_COMMIT_OR_NOOP",
+    "scope": "entity_spine"
+  },
+  "integrity": {
+    "append_only": true,
+    "compensating_events_for_correction": true,
+    "hash_chain_verification_required": true,
+    "lost_update_prevention": "CAS via expected_head_hash plus state_version",
+    "tamper_signal": "head-hash mismatch or replay mismatch"
+  },
+  "proposal": {
+    "direct_canonical_append": false,
+    "expected_head_hash_semantics": "CAS expectation only; it becomes committed.previous_head_hash only after sequencer validation",
+    "status": "PROPOSED",
+    "writer_classes": ["BRAIN_HOST","MANUAL_HOST","TOOL_ADAPTER","HUMAN_PROXY"]
+  },
+  "schema_version": "world-v7.spine-contract.v0.1.0",
+  "sequencer_lease": {
+    "failover": "on lease expiry or governed revocation a new authorized holder may acquire lease",
+    "g0_holder": "human-root",
+    "sequencer_is_identity": false,
+    "single_active_per_entity_spine": true
+  },
+  "state_checkpoint": {
+    "forbidden": "state-only facts that cannot be derived from committed history or explicitly referenced immutable artifacts",
+    "rebuild_rule": "load latest valid checkpoint, replay all later committed events, verify hash chain, materialize new checkpoint",
+    "source_of_history": "COMMITTED_EVENT_LOG",
+    "state_is": "MATERIALIZED_CHECKPOINT"
+  }
+}
