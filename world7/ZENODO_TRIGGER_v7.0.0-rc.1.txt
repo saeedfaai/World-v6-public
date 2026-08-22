@@ -1,0 +1,4 @@
+Publish World 7 v0.2 RC1 to Zenodo
+Requested by Human Root: 2026-08-22
+Target version: 7.0.0-rc.1
+Do not modify World v6.2 record 22040348.
