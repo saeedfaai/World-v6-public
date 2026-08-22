@@ -10,14 +10,17 @@ permissions:
 
 jobs:
   release:
-    if: github.ref == 'refs/heads/release/world7-v0.2-rc1'
+    if: github.ref == 'refs/heads/release/world7-v0.2-rc1' && !contains(github.event.head_commit.message, '[release-marker]')
     runs-on: ubuntu-latest
     steps:
       - name: Check out release snapshot
         uses: actions/checkout@v4
+        with:
+          ref: release/world7-v0.2-rc1
 
       - name: Build public World 7 core snapshot
         run: |
+          rm -rf publication-artifact
           mkdir -p publication-artifact
           cp .zenodo.json publication-artifact/
           cp CITATION.cff publication-artifact/
@@ -36,17 +39,47 @@ jobs:
           (cd publication-artifact && zip -r ../World_7_v0.2_RC1_public_snapshot.zip .)
           sha256sum World_7_v0.2_RC1_public_snapshot.zip > World_7_v0.2_RC1_public_snapshot.zip.sha256
 
-      - name: Publish GitHub Release
+      - name: Publish or verify GitHub Release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           if gh release view v7.0.0-rc.1 >/dev/null 2>&1; then
-            echo "Release already exists; leaving it unchanged."
-            exit 0
+            echo "Release already exists."
+          else
+            gh release create v7.0.0-rc.1 \
+              --target "$GITHUB_SHA" \
+              --title "World 7 v0.2 — Living Genome Architecture for Persistent Digital Organisms" \
+              --notes-file WORLD7_RELEASE_NOTES_v0.2.md \
+              World_7_v0.2_RC1_public_snapshot.zip \
+              World_7_v0.2_RC1_public_snapshot.zip.sha256
           fi
-          gh release create v7.0.0-rc.1 \
-            --target "$GITHUB_SHA" \
-            --title "World 7 v0.2 — Living Genome Architecture for Persistent Digital Organisms" \
-            --notes-file WORLD7_RELEASE_NOTES_v0.2.md \
-            World_7_v0.2_RC1_public_snapshot.zip \
-            World_7_v0.2_RC1_public_snapshot.zip.sha256
+          gh release view v7.0.0-rc.1 --json url,tagName,name,isDraft,isPrerelease > /tmp/release.json
+          cat /tmp/release.json
+
+      - name: Write release receipt to branch
+        run: |
+          python - <<'PY'
+          import json, pathlib, subprocess, datetime
+          data = json.loads(pathlib.Path('/tmp/release.json').read_text())
+          receipt = {
+              'release': 'World 7 v0.2 RC1',
+              'tag': data['tagName'],
+              'name': data['name'],
+              'url': data['url'],
+              'isDraft': data['isDraft'],
+              'isPrerelease': data['isPrerelease'],
+              'workflow_commit': '${{ github.sha }}',
+              'verified_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'status': 'GITHUB_RELEASE_PUBLISHED_OR_VERIFIED'
+          }
+          pathlib.Path('world7/RELEASE_PUBLISHED_v7.0.0-rc.1.json').write_text(json.dumps(receipt, indent=2)+'\n')
+          PY
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add world7/RELEASE_PUBLISHED_v7.0.0-rc.1.json
+          if git diff --cached --quiet; then
+            echo "Receipt unchanged."
+          else
+            git commit -m "[release-marker] Record World 7 v0.2 GitHub Release receipt"
+            git push origin HEAD:release/world7-v0.2-rc1
+          fi
