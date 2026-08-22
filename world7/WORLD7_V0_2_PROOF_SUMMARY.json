@@ -1,0 +1,34 @@
+{
+  "release": "world-7-v0.2-rc1",
+  "status": "RATIFICATION_CANDIDATE_NOT_PRODUCTION",
+  "proof_registry": {
+    "count": 2048,
+    "domains": 32,
+    "proof_classes": 8,
+    "scenarios": 8,
+    "status_counts": {
+      "DEFINED_E1": 132,
+      "OPEN": 1720,
+      "PASS_E2_LOCAL_MODEL": 160,
+      "HISTORICAL_CANDIDATE_E2_NOT_REVALIDATED_V02": 30,
+      "PASS_E2_LOCAL_REFERENCE": 6
+    }
+  },
+  "local_executable_assertions": {
+    "total": "4096/4096 PASS",
+    "authority": "1024/1024 PASS",
+    "birth_specialization": "256/256 PASS",
+    "birth_structural": "256/256 PASS",
+    "cas_conflict": "256/256 PASS",
+    "cas_success": "256/256 PASS",
+    "hash_determinism": "256/256 PASS",
+    "hash_tamper": "256/256 PASS",
+    "individual_allowed": "256/256 PASS",
+    "individual_forbidden": "256/256 PASS",
+    "resource": "512/512 PASS",
+    "tempo": "512/512 PASS"
+  },
+  "seed_reference": "18/18 PASS",
+  "boundary": "Local reference/model properties only; not deployment, distributed-systems, restore, security, load, chaos, or production proof.",
+  "current_blocking_gap": "gap-001-session-continuity"
+}
