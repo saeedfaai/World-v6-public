@@ -2,4 +2,4 @@ World 7 v0.2 RC1 release trigger
 Target tag: v7.0.0-rc.1
 Date: 2026-08-22
 Status: RATIFICATION_CANDIDATE / NON-CANONICAL / NOT PRODUCTION
-Trigger attempt: 2 — receipt-enabled workflow
+Trigger attempt: 3 — consolidated GitHub + Zenodo publisher
