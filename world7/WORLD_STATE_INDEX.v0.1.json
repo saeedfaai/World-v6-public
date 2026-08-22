@@ -1,0 +1,128 @@
+{
+  "schema_version": "world-v7.world-state-index.v0.1.0",
+  "index_kind": "DERIVED_OBSERVABILITY_PROJECTION_NOT_NEW_GENOME_PRIMITIVE",
+  "generated_at": "2026-08-22T15:08:00+03:30",
+  "world_id": "world-001",
+  "headline": "WORLD 7 GENESIS STARTED - candidate living-development execution has begun from secretary-001 G0; canonical shared Spine is the current blocking gap.",
+  "truth_boundary": {
+    "canonical": false,
+    "deployed": false,
+    "production": false,
+    "allowed_claim": "GENESIS_STARTED_CANDIDATE",
+    "forbidden_claims": [
+      "fully autonomous World 7",
+      "production-grade shared ChatGPT/Grok state",
+      "restore-proven non-extinction",
+      "live autonomous Brain Farm",
+      "autonomous Genesis/offspring creation"
+    ]
+  },
+  "current_stage": {
+    "stage_id": "G0.5_SEED_SPINE_CANDIDATE",
+    "meaning": "identity/genome/spine contracts exist and local reference proofs run, but shared live multi-host canonical Spine is not yet connected",
+    "next_stage_gate": "G1_SHARED_CANONICAL_SPINE"
+  },
+  "first_living_phenotype": {
+    "entity_id": "secretary-001",
+    "species": "frontline-assistant",
+    "role": "secretary",
+    "expression_mode": "PROXY",
+    "holder": "human-root",
+    "life_loop": "ON",
+    "evolution_loop": "OFF",
+    "self_genome_write": false,
+    "may_propose_children": false,
+    "manual_host_sessions": ["chatgpt", "grok"],
+    "shared_live_state_between_hosts": false
+  },
+  "world_envelope": {
+    "world_id": "world-001",
+    "is_second_living_entity": false,
+    "role": "genome/state namespace and governance envelope at G0"
+  },
+  "candidate_components": [
+    {"id":"world-governor-role","kind":"VIRTUAL_ROLE_NODE","expression":"PROXY","holder":"human-root","status":"CANDIDATE_FIXTURE"},
+    {"id":"brain-farm-001","kind":"SHARED_COGNITIVE_SERVICE_FIXTURE","expression":"SHARED","status":"CANDIDATE_NOT_LIVE_V7_FARM"},
+    {"id":"development-architect-role","kind":"ROLE_BEHAVIOR","expression":"PROXY_BY_HUMAN_ROOT_PLUS_MANUAL_AI","status":"NOT_DEDICATED_ENTITY"},
+    {"id":"genome-compiler","kind":"DETERMINISTIC_FUNCTION_CONTRACT","status":"LOCAL_REFERENCE_HASH_PROOF"},
+    {"id":"sequencer-role","kind":"ROLE_WITH_SINGLE_ACTIVE_LEASE_CONTRACT","holder":"human-root","status":"CONTRACT_DEFINED_PERSISTENT_SHARED_PIPELINE_OPEN"}
+  ],
+  "development": {
+    "current_gap": {
+      "gap_id": "gap-001-session-continuity",
+      "statement": "ChatGPT and Grok are still manual sessions and are not bound to one persistent canonical event/state head.",
+      "status": "OPEN_BLOCKING_G1",
+      "smallest_safe_intervention": "Proposal queue -> single sequencer lease -> atomic committed hash-chain -> materialized checkpoint -> both hosts reread canonical head"
+    },
+    "base_rule": "one highest-value real gap per G0 base development pulse",
+    "valid_pulse_outputs": ["GAP_CLOSED_WITH_TEST","EVIDENCE_ADDED","ESCALATION_TO_HUMAN_ROOT"]
+  },
+  "temporal_state": {
+    "world_tempo": "NORMAL",
+    "secretary_life_pulse": {"mode":"EVENT","runtime":"MANUAL_HOST_INPUT"},
+    "evidence_pulse": {"mode":"EVENT","runtime":"PARTIAL_MANUAL"},
+    "development_pulse": {"mode":"SCHEDULE","base":"P1D","runtime":"DEFINED_NOT_AUTOMATED"},
+    "genome_evolution_review": {"base":"P7D_OR_EVIDENCE_TRIGGERED","runtime":"NOT_ACTIVE_FOR_SECRETARY"},
+    "safety_authority_gate": {"mode":"SYNCHRONOUS","bypassable_by_tempo":false}
+  },
+  "resolution_state": {
+    "architecture_review_projection": "DETAILED",
+    "edge_resolution_contract": ["MINIMAL","SUMMARY","DETAILED","RAW"],
+    "current_shared_brain_edge_runtime": "NOT_LIVE",
+    "rule": "tempo/frequency may change runtime behavior but cannot lower constitutional, authority, privacy or minimum-evidence requirements"
+  },
+  "genomic_state": {
+    "universal_genome_language": "v0.1 candidate",
+    "capacity_chromosomes_defined": 19,
+    "principle": "complete in possibility, minimal in expression",
+    "inheritance": ["UNIVERSAL","SPECIES","ROLE","INDIVIDUAL"],
+    "genesis_runtime": "NOT_INSTANTIATED; law exists inside Development decision path",
+    "evolution_runtime": "OFF_FOR_SECRETARY"
+  },
+  "evidence": {
+    "v7_seed_reference_tests": "18/18 PASS E2 local reference",
+    "v7_v0_2_executable_model_proofs": "4096/4096 PASS local model properties",
+    "v7_proof_obligations_registered": 2048,
+    "v6_2_rc3_historical_local_tests": "114/114 PASS historical candidate evidence",
+    "ci_for_latest_v7_candidate": "NO_WORKFLOW_RUN_EVIDENCE",
+    "clean_host_restore": "OPEN",
+    "security_load_chaos": "OPEN",
+    "postgres_atomicity": "OPEN"
+  },
+  "persistence_and_backup": {
+    "architecture_release_package": "EXISTS",
+    "append_only_spine_contract": "DEFINED",
+    "shared_persistent_spine": "OPEN",
+    "backup_artifact_is_not_restore_proof": true,
+    "clean_host_restore_drill": "NOT_RUN"
+  },
+  "brain_and_channel_state": {
+    "identity_independent_of_brain": "CONTRACT_LOCKED",
+    "chatgpt": "MANUAL_HOST_PROPOSAL_ROLE",
+    "grok": "MANUAL_HOST_PROPOSAL_ROLE",
+    "brain_farm_fixture": "EXISTS_CANDIDATE",
+    "live_v7_multi_provider_routing": "OPEN",
+    "telegram_connector": "NOT_CURRENT_GAP"
+  },
+  "growth_path": [
+    "G0 identity/genome embryo",
+    "G0.5 evidence + seed Spine contracts",
+    "G1 shared canonical Spine",
+    "G2 canonical external memory",
+    "G3 true multi-host same-entity continuity",
+    "G4 provider-neutral Brain Farm binding",
+    "G5 governed ports/channels/WIR",
+    "G6 reusable skill compilation",
+    "G7 evidence-driven Role differentiation and governed Entity birth",
+    "G8 immune/repair/reconstruction",
+    "G9 Development automation and recursive oversight",
+    "G10 governed Genome evolution and restore-proven non-extinction"
+  ],
+  "next_valid_work": [
+    "implement Gap #1 shared Spine only",
+    "make ChatGPT/Grok emit proposals against current head",
+    "commit via one active sequencer lease",
+    "verify CAS/idempotency/hash chain/replay",
+    "prove one entity survives host/session switch"
+  ]
+}
