@@ -1,4 +1,4 @@
-name: Publish World 7 v0.2 RC1 Release
+name: Publish World 7 v0.2 RC1 Release and Zenodo
 
 on:
   push:
@@ -18,7 +18,7 @@ jobs:
         with:
           ref: release/world7-v0.2-rc1
 
-      - name: Build public World 7 core snapshot
+      - name: Build public World 7 snapshot
         run: |
           rm -rf publication-artifact
           mkdir -p publication-artifact
@@ -28,13 +28,12 @@ jobs:
           cp -R world7 publication-artifact/world7
           python - <<'PY'
           import hashlib, pathlib
-          root = pathlib.Path('publication-artifact')
-          rows = []
+          root=pathlib.Path('publication-artifact')
+          rows=[]
           for p in sorted(root.rglob('*')):
               if p.is_file():
-                  h = hashlib.sha256(p.read_bytes()).hexdigest()
-                  rows.append(f"{h}  {p.relative_to(root).as_posix()}")
-          (root/'SHA256SUMS.txt').write_text('\n'.join(rows)+'\n', encoding='utf-8')
+                  rows.append(f"{hashlib.sha256(p.read_bytes()).hexdigest()}  {p.relative_to(root).as_posix()}")
+          (root/'SHA256SUMS.txt').write_text('\n'.join(rows)+'\n',encoding='utf-8')
           PY
           (cd publication-artifact && zip -r ../World_7_v0.2_RC1_public_snapshot.zip .)
           sha256sum World_7_v0.2_RC1_public_snapshot.zip > World_7_v0.2_RC1_public_snapshot.zip.sha256
@@ -43,9 +42,7 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          if gh release view v7.0.0-rc.1 >/dev/null 2>&1; then
-            echo "Release already exists."
-          else
+          if ! gh release view v7.0.0-rc.1 >/dev/null 2>&1; then
             gh release create v7.0.0-rc.1 \
               --target "$GITHUB_SHA" \
               --title "World 7 v0.2 — Living Genome Architecture for Persistent Digital Organisms" \
@@ -54,32 +51,125 @@ jobs:
               World_7_v0.2_RC1_public_snapshot.zip.sha256
           fi
           gh release view v7.0.0-rc.1 --json url,tagName,name,isDraft,isPrerelease > /tmp/release.json
-          cat /tmp/release.json
 
-      - name: Write release receipt to branch
+      - name: Publish or reuse Zenodo record
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
         run: |
           python - <<'PY'
-          import json, pathlib, subprocess, datetime
-          data = json.loads(pathlib.Path('/tmp/release.json').read_text())
-          receipt = {
-              'release': 'World 7 v0.2 RC1',
-              'tag': data['tagName'],
-              'name': data['name'],
-              'url': data['url'],
-              'isDraft': data['isDraft'],
-              'isPrerelease': data['isPrerelease'],
-              'workflow_commit': '${{ github.sha }}',
-              'verified_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-              'status': 'GITHUB_RELEASE_PUBLISHED_OR_VERIFIED'
+          import os,json,pathlib,requests,datetime,hashlib
+          title='World 7 v0.2 — Living Genome Architecture for Persistent Digital Organisms'
+          version='7.0.0-rc.1'
+          fname='World_7_v0.2_RC1_public_snapshot.zip'
+          sha_name=fname+'.sha256'
+          out=pathlib.Path('/tmp/zenodo.json')
+          res={'title':title,'version':version,'status':'UNKNOWN','checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+          token=os.environ.get('ZENODO_TOKEN','')
+          if not token:
+              res['status']='MISSING_ZENODO_TOKEN'; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          jh={**h,'Content-Type':'application/json'}
+          r=requests.get('https://zenodo.org/api/deposit/depositions',headers=h,params={'size':100,'sort':'mostrecent'},timeout=60)
+          res['list_http']=r.status_code
+          if not r.ok:
+              res['status']='LIST_FAILED'; res['body']=r.text[:1000]; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+          items=r.json()
+          if isinstance(items,dict): items=items.get('hits',{}).get('hits',[]) or items.get('items',[]) or []
+          dep=None
+          for d in items or []:
+              md=d.get('metadata') or {}
+              if md.get('title')==title and md.get('version')==version:
+                  dep=d; break
+          if dep is None:
+              c=requests.post('https://zenodo.org/api/deposit/depositions',headers=jh,data='{}',timeout=60)
+              res['create_http']=c.status_code
+              if not c.ok:
+                  res['status']='CREATE_FAILED'; res['body']=c.text[:1000]; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+              dep=c.json(); res['deposit_reused']=False
+          else:
+              res['deposit_reused']=True
+          dep_id=str(dep.get('id') or dep.get('recid'))
+          res['record_id']=dep_id
+          if dep.get('submitted'):
+              doi=dep.get('doi') or (dep.get('metadata') or {}).get('doi') or ((dep.get('metadata') or {}).get('prereserve_doi') or {}).get('doi')
+              res.update({'status':'ALREADY_PUBLISHED','doi':doi,'record_url':f'https://zenodo.org/records/{dep_id}'})
+              out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+
+          lic_id=None
+          for q in ['PolyForm-Noncommercial-1.0.0','PolyForm Noncommercial License 1.0.0','PolyForm Noncommercial']:
+              lr=requests.get('https://zenodo.org/api/licenses/',params={'q':q,'size':100},timeout=30)
+              if not lr.ok: continue
+              data=lr.json(); vals=data.get('hits',{}).get('hits',[]) if isinstance(data,dict) else data
+              for item in vals or []:
+                  mdx=item.get('metadata') or item
+                  iid=(mdx.get('id') or item.get('id') or '')
+                  nm=(mdx.get('title') or item.get('title') or '')
+                  if 'polyform' in (iid+' '+nm).lower() and 'noncommercial' in (iid+' '+nm).lower(): lic_id=iid; break
+              if lic_id: break
+          if not lic_id:
+              res['status']='LICENSE_NOT_FOUND'; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+          res['license_id']=lic_id
+
+          cur=requests.get(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=h,timeout=60)
+          if not cur.ok:
+              res['status']='READ_DEPOSIT_FAILED'; res['read_http']=cur.status_code; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+          dep=cur.json(); bucket=(dep.get('links') or {}).get('bucket')
+          names={(f.get('filename') or f.get('key')) for f in (dep.get('files') or [])}
+          if not bucket:
+              res['status']='NO_BUCKET'; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+          for upload in [fname,sha_name]:
+              if upload in names: continue
+              with open(upload,'rb') as fh:
+                  u=requests.put(f'{bucket}/{upload}',data=fh,headers=h,timeout=180)
+              if not u.ok:
+                  res['status']='UPLOAD_FAILED'; res['upload_file']=upload; res['upload_http']=u.status_code; res['body']=u.text[:1000]; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+
+          md={
+            'upload_type':'software',
+            'publication_date':'2026-08-22',
+            'title':title,
+            'creators':[{'name':'Farokhi, Saeed'}],
+            'description':'<p>World 7 is a ratification-candidate genomic runtime architecture for persistent digital organisms. It separates identity, canonical state, memory, authority, lineage, development, genesis, repair, reconstruction and evolution from replaceable AI models and providers.</p><p>The v0.2 candidate defines a 19-domain Universal Genome, governed inheritance and birth gates, RoleBinding-based authority, a deterministic proposal-to-commit Spine with CAS/idempotency/hash chaining, Pulse/Tempo/Resolution controls, and an evidence-driven G0→G10 roadmap beginning with secretary-001.</p><p>Evidence boundary: 2048 proof obligations are registered; 4096/4096 bounded local model assertions and 18/18 seed reference tests pass. Live shared ChatGPT/Grok canonical state, PostgreSQL atomicity, clean-host restore, security/load/chaos and production readiness remain open.</p><p>PUBLIC / SOURCE-AVAILABLE / NON-COMMERCIAL. Original software: PolyForm Noncommercial 1.0.0. Original documentation/architecture: CC BY-NC-SA 4.0. Commercial use requires a separate written license from Saeed Farokhi.</p>',
+            'access_right':'open',
+            'license':lic_id,
+            'version':version,
+            'keywords':['persistent digital organisms','genomic runtime','AI agents','multi-agent systems','multi-model AI','agent governance','event sourcing','hash chain','AI memory','evidence-driven architecture','non-extinction architecture'],
+            'notes':'Status: RATIFICATION_CANDIDATE / GENESIS_STARTED_CANDIDATE / NON-CANONICAL / NOT DEPLOYED / NOT PRODUCTION. Previous World v6.2 DOI: 10.5281/zenodo.22040348; previous concept DOI: 10.5281/zenodo.22040347.',
+            'related_identifiers':[
+              {'identifier':'https://github.com/saeedfaai/World-v6-public','relation':'isSupplementTo','scheme':'url'},
+              {'identifier':'https://github.com/saeedfaai/World-v6-public/releases/tag/v7.0.0-rc.1','relation':'isSupplementTo','scheme':'url'}
+            ]
           }
-          pathlib.Path('world7/RELEASE_PUBLISHED_v7.0.0-rc.1.json').write_text(json.dumps(receipt, indent=2)+'\n')
+          mu=requests.put(f'https://zenodo.org/api/deposit/depositions/{dep_id}',headers=jh,data=json.dumps({'metadata':md}),timeout=60)
+          res['metadata_http']=mu.status_code
+          if not mu.ok:
+              res['status']='METADATA_FAILED'; res['body']=mu.text[:1500]; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+          p=requests.post(f'https://zenodo.org/api/deposit/depositions/{dep_id}/actions/publish',headers=h,timeout=120)
+          res['publish_http']=p.status_code
+          if not p.ok:
+              res['status']='PUBLISH_FAILED'; res['body']=p.text[:1500]; out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n'); raise SystemExit(0)
+          pj=p.json(); pmd=pj.get('metadata') or {}
+          doi=pj.get('doi') or pmd.get('doi') or (pmd.get('prereserve_doi') or {}).get('doi')
+          concept=pj.get('conceptdoi') or pmd.get('conceptdoi')
+          res.update({'status':'PUBLISHED','doi':doi,'concept_doi':concept,'record_url':f'https://zenodo.org/records/{dep_id}','zip_sha256':hashlib.sha256(pathlib.Path(fname).read_bytes()).hexdigest()})
+          out.write_text(json.dumps(res,indent=2,ensure_ascii=False)+'\n')
+          PY
+
+      - name: Write publication receipts
+        if: always()
+        run: |
+          python - <<'PY'
+          import json,pathlib,datetime
+          r=json.loads(pathlib.Path('/tmp/release.json').read_text())
+          rr={'release':'World 7 v0.2 RC1','tag':r['tagName'],'name':r['name'],'url':r['url'],'isDraft':r['isDraft'],'isPrerelease':r['isPrerelease'],'workflow_commit':'${{ github.sha }}','verified_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'status':'GITHUB_RELEASE_PUBLISHED_OR_VERIFIED'}
+          pathlib.Path('world7/RELEASE_PUBLISHED_v7.0.0-rc.1.json').write_text(json.dumps(rr,indent=2)+'\n')
+          z=pathlib.Path('/tmp/zenodo.json')
+          if not z.exists(): z.write_text('{"status":"WORKFLOW_FAILED_BEFORE_ZENODO_RECEIPT"}\n')
+          pathlib.Path('world7/ZENODO_PUBLISHED_v7.0.0-rc.1.json').write_text(z.read_text())
           PY
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add world7/RELEASE_PUBLISHED_v7.0.0-rc.1.json
-          if git diff --cached --quiet; then
-            echo "Receipt unchanged."
-          else
-            git commit -m "[release-marker] Record World 7 v0.2 GitHub Release receipt"
-            git push origin HEAD:release/world7-v0.2-rc1
-          fi
+          git add world7/RELEASE_PUBLISHED_v7.0.0-rc.1.json world7/ZENODO_PUBLISHED_v7.0.0-rc.1.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "[release-marker] Record World 7 GitHub and Zenodo publication receipts"
+          git push origin HEAD:release/world7-v0.2-rc1
