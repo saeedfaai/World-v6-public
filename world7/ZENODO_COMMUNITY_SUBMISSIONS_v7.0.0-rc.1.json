@@ -1,0 +1,63 @@
+{
+  "record_id": "22058813",
+  "doi": "10.5281/zenodo.22058813",
+  "checked_at_utc": "2026-08-22T16:03:39.921007+00:00",
+  "token_present": true,
+  "submissions": [
+    {
+      "slug": "ai_ml",
+      "label": "Artificial intelligence and machine learning",
+      "community_http": 200,
+      "community_id": "21cc080f-83d4-4eed-8916-8dc64010be56",
+      "community_title": "Artificial intelligence and machine learning",
+      "community_access": {
+        "visibility": "public",
+        "members_visibility": "public",
+        "member_policy": "open",
+        "record_submission_policy": "closed",
+        "review_policy": "open"
+      },
+      "submit_http": 400,
+      "response": {
+        "errors": [
+          {
+            "community_id": "21cc080f-83d4-4eed-8916-8dc64010be56",
+            "message": "Submission to this community is only allowed to community members."
+          }
+        ]
+      },
+      "status": "SUBMISSION_REJECTED_BY_API"
+    },
+    {
+      "slug": "intelligent",
+      "label": "Intelligent Systems and Measuring Machine Intelligence",
+      "community_http": 200,
+      "community_id": "3b9fa7d9-0312-4c8a-ae60-a3287a1fe332",
+      "community_title": "Intelligent Systems and Measuring Machine Intelligence",
+      "community_access": {
+        "visibility": "public",
+        "members_visibility": "public",
+        "member_policy": "open",
+        "record_submission_policy": "open",
+        "review_policy": "closed"
+      },
+      "submit_http": 400,
+      "response": {
+        "errors": [
+          {
+            "community_id": "3b9fa7d9-0312-4c8a-ae60-a3287a1fe332",
+            "message": "There is already an open inclusion request for this community."
+          }
+        ]
+      },
+      "status": "ALREADY_INCLUDED_OR_PENDING"
+    }
+  ],
+  "record_http": 200,
+  "record_links": {
+    "communities": "https://zenodo.org/api/records/22058813/communities",
+    "requests": "https://zenodo.org/api/records/22058813/requests"
+  },
+  "current_communities_http": 200,
+  "status": "PARTIAL_OR_FAILED"
+}
