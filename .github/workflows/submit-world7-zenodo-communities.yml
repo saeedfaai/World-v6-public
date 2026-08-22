@@ -1,0 +1,137 @@
+name: Submit World 7 to Zenodo Communities
+
+on:
+  push:
+    branches:
+      - release/world7-v0.2-rc1
+
+permissions:
+  contents: write
+
+jobs:
+  submit:
+    if: contains(github.event.head_commit.message, 'Submit World 7 to Zenodo communities')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/world7-v0.2-rc1
+
+      - name: Submit published World 7 record to selected Zenodo communities
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os, json, requests, pathlib, datetime
+
+          record_id = '22058813'
+          targets = [
+              ('ai_ml', 'Artificial intelligence and machine learning'),
+              ('intelligent', 'Intelligent Systems and Measuring Machine Intelligence'),
+          ]
+          token = os.environ.get('ZENODO_TOKEN', '')
+          out = {
+              'record_id': record_id,
+              'doi': '10.5281/zenodo.22058813',
+              'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'token_present': bool(token),
+              'submissions': []
+          }
+          if not token:
+              out['status'] = 'MISSING_ZENODO_TOKEN'
+              pathlib.Path('world7/ZENODO_COMMUNITY_SUBMISSIONS_v7.0.0-rc.1.json').write_text(json.dumps(out, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
+              raise SystemExit(0)
+
+          h = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+          jh = {**h, 'Content-Type': 'application/json'}
+
+          # Read the current published record and use the communities link exposed by Zenodo/InvenioRDM.
+          rr = requests.get(f'https://zenodo.org/api/records/{record_id}', headers=h, timeout=60)
+          out['record_http'] = rr.status_code
+          if not rr.ok:
+              out['status'] = 'RECORD_READ_FAILED'
+              out['body'] = rr.text[:1000]
+              pathlib.Path('world7/ZENODO_COMMUNITY_SUBMISSIONS_v7.0.0-rc.1.json').write_text(json.dumps(out, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
+              raise SystemExit(0)
+          record = rr.json()
+          communities_url = (record.get('links') or {}).get('communities') or f'https://zenodo.org/api/records/{record_id}/communities'
+          requests_url = (record.get('links') or {}).get('requests') or f'https://zenodo.org/api/records/{record_id}/requests'
+          out['record_links'] = {'communities': communities_url, 'requests': requests_url}
+
+          # Current inclusions/requests, used only for duplicate protection.
+          try:
+              cr = requests.get(communities_url, headers=h, timeout=60)
+              out['current_communities_http'] = cr.status_code
+              current_communities = cr.json() if cr.ok else None
+          except Exception as e:
+              current_communities = None
+              out['current_communities_error'] = str(e)
+
+          for slug, label in targets:
+              result = {'slug': slug, 'label': label}
+              try:
+                  c = requests.get(f'https://zenodo.org/api/communities/{slug}', headers=h, timeout=60)
+                  result['community_http'] = c.status_code
+                  if not c.ok:
+                      result['status'] = 'COMMUNITY_NOT_FOUND_OR_UNREADABLE'
+                      result['body'] = c.text[:800]
+                      out['submissions'].append(result)
+                      continue
+                  cj = c.json()
+                  cid = cj.get('id') or slug
+                  result['community_id'] = cid
+                  result['community_title'] = (cj.get('metadata') or {}).get('title')
+                  result['community_access'] = cj.get('access')
+
+                  # Submit exactly one community per request, matching Zenodo's documented UI behavior.
+                  payload = {'communities': [{'id': cid}]}
+                  p = requests.post(communities_url, headers=jh, data=json.dumps(payload), timeout=60)
+                  result['submit_http'] = p.status_code
+                  try:
+                      body = p.json()
+                  except Exception:
+                      body = {'raw': p.text[:1500]}
+                  result['response'] = body
+
+                  if p.status_code in (200, 201, 202):
+                      result['status'] = 'SUBMITTED_OR_INCLUDED'
+                      # Try to extract request IDs for audit only.
+                      req_ids = []
+                      candidates = body if isinstance(body, list) else [body]
+                      for item in candidates:
+                          if not isinstance(item, dict):
+                              continue
+                          rid = item.get('id')
+                          if not rid and isinstance(item.get('request'), dict):
+                              rid = item['request'].get('id')
+                          if rid:
+                              req_ids.append(str(rid))
+                      result['request_ids'] = req_ids
+                  elif p.status_code in (400, 409):
+                      text = json.dumps(body, ensure_ascii=False).lower()
+                      if 'already' in text or 'existing' in text or 'included' in text:
+                          result['status'] = 'ALREADY_INCLUDED_OR_PENDING'
+                      else:
+                          result['status'] = 'SUBMISSION_REJECTED_BY_API'
+                  elif p.status_code == 403:
+                      result['status'] = 'COMMUNITY_POLICY_FORBIDS_SUBMISSION'
+                  else:
+                      result['status'] = 'SUBMISSION_FAILED'
+              except Exception as e:
+                  result['status'] = 'EXCEPTION'
+                  result['error'] = str(e)
+              out['submissions'].append(result)
+
+          statuses = [x.get('status') for x in out['submissions']]
+          out['status'] = 'COMPLETE' if statuses and all(s in ('SUBMITTED_OR_INCLUDED','ALREADY_INCLUDED_OR_PENDING') for s in statuses) else 'PARTIAL_OR_FAILED'
+          pathlib.Path('world7/ZENODO_COMMUNITY_SUBMISSIONS_v7.0.0-rc.1.json').write_text(json.dumps(out, indent=2, ensure_ascii=False)+'\n', encoding='utf-8')
+          PY
+
+      - name: Commit community submission receipt
+        if: always()
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add world7/ZENODO_COMMUNITY_SUBMISSIONS_v7.0.0-rc.1.json
+          git commit -m "[community-marker] Record World 7 Zenodo community submissions" || true
+          git push origin HEAD:release/world7-v0.2-rc1
