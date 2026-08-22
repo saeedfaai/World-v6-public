@@ -31,7 +31,23 @@
   },
   "committed_event": {
     "event_hash_formula": "SHA-256(JCS({event_id,entity_id,event_type,timestamp,idempotency_key,payload,provenance}) || previous_head_hash)",
-    "hash_excludes": ["event_hash","status","commit_metadata"],
+    "hash_excludes": [
+      "event_hash",
+      "status",
+      "commit_metadata"
+    ],
+    "required_fields": [
+      "event_id",
+      "idempotency_key",
+      "entity_id",
+      "event_type",
+      "timestamp",
+      "previous_head_hash",
+      "payload",
+      "provenance",
+      "event_hash",
+      "commit_metadata"
+    ],
     "status": "COMMITTED",
     "writer_class": "ACTIVE_SEQUENCER_ONLY"
   },
@@ -58,19 +74,53 @@
   "proposal": {
     "direct_canonical_append": false,
     "expected_head_hash_semantics": "CAS expectation only; it becomes committed.previous_head_hash only after sequencer validation",
+    "required_fields": [
+      "proposal_id",
+      "event_id",
+      "idempotency_key",
+      "entity_id",
+      "event_type",
+      "timestamp",
+      "expected_head_hash",
+      "payload",
+      "provenance"
+    ],
     "status": "PROPOSED",
-    "writer_classes": ["BRAIN_HOST","MANUAL_HOST","TOOL_ADAPTER","HUMAN_PROXY"]
+    "writer_classes": [
+      "BRAIN_HOST",
+      "MANUAL_HOST",
+      "TOOL_ADAPTER",
+      "HUMAN_PROXY"
+    ]
   },
   "schema_version": "world-v7.spine-contract.v0.1.0",
   "sequencer_lease": {
     "failover": "on lease expiry or governed revocation a new authorized holder may acquire lease",
     "g0_holder": "human-root",
+    "lease_fields": [
+      "lease_id",
+      "holder_ref",
+      "issued_at",
+      "expires_at",
+      "issuer_ref",
+      "scope",
+      "revocable"
+    ],
     "sequencer_is_identity": false,
     "single_active_per_entity_spine": true
   },
   "state_checkpoint": {
     "forbidden": "state-only facts that cannot be derived from committed history or explicitly referenced immutable artifacts",
     "rebuild_rule": "load latest valid checkpoint, replay all later committed events, verify hash chain, materialize new checkpoint",
+    "required_fields": [
+      "entity_id",
+      "state_version",
+      "from_event_id",
+      "head_event_id",
+      "head_hash",
+      "materialized_state",
+      "checkpoint_hash"
+    ],
     "source_of_history": "COMMITTED_EVENT_LOG",
     "state_is": "MATERIALIZED_CHECKPOINT"
   }
