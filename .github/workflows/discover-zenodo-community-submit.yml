@@ -1,0 +1,59 @@
+name: Discover Zenodo Community Submission API
+
+on:
+  push:
+    branches:
+      - release/world7-v0.2-rc1
+
+permissions:
+  contents: write
+
+jobs:
+  discover:
+    if: contains(github.event.head_commit.message, 'Discover Zenodo community submission API')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/world7-v0.2-rc1
+      - name: Discover authenticated Zenodo links
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os,json,requests,pathlib
+          token=os.environ.get('ZENODO_TOKEN','')
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          out={'token_present':bool(token),'record_id':'22058813','communities':{}}
+          for url,key in [
+            ('https://zenodo.org/api/records/22058813','record'),
+            ('https://zenodo.org/api/communities/ai_ml','community_ai_ml'),
+            ('https://zenodo.org/api/communities/intelligent','community_intelligent'),
+          ]:
+            try:
+              r=requests.get(url,headers=h,timeout=60)
+              item={'http':r.status_code}
+              if r.ok:
+                j=r.json()
+                item['id']=j.get('id')
+                item['slug']=j.get('slug')
+                item['links']=j.get('links',{})
+                item['metadata_title']=(j.get('metadata') or {}).get('title')
+              else:
+                item['body']=r.text[:500]
+              out[key]=item
+            except Exception as e:
+              out[key]={'error':str(e)}
+          root=requests.get('https://zenodo.org/api/',headers=h,timeout=60)
+          out['api_root_http']=root.status_code
+          if root.ok:
+            j=root.json()
+            out['api_root_keys']=sorted(j.keys()) if isinstance(j,dict) else []
+            if isinstance(j,dict): out['api_root']=j
+          pathlib.Path('world7/ZENODO_COMMUNITY_API_DISCOVERY.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          PY
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add world7/ZENODO_COMMUNITY_API_DISCOVERY.json
+          git commit -m "[community-api-marker] Record Zenodo community API discovery" || true
+          git push origin HEAD:release/world7-v0.2-rc1
