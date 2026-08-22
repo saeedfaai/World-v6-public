@@ -29,10 +29,15 @@
       "scheme": "url"
     },
     {
+      "identifier": "https://github.com/saeedfaai/World-v6-public/releases/tag/v7.0.0-rc.1",
+      "relation": "isSupplementTo",
+      "scheme": "url"
+    },
+    {
       "identifier": "10.5281/zenodo.22040348",
       "relation": "isNewVersionOf",
       "scheme": "doi"
     }
   ],
-  "notes": "Release status: RATIFICATION_CANDIDATE / GENESIS_STARTED_CANDIDATE / NON-CANONICAL / NOT DEPLOYED / NOT PRODUCTION. Previous World v6.2 version DOI: 10.5281/zenodo.22040348; concept DOI: 10.5281/zenodo.22040347. The new World 7 DOI is intentionally not prefilled and must be assigned by Zenodo after the GitHub Release is archived."
+  "notes": "World 7 version DOI: 10.5281/zenodo.22058813. Release status: RATIFICATION_CANDIDATE / GENESIS_STARTED_CANDIDATE / NON-CANONICAL / NOT DEPLOYED / NOT PRODUCTION. Previous World v6.2 version DOI: 10.5281/zenodo.22040348; previous concept DOI: 10.5281/zenodo.22040347."
 }
