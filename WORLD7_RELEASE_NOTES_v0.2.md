@@ -1,8 +1,11 @@
 # World 7 v0.2 — Living Genome Architecture for Persistent Digital Organisms
 
-Release tag target: `v7.0.0-rc.1`
+Release tag: `v7.0.0-rc.1`
 
 Status: `RATIFICATION_CANDIDATE / GENESIS_STARTED_CANDIDATE / NON-CANONICAL / NOT DEPLOYED / NOT PRODUCTION`
+
+**Zenodo DOI:** `10.5281/zenodo.22058813`  
+**Zenodo record:** `https://zenodo.org/records/22058813`
 
 World 7 advances the World v6 architecture from a discovered anatomy into an executable developmental genome. The central design principle is: **complete in possibility, minimal in expression**.
 
@@ -41,9 +44,7 @@ The next valid milestone is to prove that ChatGPT and Grok can act as proposal-o
 
 ## Distribution
 
-Full architecture, proof book, white papers and machine-readable packages are mirrored in the project Drive folder and private development repository. This public release branch contains the archival metadata and core World 7 contracts required for a GitHub Release / Zenodo snapshot.
+Full architecture, proof book, white papers and machine-readable packages are mirrored in the project Drive folder and private development repository. This public release branch contains the archival metadata and core World 7 contracts used for the GitHub Release / Zenodo snapshot.
 
-Previous World v6.2 version DOI: `10.5281/zenodo.22040348`.
+Previous World v6.2 version DOI: `10.5281/zenodo.22040348`.  
 Previous concept DOI: `10.5281/zenodo.22040347`.
-
-The World 7 DOI must be assigned by Zenodo after this GitHub Release is archived.
