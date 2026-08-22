@@ -1,0 +1,68 @@
+name: Submit World 7 to More Zenodo Communities
+
+on:
+  push:
+    branches:
+      - release/world7-v0.2-rc1
+
+permissions:
+  contents: write
+
+jobs:
+  submit:
+    if: contains(github.event.head_commit.message, 'Submit World 7 to more Zenodo communities')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: release/world7-v0.2-rc1
+      - name: Submit record to additional relevant communities
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          python - <<'PY'
+          import os,json,requests,pathlib,datetime
+          record='22058813'
+          targets=[
+            ('ai_andone_research','AI information and research'),
+            ('computing-perspectives','Computing Perspectives'),
+            ('rse','Research Software Engineering')
+          ]
+          token=os.environ.get('ZENODO_TOKEN','')
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          jh={**h,'Content-Type':'application/json'}
+          rr=requests.get(f'https://zenodo.org/api/records/{record}',headers=h,timeout=60)
+          communities_url=((rr.json().get('links') or {}).get('communities') if rr.ok else None) or f'https://zenodo.org/api/records/{record}/communities'
+          out={'record_id':record,'doi':'10.5281/zenodo.22058813','checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'results':[]}
+          for slug,label in targets:
+              x={'slug':slug,'label':label}
+              try:
+                  c=requests.get(f'https://zenodo.org/api/communities/{slug}',headers=h,timeout=45)
+                  x['community_http']=c.status_code
+                  if not c.ok:
+                      x['status']='COMMUNITY_NOT_FOUND'; x['body']=c.text[:500]; out['results'].append(x); continue
+                  cj=c.json(); cid=cj.get('id') or slug
+                  x['community_id']=cid; x['title']=(cj.get('metadata') or {}).get('title'); x['access']=cj.get('access')
+                  p=requests.post(communities_url,headers=jh,data=json.dumps({'communities':[{'id':cid}]}),timeout=60)
+                  x['submit_http']=p.status_code
+                  try: body=p.json()
+                  except Exception: body={'raw':p.text[:1000]}
+                  x['response']=body
+                  text=json.dumps(body,ensure_ascii=False).lower()
+                  if p.status_code in (200,201,202): x['status']='SUBMITTED_OR_INCLUDED'
+                  elif 'already' in text or 'existing' in text or 'open inclusion request' in text: x['status']='ALREADY_PENDING'
+                  elif 'only allowed to community members' in text: x['status']='MEMBERS_ONLY'
+                  else: x['status']='REJECTED_OR_FAILED'
+              except Exception as e:
+                  x['status']='EXCEPTION'; x['error']=str(e)
+              out['results'].append(x)
+          pathlib.Path('world7/ZENODO_MORE_COMMUNITY_SUBMISSIONS_v7.0.0-rc.1.json').write_text(json.dumps(out,indent=2,ensure_ascii=False)+'\n',encoding='utf-8')
+          PY
+      - name: Commit receipt
+        if: always()
+        run: |
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add world7/ZENODO_MORE_COMMUNITY_SUBMISSIONS_v7.0.0-rc.1.json
+          git commit -m "[community-marker] Record additional World 7 Zenodo submissions" || true
+          git push origin HEAD:release/world7-v0.2-rc1
