@@ -1,0 +1,58 @@
+name: Check Zenodo World 7 DOI
+
+on:
+  push:
+    branches:
+      - release/world7-v0.2-rc1
+
+permissions:
+  contents: write
+
+jobs:
+  check:
+    if: github.actor != 'github-actions[bot]'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Poll Zenodo for World 7 record
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          mkdir -p world7
+          found=0
+          for i in 1 2 3 4 5 6; do
+            python - <<'PY'
+import json, urllib.parse, urllib.request, pathlib, sys
+q='World 7 v0.2 Farokhi Saeed'
+url='https://zenodo.org/api/records/?q='+urllib.parse.quote(q)+'&size=100&sort=mostrecent'
+try:
+    data=json.load(urllib.request.urlopen(url, timeout=30))
+except Exception as e:
+    pathlib.Path('world7/ZENODO_CHECK.json').write_text(json.dumps({'status':'QUERY_ERROR','error':str(e)},indent=2),encoding='utf-8')
+    sys.exit(2)
+hits=[]
+for h in data.get('hits',{}).get('hits',[]):
+    md=h.get('metadata',{})
+    title=(md.get('title') or '')
+    creators=' '.join(c.get('name','') for c in md.get('creators',[]))
+    related=json.dumps(md.get('related_identifiers',[]))
+    blob=(title+' '+creators+' '+related).lower()
+    if 'world 7' in blob and ('farokhi' in blob or 'world-v6-public' in blob or 'v7.0.0-rc.1' in blob):
+        hits.append({'id':h.get('id'),'doi':h.get('doi'),'links':h.get('links',{}),'metadata':md})
+out={'status':'FOUND' if hits else 'NOT_FOUND','query':q,'hits':hits}
+pathlib.Path('world7/ZENODO_CHECK.json').write_text(json.dumps(out,indent=2,ensure_ascii=False),encoding='utf-8')
+if hits:
+    sys.exit(0)
+sys.exit(1)
+PY
+            rc=$?
+            if [ "$rc" = 0 ]; then found=1; break; fi
+            sleep 20
+          done
+          git config user.name github-actions[bot]
+          git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+          git add world7/ZENODO_CHECK.json
+          git commit -m "Record Zenodo check for World 7" || true
+          git push
+          if [ "$found" = 0 ]; then exit 0; fi
