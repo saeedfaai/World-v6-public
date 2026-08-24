@@ -1,0 +1,21 @@
+{
+  "started_at_utc": "2026-08-24T18:13:59.045580+00:00",
+  "record_id": 22085394,
+  "status": "COMPLETE",
+  "finished_at_utc": "2026-08-24T18:14:03.318135+00:00",
+  "doi": "10.5281/zenodo.22085394",
+  "same_doi": true,
+  "archive_present": true,
+  "public_files": [
+    "00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip",
+    "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+    "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+    "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+    "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+    "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf"
+  ],
+  "github_tree": "https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a",
+  "tree_note_added": true,
+  "related_identifier_added": true,
+  "record_url": "https://zenodo.org/records/22085394"
+}
