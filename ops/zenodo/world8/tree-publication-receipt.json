@@ -1,0 +1,105 @@
+{
+  "started_at_utc": "2026-08-24T18:12:45.065518+00:00",
+  "record_id": 22085394,
+  "doi_expected": "10.5281/zenodo.22085394",
+  "archive_file": "00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip",
+  "archive_sha256_expected": "e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79",
+  "steps": [
+    {
+      "step": "verify_staged_archive",
+      "sha256": "e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79",
+      "bytes": 1914372
+    },
+    {
+      "step": "verify_public_baseline",
+      "doi": "10.5281/zenodo.22085394",
+      "files": [
+        "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+        "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+        "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+        "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+        "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf"
+      ]
+    },
+    {
+      "step": "unlock_published_files",
+      "http_status": 200,
+      "response_summary": {
+        "id": "bcd1e9e9-7e53-49a1-b31f-7db18db66e49",
+        "status": "accepted"
+      }
+    },
+    {
+      "step": "read_draft_files",
+      "http_status": 200,
+      "response_summary": {},
+      "files": [
+        "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+        "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+        "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+        "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+        "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf"
+      ]
+    },
+    {
+      "step": "initialize_tree_file",
+      "http_status": 201,
+      "response_summary": {}
+    },
+    {
+      "step": "upload_tree_bytes",
+      "http_status": 200,
+      "response_summary": {
+        "status": "pending"
+      },
+      "bytes": 1914372
+    },
+    {
+      "step": "commit_tree_file",
+      "http_status": 200,
+      "response_summary": {
+        "status": "completed"
+      }
+    },
+    {
+      "step": "verify_draft_tree_file",
+      "status": "completed",
+      "size": 1914372,
+      "checksum": "md5:f096582a15a2c7e30bea1451913ee89b"
+    },
+    {
+      "step": "republish_same_record",
+      "http_status": 202,
+      "response_summary": {
+        "id": 22085394,
+        "status": "published",
+        "state": "done"
+      }
+    },
+    {
+      "step": "verify_public_zip_integrity",
+      "sha256": "e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79",
+      "bytes": 1914372
+    }
+  ],
+  "status": "COMPLETE_TREE_PUBLISHED",
+  "published": true,
+  "same_record_same_doi": true,
+  "doi": "10.5281/zenodo.22085394",
+  "record_url": "https://zenodo.org/records/22085394",
+  "archive_sha256": "e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79",
+  "public_files": [
+    "00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip",
+    "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+    "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+    "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+    "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+    "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf"
+  ],
+  "public_file_count": 6,
+  "original_five_files_preserved": true,
+  "tree_archive_present": true,
+  "github_tree": "https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a",
+  "claim_boundary": "FINAL DESIGN BASELINE / NOT PRODUCTION",
+  "finished_at_utc": "2026-08-24T18:12:53.182681+00:00"
+}
