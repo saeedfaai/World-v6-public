@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="World 8 / Z0-A paid technical access, evaluation, and commercial licensing portal." />
+  <title>World 8 / Z0-A — Technical Access</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="bg-grid"></div>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="World 8 home">
+      <span class="brand-mark">W8</span>
+      <span><strong>World 8 / Z0-A</strong><small>Technical Access</small></span>
+    </a>
+    <nav>
+      <a href="#pricing">Pricing</a>
+      <a href="#vault">Vault</a>
+      <a href="#evidence">Evidence</a>
+      <button class="ghost" id="accountBtn">Sign in</button>
+    </nav>
+  </header>
+
+  <main id="top">
+    <section class="hero wrap">
+      <div class="eyebrow">FINAL DESIGN BASELINE / NOT PRODUCTION</div>
+      <h1>Controlled technical access to <span>World 8</span></h1>
+      <p class="lead">A provider-independent architecture for long-lived AI agents and digital organizations. Public research stays public. Paid access covers controlled implementation workbooks, professional failure-mode review, and separately negotiated commercial rights.</p>
+      <div class="hero-actions">
+        <a class="primary" href="#pricing">View access plans</a>
+        <a class="secondary" href="https://zenodo.org/records/22085394" target="_blank" rel="noopener">Open public DOI</a>
+      </div>
+      <div class="trust-strip" id="evidence">
+        <div><b>DOI</b><span>10.5281/zenodo.22085394</span></div>
+        <div><b>Preservation</b><span>Software Heritage SWHID</span></div>
+        <div><b>Payment</b><span>Bitcoin mainnet, on-chain</span></div>
+        <div><b>Rights</b><span>No commercial rights by default</span></div>
+      </div>
+    </section>
+
+    <section class="wrap note-card">
+      <div class="note-icon">i</div>
+      <div>
+        <h3>What is being sold?</h3>
+        <p>Payment buys time-limited access to controlled technical materials and internal evaluation rights only. It does <strong>not</strong> transfer IP ownership, patent rights, trademarks, source ownership, or production/commercial deployment rights. Commercial use requires a separate written agreement.</p>
+      </div>
+    </section>
+
+    <section id="pricing" class="wrap section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">DIRECT CHECKOUT</div>
+          <h2>Technical access plans</h2>
+        </div>
+        <p>Prices are denominated in USD. At checkout the exact BTC amount is locked for 30 minutes using a live BTC/USD spot rate.</p>
+      </div>
+
+      <div class="pricing-grid">
+        <article class="price-card featured">
+          <div class="tag">START HERE</div>
+          <h3>Technical Access</h3>
+          <div class="price"><span>$</span>390</div>
+          <p>30 days · 1 user</p>
+          <ul>
+            <li>Licensed Implementation Workbook: Core</li>
+            <li>Canonical Spine build sequence</li>
+            <li>Authority, outbox, fencing & recovery checklist</li>
+            <li>Acceptance gates and evidence discipline</li>
+            <li>No commercial deployment rights</li>
+          </ul>
+          <button class="primary full buy" data-plan="technical_access" data-name="Technical Access">Buy with BTC</button>
+        </article>
+
+        <article class="price-card">
+          <div class="tag muted">PROFESSIONAL</div>
+          <h3>Professional Access</h3>
+          <div class="price"><span>$</span>990</div>
+          <p>90 days · 1 user</p>
+          <ul>
+            <li>Everything in Technical Access</li>
+            <li>Professional Failure-Mode Pack</li>
+            <li>Threat boundaries and reviewer questions</li>
+            <li>90-day evaluation program</li>
+            <li>No commercial deployment rights</li>
+          </ul>
+          <button class="primary full buy" data-plan="professional_access" data-name="Professional Access">Buy with BTC</button>
+        </article>
+      </div>
+    </section>
+
+    <section class="wrap section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">MANUAL REVIEW</div>
+          <h2>Team & commercial pathways</h2>
+        </div>
+        <p>Higher-value rights are deliberately not auto-sold. They require qualification, scope review, and where applicable a signed agreement.</p>
+      </div>
+      <div class="manual-grid">
+        <article class="compact-card"><h3>Team Evaluation</h3><div class="compact-price">$4,900</div><p>Up to 5 users · 90 days</p><button class="secondary request" data-plan="team_evaluation">Request review</button></article>
+        <article class="compact-card"><h3>Enterprise Due Diligence</h3><div class="compact-price">$12,500</div><p>Up to 15 users · 120 days</p><button class="secondary request" data-plan="enterprise_due_diligence">Request review</button></article>
+        <article class="compact-card"><h3>Internal Pilot License</h3><div class="compact-price">From $25,000</div><p>Bounded non-production PoC</p><button class="secondary request" data-plan="internal_pilot_license">Request scope</button></article>
+        <article class="compact-card"><h3>Commercial Production</h3><div class="compact-price">Qualified pricing</div><p>Separate written license</p><button class="secondary request" data-plan="commercial_license">Request license</button></article>
+      </div>
+    </section>
+
+    <section id="vault" class="wrap section vault-section">
+      <div class="section-head">
+        <div>
+          <div class="eyebrow">CONTROLLED ACCESS</div>
+          <h2>Your private vault</h2>
+        </div>
+        <p>Materials are served only after authentication and an active entitlement. Every protected view is audit-logged and watermarked to the licensed account.</p>
+      </div>
+      <div id="vaultState" class="vault-state">
+        <div class="lock">⌁</div>
+        <h3>Sign in to check your entitlement</h3>
+        <p>If your BTC payment is confirmed, your materials will appear here automatically.</p>
+        <button class="primary" id="vaultSignIn">Sign in</button>
+      </div>
+      <div id="vaultMaterials" class="materials hidden"></div>
+      <article id="materialReader" class="reader hidden">
+        <div class="reader-top"><div><div class="eyebrow">LICENSED MATERIAL</div><h2 id="readerTitle">Document</h2></div><button class="ghost" id="closeReader">Close</button></div>
+        <div class="watermark" id="readerWatermark"></div>
+        <div id="readerBody" class="markdown"></div>
+      </article>
+    </section>
+
+    <section class="wrap section public-evidence">
+      <div class="section-head"><div><div class="eyebrow">PUBLIC FOUNDATION</div><h2>Verify the baseline independently</h2></div></div>
+      <div class="evidence-grid">
+        <a href="https://zenodo.org/records/22085394" target="_blank" rel="noopener"><b>Zenodo</b><span>DOI, archival bundle, architecture tree</span></a>
+        <a href="https://archive.softwareheritage.org/swh:1:rel:5fcaf122c067c17d3763d4cc8d738bff97063bac/" target="_blank" rel="noopener"><b>Software Heritage</b><span>Frozen release SWHID</span></a>
+        <a href="https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a" target="_blank" rel="noopener"><b>GitHub</b><span>Clickable public architecture mirror</span></a>
+      </div>
+    </section>
+  </main>
+
+  <footer class="wrap footer">
+    <div><strong>World 8 / Z0-A</strong><p>Final Design Baseline / Not Production</p></div>
+    <div class="footer-links">
+      <a href="https://github.com/saeedfaai/World-v6-public/blob/main/world8-z0a/PAID_ACCESS/TERMS_OF_ACCESS.md" target="_blank" rel="noopener">Terms of Access</a>
+      <a href="https://github.com/saeedfaai/World-v6-public/blob/main/world8-z0a/PAID_ACCESS/PAYMENT_POLICY.md" target="_blank" rel="noopener">Payment Policy</a>
+      <a href="https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a/IP_PROTECTION" target="_blank" rel="noopener">IP Protection</a>
+    </div>
+  </footer>
+
+  <div class="modal hidden" id="authModal" role="dialog" aria-modal="true" aria-labelledby="authTitle">
+    <div class="modal-card">
+      <button class="x" data-close="authModal" aria-label="Close">×</button>
+      <div class="eyebrow">ACCOUNT</div>
+      <h2 id="authTitle">Sign in</h2>
+      <p class="muted-text">Your account binds invoices, payment receipts, entitlements, and licensed document views.</p>
+      <div class="tabs"><button class="tab active" data-auth-tab="signin">Sign in</button><button class="tab" data-auth-tab="signup">Create account</button></div>
+      <form id="authForm">
+        <label>Email<input id="authEmail" type="email" autocomplete="email" required /></label>
+        <label>Password<input id="authPassword" type="password" minlength="8" autocomplete="current-password" required /></label>
+        <button class="primary full" type="submit" id="authSubmit">Sign in</button>
+      </form>
+      <div id="authMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="checkoutModal" role="dialog" aria-modal="true" aria-labelledby="checkoutTitle">
+    <div class="modal-card wide">
+      <button class="x" data-close="checkoutModal" aria-label="Close">×</button>
+      <div class="eyebrow">BITCOIN CHECKOUT</div>
+      <h2 id="checkoutTitle">Create invoice</h2>
+      <div id="checkoutPre">
+        <div class="checkout-summary"><span>Selected plan</span><b id="selectedPlan">—</b></div>
+        <label class="check"><input id="acceptTerms" type="checkbox" /><span>I have read and accept the <a href="https://github.com/saeedfaai/World-v6-public/blob/main/world8-z0a/PAID_ACCESS/TERMS_OF_ACCESS.md" target="_blank" rel="noopener">Paid Access Terms v1.0</a>, including the no-commercial-rights and no-redistribution restrictions.</span></label>
+        <button class="primary full" id="createInvoiceBtn">Create 30-minute BTC invoice</button>
+      </div>
+      <div id="invoiceBox" class="hidden">
+        <div class="invoice-head"><div><span>Invoice</span><b id="invoiceCode">—</b></div><div class="countdown" id="invoiceCountdown">30:00</div></div>
+        <div class="pay-grid">
+          <div class="pay-row"><span>Exact amount</span><div><b id="btcAmount">—</b><small> BTC</small><button class="copy" data-copy="btcAmount">Copy</button></div></div>
+          <div class="pay-row"><span>Satoshis</span><div><b id="satAmount">—</b><small> sats</small></div></div>
+          <div class="pay-row address"><span>Destination</span><div><code id="btcAddress">—</code><button class="copy" data-copy="btcAddress">Copy</button></div></div>
+          <div class="pay-row"><span>Rate source</span><div><b id="rateSource">—</b><small id="spotRate"></small></div></div>
+        </div>
+        <a class="primary full center" id="openWallet" href="#">Open Bitcoin wallet</a>
+        <div class="warning">Send the <strong>exact amount</strong> on Bitcoin mainnet. Do not use Lightning, wrapped BTC, another chain, or a different amount. Network fees are paid separately by the sender.</div>
+        <hr />
+        <label>Bitcoin transaction ID (txid)<input id="txid" inputmode="text" placeholder="64 hexadecimal characters" /></label>
+        <button class="secondary full" id="verifyPaymentBtn">Verify payment</button>
+        <div id="paymentMessage" class="message hidden"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal hidden" id="requestModal" role="dialog" aria-modal="true" aria-labelledby="requestTitle">
+    <div class="modal-card">
+      <button class="x" data-close="requestModal" aria-label="Close">×</button>
+      <div class="eyebrow">MANUAL REVIEW</div>
+      <h2 id="requestTitle">Request access</h2>
+      <p class="muted-text" id="requestPlanLabel">Selected plan</p>
+      <form id="requestForm">
+        <label>Organization / team<input id="requestOrg" maxlength="300" placeholder="Company, lab, fund, or team" /></label>
+        <label>What do you want to evaluate or build?<textarea id="requestNote" maxlength="4000" rows="6" placeholder="Scope, intended use, deployment context, number of users, timeline…"></textarea></label>
+        <button class="primary full" type="submit">Submit for manual review</button>
+      </form>
+      <div id="requestMessage" class="message hidden"></div>
+    </div>
+  </div>
+
+  <div id="toast" class="toast hidden"></div>
+  <script src="app.js" defer></script>
+</body>
+</html>
