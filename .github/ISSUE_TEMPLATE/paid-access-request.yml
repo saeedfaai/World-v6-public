@@ -1,0 +1,59 @@
+name: World 8 Paid Access Request
+description: Request a BTC invoice for Technical or Professional evaluation access to World 8 / Z0-A.
+title: "[Paid Access] "
+labels: ["paid-access"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Use this public form only to request an invoice for the two automated-checkout-eligible evaluation plans. Do not post private keys, seed phrases, credentials, confidential company information, or personal identity documents here.
+
+        Current design status: FINAL DESIGN BASELINE / NOT PRODUCTION. Invoice confirmation and controlled delivery are handled only after payment validation. Commercial, OEM, resale, white-label, pilot, enterprise, strategic, or exclusive rights are not granted through this form.
+
+  - type: dropdown
+    id: plan
+    attributes:
+      label: Access plan
+      description: Select the evaluation-access plan you want to purchase.
+      options:
+        - Technical Access — USD 390 — 30 days — 1 user — view-only, non-commercial
+        - Professional Access — USD 990 — 90 days — 1 user — view-only, non-commercial
+    validations:
+      required: true
+
+  - type: input
+    id: github_handle
+    attributes:
+      label: GitHub handle for access coordination
+      description: Enter only the GitHub username that should be associated with this request.
+      placeholder: username
+    validations:
+      required: true
+
+  - type: textarea
+    id: intended_use
+    attributes:
+      label: Intended evaluation use
+      description: Brief, non-confidential description of what you want to evaluate.
+      placeholder: Internal technical evaluation of the architecture for...
+    validations:
+      required: true
+
+  - type: checkboxes
+    id: terms
+    attributes:
+      label: Terms acknowledgement
+      options:
+        - label: I understand this request does not transfer ownership or intellectual property.
+          required: true
+        - label: I understand these two plans are view-only, non-commercial evaluation access.
+          required: true
+        - label: I agree not to post secrets, credentials, personal identity documents, or confidential information in this public issue.
+          required: true
+        - label: I will follow the Paid Access Terms and Payment Policy published in this repository.
+          required: true
+
+  - type: markdown
+    attributes:
+      value: |
+        After the request is reviewed, use only the BTC invoice/payment instructions issued for this request. Do not send funds based only on a copied screenshot or third-party message. High-value and commercial plans require manual review and a separate written agreement.
