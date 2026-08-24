@@ -1,0 +1,127 @@
+name: Cross-link World 8 Zenodo and Software Heritage
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/zenodo-world8-software-heritage-link.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  link:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add Software Heritage preservation identifiers to Zenodo metadata
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p ops/zenodo/world8
+          python - <<'PY'
+          import os, json, requests, datetime, sys
+          from pathlib import Path
+
+          RID=22085394
+          DOI='10.5281/zenodo.22085394'
+          ARCHIVE='00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip'
+          SWH_RELEASE='swh:1:rel:5fcaf122c067c17d3763d4cc8d738bff97063bac'
+          SWH_SNAPSHOT='swh:1:snp:ca93df1ee45d85682fa8ef91d2983a0f325d3d56'
+          SWH_REVISION='swh:1:rev:7a0311bc25668ea00da873a1663a99898eaa7329'
+          SWH_DIRECTORY='swh:1:dir:c895ac0a881e47d5897d2e8d45afdb67686fb92e'
+          SWH_RELEASE_URL='https://archive.softwareheritage.org/'+SWH_RELEASE+'/'
+          SWH_DIRECTORY_URL='https://archive.softwareheritage.org/'+SWH_DIRECTORY+'/'
+          BASE='https://zenodo.org/api'
+          token=os.environ['ZENODO_TOKEN']
+          auth={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          jh={**auth,'Content-Type':'application/json'}
+          receipt={'started_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'record_id':RID}
+
+          def fail(msg,r=None):
+              receipt.update(status='FAILED',error=msg)
+              if r is not None:
+                  receipt['http_status']=r.status_code
+                  try: receipt['response']=r.json()
+                  except Exception: receipt['response']=r.text[:3000]
+              Path('ops/zenodo/world8/software-heritage-link-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+              print('ERROR:',msg)
+              sys.exit(1)
+
+          r=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/edit',headers=auth,timeout=30)
+          if not r.ok and r.status_code not in (400,409): fail('Could not open Zenodo metadata edit',r)
+
+          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=auth,timeout=30)
+          if not r.ok: fail('Could not read Zenodo edit draft',r)
+          dep=r.json(); md=dict(dep.get('metadata') or {})
+          names=sorted([f.get('filename') or f.get('key') or '' for f in (dep.get('files') or [])])
+          if ARCHIVE not in names: fail('Architecture tree ZIP is not present')
+
+          related=list(md.get('related_identifiers') or [])
+          for identifier in (SWH_RELEASE_URL,SWH_DIRECTORY_URL):
+              if not any(isinstance(x,dict) and x.get('identifier')==identifier for x in related):
+                  related.append({'identifier':identifier,'relation':'isSupplementTo'})
+          md['related_identifiers']=related
+
+          swh_note=(
+              'INDEPENDENT SOFTWARE HERITAGE PRESERVATION: the frozen World 8 / Z0-A baseline is archived from the public Git origin. '
+              f'Annotated release SWHID: {SWH_RELEASE}; snapshot SWHID: {SWH_SNAPSHOT}; '
+              f'revision SWHID: {SWH_REVISION}; directory SWHID: {SWH_DIRECTORY}. '
+              'The preserved Git revision is 7a0311bc25668ea00da873a1663a99898eaa7329 and the release tag is '
+              'world8-z0a-final-2026-08-24. Software Heritage preservation does not expand reuse rights or constitute endorsement. '
+              'Architecture status remains FINAL DESIGN BASELINE / NOT PRODUCTION.'
+          )
+          notes=(md.get('notes') or '').strip()
+          if swh_note not in notes:
+              md['notes']=(notes+'\n\n'+swh_note).strip()
+
+          r=requests.put(f'{BASE}/deposit/depositions/{RID}',headers=jh,data=json.dumps({'metadata':md}),timeout=30)
+          if not r.ok: fail('Zenodo rejected Software Heritage metadata links',r)
+          r=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/publish',headers=auth,timeout=60)
+          if not r.ok: fail('Could not republish Zenodo metadata edit',r)
+
+          r=requests.get(f'{BASE}/records/{RID}',timeout=30)
+          if not r.ok: fail('Could not verify public Zenodo record',r)
+          rec=r.json(); pmd=rec.get('metadata') or {}; pfiles=sorted([f.get('key') or f.get('filename') or '' for f in (rec.get('files') or [])])
+          doi=pmd.get('doi') or rec.get('doi')
+          rels=pmd.get('related_identifiers') or []
+          if doi!=DOI: fail('DOI changed unexpectedly: '+str(doi))
+          if ARCHIVE not in pfiles: fail('Architecture tree ZIP missing after metadata update')
+          release_linked=any(isinstance(x,dict) and x.get('identifier')==SWH_RELEASE_URL for x in rels)
+          directory_linked=any(isinstance(x,dict) and x.get('identifier')==SWH_DIRECTORY_URL for x in rels)
+          if not release_linked or not directory_linked: fail('Software Heritage links not visible in public metadata')
+
+          receipt.update(
+              status='COMPLETE',
+              finished_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              doi=doi,
+              same_doi=True,
+              architecture_tree_preserved=True,
+              swh_release=SWH_RELEASE,
+              swh_snapshot=SWH_SNAPSHOT,
+              swh_revision=SWH_REVISION,
+              swh_directory=SWH_DIRECTORY,
+              release_related_identifier=True,
+              directory_related_identifier=True,
+              record_url=f'https://zenodo.org/records/{RID}',
+          )
+          Path('ops/zenodo/world8/software-heritage-link-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('ZENODO_SWH_CROSSLINK=COMPLETE')
+          PY
+      - name: Commit cross-link receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          if [ -f ops/zenodo/world8/software-heritage-link-receipt.json ]; then
+            git add ops/zenodo/world8/software-heritage-link-receipt.json
+            if ! git diff --cached --quiet; then
+              git commit -m 'Record World 8 Zenodo Software Heritage cross-link [skip ci]'
+              git push
+            fi
+          fi
