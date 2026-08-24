@@ -1,0 +1,51 @@
+{
+  "checked_at_utc": "2026-08-24T17:51:35.132172+00:00",
+  "record_id": 22085394,
+  "public_api_status": 200,
+  "published": true,
+  "title": "World 8 / Z0-A: Provider-Independent Identity, Governed Development, and Recoverable Continuity for Long-Lived AI Agents",
+  "doi": "10.5281/zenodo.22085394",
+  "conceptdoi": "10.5281/zenodo.22085393",
+  "publication_date": "2026-08-24",
+  "version": "Z0-A (Final Design Baseline)",
+  "files": [
+    "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+    "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+    "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+    "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+    "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf"
+  ],
+  "html": "https://zenodo.org/records/22085394",
+  "authenticated_deposition_status": 200,
+  "deposition_state": "done",
+  "deposition_submitted": true,
+  "deposition_links": {
+    "self": "https://zenodo.org/api/records/22085394",
+    "html": "https://zenodo.org/records/22085394",
+    "doi": "https://doi.org/10.5281/zenodo.22085394",
+    "parent_doi": "https://doi.org/10.5281/zenodo.22085393",
+    "badge": "https://zenodo.org/badge/doi/10.5281%2Fzenodo.22085394.svg",
+    "conceptbadge": "https://zenodo.org/badge/doi/10.5281%2Fzenodo.22085393.svg",
+    "files": "https://zenodo.org/api/records/22085394/files",
+    "bucket": "https://zenodo.org/api/files/56983029-d8f8-4ba4-8367-9db74fc2a8ec",
+    "thumb250": "https://zenodo.org/record/22085394/thumb250",
+    "thumbs": {
+      "10": "https://zenodo.org/record/22085394/thumb10",
+      "50": "https://zenodo.org/record/22085394/thumb50",
+      "100": "https://zenodo.org/record/22085394/thumb100",
+      "250": "https://zenodo.org/record/22085394/thumb250",
+      "750": "https://zenodo.org/record/22085394/thumb750",
+      "1200": "https://zenodo.org/record/22085394/thumb1200"
+    },
+    "latest_draft": "https://zenodo.org/api/deposit/depositions/22085394",
+    "latest_draft_html": "https://zenodo.org/deposit/22085394",
+    "publish": "https://zenodo.org/api/deposit/depositions/22085394/actions/publish",
+    "edit": "https://zenodo.org/api/deposit/depositions/22085394/actions/edit",
+    "discard": "https://zenodo.org/api/deposit/depositions/22085394/actions/discard",
+    "newversion": "https://zenodo.org/api/deposit/depositions/22085394/actions/newversion",
+    "record": "https://zenodo.org/api/records/22085394",
+    "record_html": "https://zenodo.org/record/22085394",
+    "latest": "https://zenodo.org/api/records/22085394/versions/latest",
+    "latest_html": "https://zenodo.org/records/22085394/latest"
+  }
+}
