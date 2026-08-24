@@ -1,0 +1,265 @@
+name: Finalize World 8 Zenodo clickable architecture tree
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/world8-zenodo-tree-finalize.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  finalize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add complete architecture ZIP tree to existing World 8 record
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          TREE_URL: https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787594817270_00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip?alt=media
+          TREE_SHA256: e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo "ERROR: ZENODO_TOKEN missing"; exit 2; }
+          mkdir -p ops/zenodo/world8
+          python - <<'PY'
+          import os, json, hashlib, requests, datetime, sys, time
+          from pathlib import Path
+
+          RID = 22085394
+          DOI = '10.5281/zenodo.22085394'
+          NAME = '00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip'
+          BASE = 'https://zenodo.org/api'
+          TOKEN = os.environ['ZENODO_TOKEN']
+          TREE_URL = os.environ['TREE_URL']
+          EXPECTED = os.environ['TREE_SHA256']
+          AUTH = {'Authorization': f'Bearer {TOKEN}', 'Accept': 'application/json'}
+          JSON_HEADERS = {**AUTH, 'Content-Type': 'application/json'}
+          BIN_HEADERS = {**AUTH, 'Content-Type': 'application/octet-stream'}
+          receipt = {
+              'started_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'record_id': RID,
+              'doi_expected': DOI,
+              'archive_file': NAME,
+              'archive_sha256_expected': EXPECTED,
+              'steps': [],
+          }
+
+          def record_step(name, response=None, **extra):
+              item = {'step': name}
+              if response is not None:
+                  item['http_status'] = response.status_code
+                  try:
+                      body = response.json()
+                      if isinstance(body, dict):
+                          # Avoid recording huge responses, but preserve actionable errors/IDs/statuses.
+                          item['response_summary'] = {k: body.get(k) for k in ['id','status','state','message','errors'] if k in body}
+                      else:
+                          item['response_type'] = type(body).__name__
+                  except Exception:
+                      if not response.ok:
+                          item['response_text'] = response.text[:1500]
+              item.update(extra)
+              receipt['steps'].append(item)
+              print('STEP=' + json.dumps(item, ensure_ascii=False))
+
+          def save(status, **extra):
+              receipt['status'] = status
+              receipt.update(extra)
+              receipt['finished_at_utc'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+              Path('ops/zenodo/world8/tree-publication-receipt.json').write_text(
+                  json.dumps(receipt, ensure_ascii=False, indent=2), encoding='utf-8'
+              )
+
+          def fail(msg, response=None):
+              record_step('FAIL', response, error=msg)
+              save('FAILED', error=msg)
+              print('ERROR:', msg)
+              if response is not None:
+                  print('HTTP:', response.status_code)
+                  print(response.text[:5000])
+              sys.exit(1)
+
+          # Download the exact complete archival tree and verify bytes before modifying Zenodo.
+          r = requests.get(TREE_URL, timeout=120)
+          if not r.ok:
+              fail('Could not download staged complete archive', r)
+          blob = r.content
+          got = hashlib.sha256(blob).hexdigest()
+          if got != EXPECTED:
+              fail(f'Staged archive checksum mismatch: expected {EXPECTED}, got {got}')
+          Path('/tmp/world8-tree.zip').write_bytes(blob)
+          record_step('verify_staged_archive', sha256=got, bytes=len(blob))
+
+          # Verify public baseline and same DOI before touching the edit draft.
+          r = requests.get(f'{BASE}/records/{RID}', timeout=30)
+          if not r.ok:
+              fail('Could not read public World 8 record', r)
+          public_before = r.json()
+          md_before = public_before.get('metadata') or {}
+          public_doi_before = md_before.get('doi') or public_before.get('doi')
+          if public_doi_before and public_doi_before != DOI:
+              fail(f'Unexpected DOI before edit: {public_doi_before}')
+          before_names = sorted([f.get('key') or f.get('filename') or '' for f in (public_before.get('files') or [])])
+          record_step('verify_public_baseline', doi=public_doi_before, files=before_names)
+
+          # The record was already opened for edit while diagnosing the missing tree.
+          # Activate Zenodo/InvenioRDM immediate file modification. Empty payload is valid;
+          # the server injects its current policy id and immediately accepts eligible requests.
+          r = requests.post(
+              f'{BASE}/records/{RID}/file-modification',
+              headers=JSON_HEADERS,
+              data='{}',
+              timeout=30,
+          )
+          record_step('unlock_published_files', r)
+          # 200 = accepted/unlocked. A 400 may mean an already-created request; in that case
+          # we continue and let the file API provide the authoritative lock state.
+          if r.status_code not in (200, 201, 202, 400):
+              fail('Zenodo file-modification activation failed', r)
+
+          # Read modern draft file collection.
+          files_url = f'{BASE}/records/{RID}/draft/files'
+          r = requests.get(files_url, headers=AUTH, timeout=30)
+          if not r.ok:
+              fail('Could not read modern Zenodo draft files', r)
+          fj = r.json()
+          entries = fj.get('entries') or []
+          draft_names = [x.get('key') for x in entries]
+          record_step('read_draft_files', r, files=draft_names)
+
+          # Initialize file upload unless already present from an idempotent rerun.
+          if NAME not in draft_names:
+              r = requests.post(
+                  files_url,
+                  headers=JSON_HEADERS,
+                  data=json.dumps([{'key': NAME, 'size': len(blob)}]),
+                  timeout=30,
+              )
+              record_step('initialize_tree_file', r)
+              if r.status_code not in (200, 201):
+                  fail('Could not initialize complete architecture ZIP on Zenodo draft', r)
+
+              # Upload bytes via modern RDM file API.
+              content_url = f'{files_url}/{NAME}/content'
+              r = requests.put(content_url, headers=BIN_HEADERS, data=blob, timeout=180)
+              record_step('upload_tree_bytes', r, bytes=len(blob))
+              if r.status_code not in (200, 201):
+                  fail('Could not upload complete architecture ZIP bytes', r)
+
+              # Commit upload.
+              commit_url = f'{files_url}/{NAME}/commit'
+              r = requests.post(commit_url, headers=AUTH, timeout=60)
+              record_step('commit_tree_file', r)
+              if r.status_code not in (200, 201):
+                  fail('Could not commit complete architecture ZIP', r)
+          else:
+              record_step('tree_file_already_initialized', filename=NAME)
+
+          # Verify the draft file is completed before publication.
+          r = requests.get(files_url, headers=AUTH, timeout=30)
+          if not r.ok:
+              fail('Could not verify draft files after upload', r)
+          fj = r.json(); entries = fj.get('entries') or []
+          entry = next((x for x in entries if x.get('key') == NAME), None)
+          if not entry:
+              fail('Complete architecture ZIP not found in draft after upload')
+          if entry.get('status') != 'completed':
+              fail('Complete architecture ZIP is not in completed state: ' + str(entry.get('status')))
+          record_step('verify_draft_tree_file', status=entry.get('status'), size=entry.get('size'), checksum=entry.get('checksum'))
+
+          # We intentionally use a 00_ prefix. Zenodo defaults to the first previewable file
+          # in alphanumeric order, and ZIP archives are rendered as a browsable internal tree.
+          # This avoids rewriting unrelated metadata solely to change preview ordering.
+
+          # Republish the current edit draft to the SAME record/DOI.
+          publish_url = f'{BASE}/records/{RID}/draft/actions/publish'
+          r = requests.post(publish_url, headers=AUTH, timeout=90)
+          record_step('republish_same_record', r)
+          if r.status_code not in (200, 201, 202):
+              fail('Could not republish World 8 after adding architecture tree', r)
+
+          # Publication can be briefly asynchronous. Poll the public record until the ZIP appears.
+          public_after = None
+          for attempt in range(12):
+              rr = requests.get(f'{BASE}/records/{RID}', timeout=30)
+              if rr.ok:
+                  candidate = rr.json()
+                  names = [f.get('key') or f.get('filename') or '' for f in (candidate.get('files') or [])]
+                  if NAME in names:
+                      public_after = candidate
+                      break
+              time.sleep(5)
+          if public_after is None:
+              fail('Republished record did not expose the ZIP tree within verification window')
+
+          md_after = public_after.get('metadata') or {}
+          public_doi_after = md_after.get('doi') or public_after.get('doi')
+          after_files = public_after.get('files') or []
+          after_names = sorted([f.get('key') or f.get('filename') or '' for f in after_files])
+          original = {
+              '01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf',
+              '02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf',
+              '03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf',
+              '04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf',
+              '05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf',
+          }
+          if public_doi_after != DOI:
+              fail(f'DOI changed unexpectedly after file correction: {public_doi_after}')
+          if not original.issubset(set(after_names)):
+              fail('One or more original five PDFs are missing after republish')
+          if NAME not in after_names:
+              fail('ZIP tree absent from public record after republish')
+
+          # Download the PUBLIC Zenodo copy and verify SHA-256 end-to-end.
+          z = next(f for f in after_files if (f.get('key') or f.get('filename')) == NAME)
+          zlinks = z.get('links') or {}
+          public_content = zlinks.get('self') or zlinks.get('content')
+          if not public_content:
+              fail('Public ZIP entry has no content URL')
+          rr = requests.get(public_content, timeout=120)
+          if not rr.ok:
+              fail('Could not download public Zenodo ZIP for integrity verification', rr)
+          public_sha = hashlib.sha256(rr.content).hexdigest()
+          if public_sha != EXPECTED:
+              fail(f'Public Zenodo ZIP checksum mismatch: {public_sha}')
+          record_step('verify_public_zip_integrity', sha256=public_sha, bytes=len(rr.content))
+
+          save(
+              'COMPLETE_TREE_PUBLISHED',
+              published=True,
+              same_record_same_doi=True,
+              doi=public_doi_after,
+              record_url=f'https://zenodo.org/records/{RID}',
+              archive_sha256=public_sha,
+              public_files=after_names,
+              public_file_count=len(after_names),
+              original_five_files_preserved=True,
+              tree_archive_present=True,
+              github_tree='https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a',
+              claim_boundary='FINAL DESIGN BASELINE / NOT PRODUCTION',
+          )
+          print('WORLD8_ZENODO_TREE=COMPLETE_TREE_PUBLISHED')
+          print('DOI=' + public_doi_after)
+          print('RECORD=https://zenodo.org/records/22085394')
+          print('GITHUB_TREE=https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a')
+          PY
+
+      - name: Commit publication receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          if [ -f ops/zenodo/world8/tree-publication-receipt.json ]; then
+            git add ops/zenodo/world8/tree-publication-receipt.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Record World 8 Zenodo clickable tree finalization [skip ci]"
+              git push
+            fi
+          fi
