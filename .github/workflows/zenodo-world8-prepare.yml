@@ -1,0 +1,309 @@
+name: Prepare World 8 Z0-A Zenodo draft
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/zenodo-world8-prepare.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  prepare:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepare Zenodo draft — never publish
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo "ERROR: GitHub secret ZENODO_TOKEN is missing"; exit 2; }
+          python -m pip install --quiet requests
+          mkdir -p ops/zenodo/world8 files_world8
+          python - <<'PY'
+          import os, sys, json, hashlib, datetime, requests
+          from pathlib import Path
+
+          TOKEN = os.environ['ZENODO_TOKEN']
+          BASE = 'https://zenodo.org/api'
+          TITLE = 'World 8 / Z0-A: Provider-Independent Identity, Governed Development, and Recoverable Continuity for Long-Lived AI Agents'
+          VERSION = 'Z0-A (Final Design Baseline)'
+          PUBDATE = '2026-08-24'
+          LICENSE = 'cc-by-nc-nd-4.0'
+          auth = {'Authorization': f'Bearer {TOKEN}', 'Accept': 'application/json'}
+          json_headers = {**auth, 'Content-Type': 'application/json'}
+
+          FILES = [
+            {
+              'name':'01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf',
+              'url':'https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787593572549_01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf?alt=media',
+              'sha256':'fa42d677e9cd97b29e46d7942ddb49cc6d361925b12a68c3e115f65173962461',
+            },
+            {
+              'name':'02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf',
+              'url':'https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787593583857_02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf?alt=media',
+              'sha256':'af8b5feb8d9d3d3ddd2dffb0161fb73753012ee4666ead2959e56b69467b33e6',
+            },
+            {
+              'name':'03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf',
+              'url':'https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787593591373_03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf?alt=media',
+              'sha256':'1affb5fb8bfd7d8fc6c98864f7cc0b5f3426e0c6cb2dd322345385a21f25e450',
+            },
+            {
+              'name':'04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf',
+              'url':'https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787593600794_04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf?alt=media',
+              'sha256':'851f8195f7ea13e27fd5e0fa3f5954662faab54ba50e266ba9b47b21caf0cb48',
+            },
+            {
+              'name':'05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf',
+              'url':'https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787593615132_05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf?alt=media',
+              'sha256':'5147dfd64527a5a59a76e1ceab7e2c937183d4aeceab3354aa3c4ef138d4e225',
+            },
+          ]
+
+          def fail(msg, r=None):
+              print('ERROR:', msg)
+              if r is not None:
+                  print('HTTP:', r.status_code)
+                  try:
+                      print('RESPONSE:', json.dumps(r.json(), ensure_ascii=False)[:4000])
+                  except Exception:
+                      print('RESPONSE:', r.text[:4000])
+              sys.exit(1)
+
+          # 1) Download the exact release files from durable staging URLs and verify them byte-for-byte.
+          downloaded = []
+          for spec in FILES:
+              p = Path('files_world8') / spec['name']
+              rr = requests.get(spec['url'], stream=True, timeout=120)
+              if not rr.ok:
+                  fail('Could not download staged file ' + spec['name'], rr)
+              h = hashlib.sha256()
+              size = 0
+              with p.open('wb') as f:
+                  for chunk in rr.iter_content(1024*1024):
+                      if chunk:
+                          f.write(chunk)
+                          h.update(chunk)
+                          size += len(chunk)
+              got = h.hexdigest()
+              if got != spec['sha256']:
+                  fail(f"SHA256 mismatch for {spec['name']}: expected {spec['sha256']} got {got}")
+              downloaded.append({'name':spec['name'],'sha256':got,'bytes':size})
+              print(f"VERIFIED_FILE={spec['name']} bytes={size} sha256={got}")
+
+          # 2) Locate an existing matching draft for idempotency; otherwise create a new deposition.
+          rr = requests.get(
+              f'{BASE}/deposit/depositions',
+              params={'status':'draft','sort':'-mostrecent','size':100},
+              headers=auth,
+              timeout=30,
+          )
+          if not rr.ok:
+              fail('Could not list Zenodo depositions', rr)
+          raw = rr.json()
+          drafts = raw.get('hits',{}).get('hits',[]) if isinstance(raw,dict) else raw
+          if isinstance(raw,dict) and not drafts:
+              drafts = raw.get('entries',[]) or []
+          match = None
+          for d in drafts or []:
+              md = d.get('metadata') or {}
+              t = d.get('title') or md.get('title') or ''
+              v = md.get('version') or ''
+              if t == TITLE or (t.startswith('World 8 / Z0-A') and v == VERSION):
+                  match = d
+                  break
+
+          if match is None:
+              rr = requests.post(f'{BASE}/deposit/depositions', headers=json_headers, data='{}', timeout=30)
+              if not rr.ok:
+                  fail('Could not create a new Zenodo deposition', rr)
+              dep = rr.json()
+              created_new = True
+          else:
+              dep_id = match.get('id')
+              rr = requests.get(f'{BASE}/deposit/depositions/{dep_id}', headers=auth, timeout=30)
+              if not rr.ok:
+                  fail('Could not read matching Zenodo draft', rr)
+              dep = rr.json()
+              created_new = False
+
+          dep_id = dep.get('id')
+          if not dep_id:
+              fail('Zenodo draft has no deposition id')
+          links = dep.get('links') or {}
+          bucket = links.get('bucket')
+          if not bucket:
+              fail('Zenodo draft has no upload bucket')
+          print('DEPOSITION_ID=' + str(dep_id))
+          print('CREATED_NEW=' + str(created_new).lower())
+
+          # 3) Upload all five verified files. Existing same-name files make reruns idempotent.
+          existing = {f.get('filename') or f.get('key') for f in (dep.get('files') or [])}
+          for spec in FILES:
+              if spec['name'] in existing:
+                  print('SKIP_EXISTING_FILE=' + spec['name'])
+                  continue
+              p = Path('files_world8') / spec['name']
+              with p.open('rb') as fh:
+                  rr = requests.put(f"{bucket}/{spec['name']}", data=fh, headers=auth, timeout=180)
+              if not rr.ok:
+                  fail('Zenodo rejected file upload ' + spec['name'], rr)
+              print('UPLOADED_FILE=' + spec['name'])
+
+          description = (
+              '<p><strong>World 8 / Z0-A</strong> is an archival reference architecture for long-lived AI agents and digital organizations '
+              'whose accountable identity must remain stable while language models, providers, sessions, workflow engines, channels, hosts, '
+              'and other implementation components are replaced.</p>'
+              '<p>The Z0-A baseline separates replaceable cognition from canonical identity, authority, objectives, accepted state, and history. '
+              'Its normative topology contains five planes: Canonical Spine, Operational, Observation, Development/Mason, and Evidence/Governance. '
+              'Observation independently converts telemetry into attributed gap signals; Mason is proposal-only; independent evaluation is recorded '
+              'through identity- and build-bound receipts; Promotion Authority activates or rejects revisions; and the Canonical Spine records '
+              'accepted transitions through commit-time compare-and-swap, intent-bound idempotency, fencing, append-only history, and governed '
+              'external-effect obligations and receipts.</p>'
+              '<p>The release defines versioned Objective Contracts and Phenotype Revisions, Entity/Role/RoleBinding separation, provider-independent '
+              'identity, transactional-outbox effect handling, clean-host recovery requirements, evidence levels, falsifiers, and failure criteria.</p>'
+              '<p><strong>Claim boundary:</strong> the architecture documents are a <strong>FINAL DESIGN BASELINE / NOT PRODUCTION</strong>. '
+              'The included long-form technical articles are explicitly marked <strong>DRAFT FOR REVIEW / NOT A PRODUCTION CLAIM</strong>. '
+              'This deposit does not claim consciousness, biological life, legal personhood, AGI, proven autonomous evolution, universal exactly-once '
+              'effects, or complete security. Established mechanisms such as CAS, event sourcing, transactional outbox, fencing, and hash chains are '
+              'not claimed as individually novel. Stronger operational, recovery, security, load/chaos, and longitudinal claims remain evidence-gated.</p>'
+              '<p>The deposit contains complete English and Persian archival architecture references, extended English and Persian technical articles, '
+              'and the final master bundle for long-term preservation and independent technical review.</p>'
+              '<p>AI-assisted tools were used for iterative review, manuscript organization, language editing, and typesetting support. The human author '
+              'remains responsible for the architecture, claims, evidence boundaries, source verification, and final publication decision.</p>'
+          )
+
+          md = dict(dep.get('metadata') or {})
+          md.update({
+              'upload_type': 'publication',
+              'publication_type': 'report',
+              'publication_date': PUBDATE,
+              'title': TITLE,
+              'creators': [{'name':'Farokhi, Saeed'}],
+              'description': description,
+              'access_right': 'open',
+              'license': LICENSE,
+              'version': VERSION,
+              'keywords': [
+                  'long-lived AI agents', 'provider-independent AI', 'AI agent continuity',
+                  'agent governance', 'persistent digital entities', 'multi-agent systems',
+                  'canonical identity', 'event sourcing', 'recoverable AI systems',
+                  'model-independent architecture', 'evidence-driven development',
+                  'transactional outbox', 'clean-host recovery', 'World 8', 'Z0-A'
+              ],
+              'related_identifiers': [
+                  {'identifier':'https://zenodo.org/records/22058813', 'relation':'continues'},
+                  {'identifier':'10.5281/zenodo.22040348', 'relation':'references'},
+              ],
+              'notes': (
+                  'Publication gate: PREPARED DRAFT ONLY — NOT PUBLISHED BY AUTOMATION. '
+                  'Architecture status: FINAL DESIGN BASELINE / NOT PRODUCTION. '
+                  'Long-form article status: DRAFT FOR REVIEW / NOT A PRODUCTION CLAIM. '
+                  'Documentation license selected for this deposit: CC BY-NC-ND 4.0. '
+                  'SHA-256 checksums are recorded in the repository preparation receipt.'
+              ),
+          })
+
+          # 4) Set authoritative metadata. Never call the publish action.
+          rr = requests.put(
+              f'{BASE}/deposit/depositions/{dep_id}',
+              headers=json_headers,
+              data=json.dumps({'metadata': md}),
+              timeout=30,
+          )
+          if not rr.ok:
+              fail('Zenodo rejected World 8 metadata', rr)
+          dep = rr.json()
+
+          # 5) Reserve a DOI if the endpoint is available. This does not publish the record.
+          doi_reservation = None
+          rrdoi = requests.post(
+              f'{BASE}/deposit/depositions/{dep_id}/actions/prereserve_doi',
+              headers=auth,
+              timeout=30,
+          )
+          if rrdoi.ok:
+              try:
+                  doi_reservation = rrdoi.json()
+              except Exception:
+                  doi_reservation = {'raw': rrdoi.text[:1000]}
+          else:
+              # Some Zenodo deployments reserve DOI data automatically or use a newer schema.
+              doi_reservation = {'http_status': rrdoi.status_code, 'note':'prereserve_doi action unavailable; draft remains valid'}
+
+          # 6) Read back and verify exact critical fields and uploaded file names.
+          rr = requests.get(f'{BASE}/deposit/depositions/{dep_id}', headers=auth, timeout=30)
+          if not rr.ok:
+              fail('Could not read back prepared World 8 draft', rr)
+          final = rr.json()
+          fmd = final.get('metadata') or {}
+          actual_files = sorted([f.get('filename') or f.get('key') or '' for f in (final.get('files') or [])])
+          wanted_files = sorted([x['name'] for x in FILES])
+          checks = {
+              'title': fmd.get('title') == TITLE,
+              'version': fmd.get('version') == VERSION,
+              'publication_date': fmd.get('publication_date') == PUBDATE,
+              'upload_type': fmd.get('upload_type') == 'publication',
+              'publication_type': fmd.get('publication_type') == 'report',
+              'creator': bool(fmd.get('creators')) and fmd.get('creators')[0].get('name') == 'Farokhi, Saeed',
+              'access_right': fmd.get('access_right') == 'open',
+              'license': str(fmd.get('license')) == LICENSE,
+              'five_exact_files': actual_files == wanted_files,
+              'not_published_by_workflow': True,
+          }
+          if not all(checks.values()):
+              fail('Post-write verification failed: ' + json.dumps(checks, ensure_ascii=False))
+
+          flinks = final.get('links') or {}
+          prereserve = fmd.get('prereserve_doi') or doi_reservation
+          receipt = {
+              'prepared_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'status': 'READY_FOR_HUMAN_PUBLISH',
+              'published': False,
+              'workflow_publish_action_called': False,
+              'deposition_id': dep_id,
+              'zenodo_upload_ui': f'https://zenodo.org/uploads/{dep_id}',
+              'zenodo_api_draft': f'{BASE}/deposit/depositions/{dep_id}',
+              'zenodo_links': flinks,
+              'reserved_doi': prereserve,
+              'title': TITLE,
+              'version': VERSION,
+              'publication_date': PUBDATE,
+              'creator': 'Farokhi, Saeed',
+              'resource_type': 'publication/report',
+              'access_right': 'open',
+              'license': LICENSE,
+              'related_identifiers': md['related_identifiers'],
+              'files': downloaded,
+              'zenodo_file_names': actual_files,
+              'checks': checks,
+              'claim_boundary': 'FINAL DESIGN BASELINE / NOT PRODUCTION; articles DRAFT FOR REVIEW / NOT A PRODUCTION CLAIM',
+              'next_human_action': 'Open zenodo_upload_ui, visually review once, then press Publish.',
+          }
+          Path('ops/zenodo/world8/prepare-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('ZENODO_WORLD8_PREPARE=SUCCESS')
+          print('DEPOSITION_ID=' + str(dep_id))
+          print('UPLOAD_UI=' + receipt['zenodo_upload_ui'])
+          print('STATUS=READY_FOR_HUMAN_PUBLISH')
+          print('PUBLISH_CALLED=false')
+          PY
+
+      - name: Commit preparation receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo/world8/prepare-receipt.json
+          if git diff --cached --quiet; then
+            echo "No receipt changes to commit"
+          else
+            git commit -m "Record World 8 Zenodo draft preparation receipt [skip ci]"
+            git push
+          fi
