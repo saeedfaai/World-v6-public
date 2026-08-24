@@ -14,6 +14,7 @@ This directory is the clickable repository mirror of the complete World 8 / Z0-A
 - [Long-form research article — Persian (Markdown)](deliverables/World8_Z0A_LONGFORM_ARTICLE_FA.md)
 - [Frozen source baseline](source_baseline/)
 - [IP protection framework](IP_PROTECTION/)
+- [Paid-access and commercialization entry](PAID_ACCESS/)
 - [Archive manifest](MANIFEST.json)
 - [SHA-256 manifest](SHA256SUMS.txt)
 
@@ -26,6 +27,8 @@ The release does **not** claim production readiness, consciousness, biological l
 ## IP and commercialization boundary
 
 The public `IP_PROTECTION/` directory records the non-confidential protection framework for authorship/provenance, contributor ownership, confidentiality, commercial licensing, patent triage, and trade-secret boundaries. It intentionally contains no undisclosed invention details or trade secrets. Future implementation moat and patent-sensitive details should remain in access-controlled private systems under appropriate agreements.
+
+The public `PAID_ACCESS/` directory defines prices, access terms, Bitcoin payment policy, and the watch-only launch payment configuration. It contains no paid/private technical content and no wallet secret. Automated payment is limited to lower-value evaluation plans; high-value and commercial rights remain manual and contract-controlled.
 
 ## Preservation
 
