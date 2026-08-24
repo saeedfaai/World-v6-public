@@ -1,0 +1,116 @@
+name: Complete World 8 Zenodo tree metadata
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/world8-zenodo-tree-metadata.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  complete-metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add tree discoverability metadata and verify same DOI
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p ops/zenodo/world8
+          python - <<'PY'
+          import os, json, requests, datetime, sys
+          from pathlib import Path
+
+          RID=22085394
+          DOI='10.5281/zenodo.22085394'
+          ARCHIVE='00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip'
+          TREE='https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a'
+          BASE='https://zenodo.org/api'
+          token=os.environ['ZENODO_TOKEN']
+          auth={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          jh={**auth,'Content-Type':'application/json'}
+          receipt={'started_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'record_id':RID}
+
+          def fail(msg,r=None):
+              receipt.update(status='FAILED',error=msg)
+              if r is not None:
+                  receipt['http_status']=r.status_code
+                  try: receipt['response']=r.json()
+                  except Exception: receipt['response']=r.text[:3000]
+              Path('ops/zenodo/world8/tree-metadata-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+              print('ERROR:',msg)
+              sys.exit(1)
+
+          # Open metadata editing session on the same published record.
+          r=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/edit',headers=auth,timeout=30)
+          if not r.ok and r.status_code not in (400,409): fail('Could not open Zenodo metadata edit',r)
+
+          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=auth,timeout=30)
+          if not r.ok: fail('Could not read Zenodo edit draft',r)
+          dep=r.json(); md=dict(dep.get('metadata') or {})
+          names=sorted([f.get('filename') or f.get('key') or '' for f in (dep.get('files') or [])])
+          if ARCHIVE not in names: fail('Architecture tree ZIP is not present in edit draft')
+
+          related=list(md.get('related_identifiers') or [])
+          if not any(isinstance(x,dict) and x.get('identifier')==TREE for x in related):
+              related.append({'identifier':TREE,'relation':'isSupplementTo'})
+          md['related_identifiers']=related
+
+          tree_note=(
+              'COMPLETE ARCHITECTURE TREE: open 00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip in the Files section. '
+              'Zenodo renders the ZIP internal hierarchy as a browsable tree. It contains English and Persian architecture masters '
+              '(Markdown, text, DOCX, PDF), long-form articles, frozen source baselines, MANIFEST.json, and SHA256SUMS.txt. '
+              'A directly clickable repository mirror is available at ' + TREE + '. '
+              'Architecture status remains FINAL DESIGN BASELINE / NOT PRODUCTION.'
+          )
+          notes=(md.get('notes') or '').strip()
+          if tree_note not in notes:
+              md['notes']=(notes+'\n\n'+tree_note).strip()
+
+          r=requests.put(f'{BASE}/deposit/depositions/{RID}',headers=jh,data=json.dumps({'metadata':md}),timeout=30)
+          if not r.ok: fail('Zenodo rejected tree discoverability metadata',r)
+
+          r=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/publish',headers=auth,timeout=60)
+          if not r.ok: fail('Could not republish metadata edit',r)
+
+          r=requests.get(f'{BASE}/records/{RID}',timeout=30)
+          if not r.ok: fail('Could not verify public record after metadata update',r)
+          rec=r.json(); pmd=rec.get('metadata') or {}; pfiles=sorted([f.get('key') or f.get('filename') or '' for f in (rec.get('files') or [])])
+          doi=pmd.get('doi') or rec.get('doi')
+          if doi!=DOI: fail('DOI changed unexpectedly: '+str(doi))
+          if ARCHIVE not in pfiles: fail('Tree ZIP disappeared after metadata republish')
+
+          receipt.update(
+              status='COMPLETE',
+              finished_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              doi=doi,
+              same_doi=True,
+              archive_present=True,
+              public_files=pfiles,
+              github_tree=TREE,
+              tree_note_added=True,
+              related_identifier_added=True,
+              record_url=f'https://zenodo.org/records/{RID}',
+          )
+          Path('ops/zenodo/world8/tree-metadata-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('WORLD8_TREE_METADATA=COMPLETE')
+          PY
+      - name: Commit metadata receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          if [ -f ops/zenodo/world8/tree-metadata-receipt.json ]; then
+            git add ops/zenodo/world8/tree-metadata-receipt.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Record World 8 Zenodo tree metadata completion [skip ci]"
+              git push
+            fi
+          fi
