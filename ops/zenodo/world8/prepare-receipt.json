@@ -1,0 +1,100 @@
+{
+  "prepared_at_utc": "2026-08-24T17:48:54.829709+00:00",
+  "status": "READY_FOR_HUMAN_PUBLISH",
+  "published": false,
+  "workflow_publish_action_called": false,
+  "deposition_id": 22085394,
+  "zenodo_upload_ui": "https://zenodo.org/uploads/22085394",
+  "zenodo_api_draft": "https://zenodo.org/api/deposit/depositions/22085394",
+  "zenodo_links": {
+    "self": "https://zenodo.org/api/deposit/depositions/22085394",
+    "html": "https://zenodo.org/deposit/22085394",
+    "badge": "https://zenodo.org/badge/doi/.svg",
+    "files": "https://zenodo.org/api/deposit/depositions/22085394/files",
+    "bucket": "https://zenodo.org/api/files/56983029-d8f8-4ba4-8367-9db74fc2a8ec",
+    "thumb250": "https://zenodo.org/record/22085394/thumb250",
+    "thumbs": {
+      "10": "https://zenodo.org/record/22085394/thumb10",
+      "50": "https://zenodo.org/record/22085394/thumb50",
+      "100": "https://zenodo.org/record/22085394/thumb100",
+      "250": "https://zenodo.org/record/22085394/thumb250",
+      "750": "https://zenodo.org/record/22085394/thumb750",
+      "1200": "https://zenodo.org/record/22085394/thumb1200"
+    },
+    "latest_draft": "https://zenodo.org/api/deposit/depositions/22085394",
+    "latest_draft_html": "https://zenodo.org/deposit/22085394",
+    "publish": "https://zenodo.org/api/deposit/depositions/22085394/actions/publish",
+    "edit": "https://zenodo.org/api/deposit/depositions/22085394/actions/edit",
+    "discard": "https://zenodo.org/api/deposit/depositions/22085394/actions/discard",
+    "newversion": "https://zenodo.org/api/deposit/depositions/22085394/actions/newversion"
+  },
+  "reserved_doi": {
+    "doi": "10.5281/zenodo.22085394",
+    "recid": 22085394
+  },
+  "title": "World 8 / Z0-A: Provider-Independent Identity, Governed Development, and Recoverable Continuity for Long-Lived AI Agents",
+  "version": "Z0-A (Final Design Baseline)",
+  "publication_date": "2026-08-24",
+  "creator": "Farokhi, Saeed",
+  "resource_type": "publication/report",
+  "access_right": "open",
+  "license": "cc-by-nc-nd-4.0",
+  "related_identifiers": [
+    {
+      "identifier": "https://zenodo.org/records/22058813",
+      "relation": "continues"
+    },
+    {
+      "identifier": "10.5281/zenodo.22040348",
+      "relation": "references"
+    }
+  ],
+  "files": [
+    {
+      "name": "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+      "sha256": "fa42d677e9cd97b29e46d7942ddb49cc6d361925b12a68c3e115f65173962461",
+      "bytes": 187382
+    },
+    {
+      "name": "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+      "sha256": "af8b5feb8d9d3d3ddd2dffb0161fb73753012ee4666ead2959e56b69467b33e6",
+      "bytes": 512455
+    },
+    {
+      "name": "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+      "sha256": "1affb5fb8bfd7d8fc6c98864f7cc0b5f3426e0c6cb2dd322345385a21f25e450",
+      "bytes": 434050
+    },
+    {
+      "name": "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+      "sha256": "851f8195f7ea13e27fd5e0fa3f5954662faab54ba50e266ba9b47b21caf0cb48",
+      "bytes": 836045
+    },
+    {
+      "name": "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf",
+      "sha256": "5147dfd64527a5a59a76e1ceab7e2c937183d4aeceab3354aa3c4ef138d4e225",
+      "bytes": 203998
+    }
+  ],
+  "zenodo_file_names": [
+    "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+    "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+    "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+    "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+    "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf"
+  ],
+  "checks": {
+    "title": true,
+    "version": true,
+    "publication_date": true,
+    "upload_type": true,
+    "publication_type": true,
+    "creator": true,
+    "access_right": true,
+    "license": true,
+    "five_exact_files": true,
+    "not_published_by_workflow": true
+  },
+  "claim_boundary": "FINAL DESIGN BASELINE / NOT PRODUCTION; articles DRAFT FOR REVIEW / NOT A PRODUCTION CLAIM",
+  "next_human_action": "Open zenodo_upload_ui, visually review once, then press Publish."
+}
