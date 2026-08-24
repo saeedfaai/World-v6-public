@@ -7,12 +7,15 @@ on:
       - '.github/workflows/zenodo-world8-inspect.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   inspect:
     runs-on: ubuntu-latest
     steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
       - name: Inspect Zenodo drafts safely
         shell: bash
         env:
@@ -20,8 +23,9 @@ jobs:
         run: |
           set -euo pipefail
           test -n "${ZENODO_TOKEN:-}" || { echo "ERROR: GitHub secret ZENODO_TOKEN is missing"; exit 2; }
+          mkdir -p ops/zenodo
           python - <<'PY'
-          import os, json, requests
+          import os, json, requests, datetime
 
           token = os.environ['ZENODO_TOKEN']
           base = 'https://zenodo.org/api'
@@ -33,22 +37,28 @@ jobs:
               headers=headers,
               timeout=30,
           )
-          print('HTTP_STATUS=' + str(r.status_code))
-          r.raise_for_status()
+          result = {
+              'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'http_status': r.status_code,
+              'drafts': [],
+              'world8_match_ids': [],
+          }
+          if not r.ok:
+              result['error'] = r.text[:500]
+              open('ops/zenodo/world8-inspection.json','w',encoding='utf-8').write(json.dumps(result,ensure_ascii=False,indent=2))
+              r.raise_for_status()
+
           data = r.json()
           if isinstance(data, dict):
               drafts = data.get('hits', {}).get('hits', []) or data.get('entries', []) or []
           else:
               drafts = data
 
-          print('DRAFT_COUNT=' + str(len(drafts)))
           for d in drafts:
               md = d.get('metadata') or {}
               title = d.get('title') or md.get('title') or ''
               dep_id = d.get('id')
-              files = []
-              for f in d.get('files') or []:
-                  files.append(f.get('filename') or f.get('key') or '')
+              files = [f.get('filename') or f.get('key') or '' for f in (d.get('files') or [])]
               links = d.get('links') or {}
               rec = {
                   'id': dep_id,
@@ -60,14 +70,27 @@ jobs:
                   'html': links.get('html'),
                   'latest_draft': links.get('latest_draft'),
               }
-              print('DRAFT=' + json.dumps(rec, ensure_ascii=False))
+              result['drafts'].append(rec)
+              low_title = title.lower()
+              low_files = [x.lower() for x in files]
+              if 'world 8' in low_title or 'world8' in low_title or any(('world8' in x or 'world_8' in x) for x in low_files):
+                  result['world8_match_ids'].append(dep_id)
 
-          matches = []
-          for d in drafts:
-              md = d.get('metadata') or {}
-              title = (d.get('title') or md.get('title') or '').lower()
-              file_names = [(f.get('filename') or f.get('key') or '').lower() for f in (d.get('files') or [])]
-              if 'world 8' in title or 'world8' in title or any(('world8' in x or 'world_8' in x) for x in file_names):
-                  matches.append(d.get('id'))
-          print('WORLD8_MATCH_IDS=' + json.dumps(matches))
+          open('ops/zenodo/world8-inspection.json','w',encoding='utf-8').write(json.dumps(result,ensure_ascii=False,indent=2))
+          print('DRAFT_COUNT=' + str(len(result['drafts'])))
+          print('WORLD8_MATCH_IDS=' + json.dumps(result['world8_match_ids']))
           PY
+
+      - name: Commit inspection receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo/world8-inspection.json
+          if git diff --cached --quiet; then
+            echo "No inspection changes to commit"
+          else
+            git commit -m "Record World 8 Zenodo inspection receipt [skip ci]"
+            git push
+          fi
