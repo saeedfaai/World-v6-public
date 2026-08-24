@@ -1,0 +1,269 @@
+name: Complete World 8 tree and Zenodo archive
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/world8-complete-tree-and-zenodo.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  complete:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Download and verify complete World 8 archival tree
+        shell: bash
+        env:
+          TREE_URL: https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787594817270_00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip?alt=media
+          TREE_SHA256: e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79
+        run: |
+          set -euo pipefail
+          curl -fL --retry 3 "$TREE_URL" -o /tmp/world8-tree.zip
+          echo "$TREE_SHA256  /tmp/world8-tree.zip" | sha256sum -c -
+          unzip -t /tmp/world8-tree.zip >/tmp/world8-unzip-test.txt
+          tail -n 2 /tmp/world8-unzip-test.txt
+
+      - name: Materialize clickable World 8 source tree in GitHub
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf world8-z0a
+          mkdir -p world8-z0a
+          unzip -q /tmp/world8-tree.zip -d world8-z0a
+          cat > world8-z0a/README.md <<'EOF'
+          # World 8 / Z0-A — Complete Archival Tree
+
+          **Status:** FINAL DESIGN BASELINE / NOT PRODUCTION  
+          **Frozen design date:** 2026-08-24  
+          **Zenodo DOI:** https://doi.org/10.5281/zenodo.22085394
+
+          This directory is the clickable repository mirror of the complete World 8 / Z0-A archival package deposited on Zenodo.
+
+          ## Start here
+
+          - [Complete architecture — English (Markdown)](deliverables/World8_Z0A_COMPLETE_ARCHITECTURE_EN.md)
+          - [Complete architecture — Persian (Markdown)](deliverables/World8_Z0A_COMPLETE_ARCHITECTURE_FA.md)
+          - [Long-form research article — English (Markdown)](deliverables/World8_Z0A_LONGFORM_ARTICLE_EN.md)
+          - [Long-form research article — Persian (Markdown)](deliverables/World8_Z0A_LONGFORM_ARTICLE_FA.md)
+          - [Frozen source baseline](source_baseline/)
+          - [Archive manifest](MANIFEST.json)
+          - [SHA-256 manifest](SHA256SUMS.txt)
+
+          ## Architecture contract
+
+          World 8 / Z0-A separates replaceable cognition from canonical identity, authority, objectives, accepted state, and history. The fixed topology has five planes: Canonical Spine, Operational, Observation, Development/Mason, and Evidence/Governance.
+
+          The release does **not** claim production readiness, consciousness, biological life, legal personhood, AGI, proven autonomous evolution, universal exactly-once effects, or complete security. Stronger claims remain evidence-gated.
+
+          ## Preservation
+
+          The Zenodo record also contains `00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip`. Zenodo renders ZIP contents as a hierarchical tree so visitors can browse the internal architecture structure directly from the record page.
+          EOF
+
+          cat > WORLD8_Z0A.md <<'EOF'
+          # World 8 / Z0-A
+
+          The complete clickable architecture tree is available here:
+
+          **[Open World 8 / Z0-A architecture tree](world8-z0a/)**
+
+          Zenodo DOI: https://doi.org/10.5281/zenodo.22085394
+
+          Status: **FINAL DESIGN BASELINE / NOT PRODUCTION**.
+          EOF
+
+          printf '%s  %s\n' 'e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79' '00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip' > world8-z0a/ARCHIVE_SHA256.txt
+
+          test -s world8-z0a/deliverables/World8_Z0A_COMPLETE_ARCHITECTURE_EN.md
+          test -s world8-z0a/deliverables/World8_Z0A_COMPLETE_ARCHITECTURE_FA.md
+          test -s world8-z0a/MANIFEST.json
+          test -s world8-z0a/SHA256SUMS.txt
+          echo "WORLD8_GITHUB_TREE_FILES=$(find world8-z0a -type f | wc -l)"
+
+      - name: Commit clickable GitHub architecture tree
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add WORLD8_Z0A.md world8-z0a
+          if git diff --cached --quiet; then
+            echo "No World 8 tree changes to commit"
+          else
+            git commit -m "Publish complete clickable World 8 Z0-A architecture tree [skip ci]"
+            git push
+          fi
+
+      - name: Add ZIP tree preview to existing Zenodo record and republish edit
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          TREE_URL: https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787594817270_00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip?alt=media
+          TREE_SHA256: e9f3ccdc1aec86ba26e21fede3c70b59e24c732b0c1923c508198aacca2fbc79
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo "ERROR: GitHub secret ZENODO_TOKEN is missing"; exit 2; }
+          python - <<'PY'
+          import os, json, hashlib, requests, sys, datetime
+          from pathlib import Path
+
+          token = os.environ['ZENODO_TOKEN']
+          url = os.environ['TREE_URL']
+          expected_sha = os.environ['TREE_SHA256']
+          dep_id = 22085394
+          base = 'https://zenodo.org/api'
+          auth = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+          jh = {**auth, 'Content-Type': 'application/json'}
+          archive_name = '00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip'
+          github_tree = 'https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a'
+
+          def fail(msg, r=None):
+              print('ERROR:', msg)
+              if r is not None:
+                  print('HTTP:', r.status_code)
+                  try: print(json.dumps(r.json(), ensure_ascii=False)[:5000])
+                  except Exception: print(r.text[:5000])
+              sys.exit(1)
+
+          # Download exact staged archive and verify before touching Zenodo.
+          r = requests.get(url, timeout=120)
+          if not r.ok: fail('Could not download staged tree archive', r)
+          data = r.content
+          got = hashlib.sha256(data).hexdigest()
+          if got != expected_sha: fail(f'Archive SHA mismatch: expected {expected_sha}, got {got}')
+          Path('/tmp/world8-tree.zip').write_bytes(data)
+          print('TREE_SHA256=' + got)
+          print('TREE_BYTES=' + str(len(data)))
+
+          # Read deposition. Published records must be unlocked for editing.
+          r = requests.get(f'{base}/deposit/depositions/{dep_id}', headers=auth, timeout=30)
+          if not r.ok: fail('Could not read World 8 deposition', r)
+          dep = r.json()
+          if dep.get('submitted') or dep.get('state') == 'done':
+              r = requests.post(f'{base}/deposit/depositions/{dep_id}/actions/edit', headers=auth, timeout=30)
+              if not r.ok and r.status_code not in (400, 409):
+                  fail('Could not unlock published World 8 record for editing', r)
+              r = requests.get(f'{base}/deposit/depositions/{dep_id}', headers=auth, timeout=30)
+              if not r.ok: fail('Could not reread unlocked World 8 deposition', r)
+              dep = r.json()
+
+          links = dep.get('links') or {}
+          bucket = links.get('bucket')
+          if not bucket: fail('Zenodo edit draft has no bucket')
+
+          # Idempotent archive upload.
+          existing = {f.get('filename') or f.get('key') for f in (dep.get('files') or [])}
+          if archive_name not in existing:
+              with open('/tmp/world8-tree.zip','rb') as fh:
+                  r = requests.put(f'{bucket}/{archive_name}', data=fh, headers=auth, timeout=180)
+              if not r.ok: fail('Zenodo rejected complete architecture tree archive', r)
+              print('ZENODO_TREE_UPLOAD=SUCCESS')
+          else:
+              print('ZENODO_TREE_UPLOAD=ALREADY_PRESENT')
+
+          # Preserve all current metadata, add explicit discoverability for the tree.
+          r = requests.get(f'{base}/deposit/depositions/{dep_id}', headers=auth, timeout=30)
+          if not r.ok: fail('Could not reread deposition before metadata update', r)
+          dep = r.json()
+          md = dict(dep.get('metadata') or {})
+          related = list(md.get('related_identifiers') or [])
+          wanted_rel = {'identifier': github_tree, 'relation': 'isSupplementTo'}
+          if not any(x.get('identifier') == github_tree for x in related if isinstance(x, dict)):
+              related.append(wanted_rel)
+          md['related_identifiers'] = related
+          note = md.get('notes') or ''
+          tree_note = (
+              'Complete architecture tree: the file 00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip '
+              'contains the full English/Persian architecture masters (MD/TXT/DOCX/PDF), long-form articles, '
+              'frozen source baselines, manifest, and SHA-256 checksums. The ZIP is intentionally named 00_ so '
+              'Zenodo selects its hierarchical ZIP preview before the loose PDF previews when using the default '
+              'alphanumeric preview rule. A clickable mirror is available at ' + github_tree + '.'
+          )
+          if tree_note not in note:
+              md['notes'] = (note + '\n\n' + tree_note).strip()
+
+          r = requests.put(
+              f'{base}/deposit/depositions/{dep_id}',
+              headers=jh,
+              data=json.dumps({'metadata': md}),
+              timeout=30,
+          )
+          if not r.ok: fail('Zenodo rejected metadata update for architecture tree', r)
+
+          # Publish the edit back to the SAME record/DOI. This is not a new version.
+          r = requests.post(f'{base}/deposit/depositions/{dep_id}/actions/publish', headers=auth, timeout=60)
+          if not r.ok: fail('Could not republish edited World 8 record', r)
+          print('ZENODO_EDIT_REPUBLISH=SUCCESS')
+
+          # Public verification: archive exists, DOI unchanged, all five original PDFs still exist.
+          r = requests.get(f'{base}/records/{dep_id}', timeout=30)
+          if not r.ok: fail('Public World 8 record verification failed', r)
+          rec = r.json()
+          files = rec.get('files') or []
+          names = sorted([f.get('key') or f.get('filename') or '' for f in files])
+          required = {
+              '00_World8_Z0A_COMPLETE_ARCHITECTURE_TREE.zip',
+              '01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf',
+              '02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf',
+              '03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf',
+              '04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf',
+              '05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf',
+          }
+          missing = sorted(required - set(names))
+          doi = ((rec.get('metadata') or {}).get('doi') or rec.get('doi') or '')
+          if missing: fail('Public record missing files: ' + json.dumps(missing))
+          if doi and doi != '10.5281/zenodo.22085394': fail('DOI changed unexpectedly: ' + doi)
+
+          # Download the public archive and verify SHA-256 end-to-end.
+          zip_entry = next((f for f in files if (f.get('key') or f.get('filename')) == archive_name), None)
+          if not zip_entry: fail('Could not locate public ZIP entry after republish')
+          zlinks = zip_entry.get('links') or {}
+          public_url = zlinks.get('self') or zlinks.get('content')
+          if not public_url: fail('Public ZIP has no download link')
+          rr = requests.get(public_url, timeout=120)
+          if not rr.ok: fail('Could not download public ZIP for integrity verification', rr)
+          public_sha = hashlib.sha256(rr.content).hexdigest()
+          if public_sha != expected_sha: fail(f'Public ZIP SHA mismatch: {public_sha}')
+
+          receipt = {
+              'checked_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'status': 'COMPLETE_TREE_PUBLISHED',
+              'record_id': dep_id,
+              'doi': '10.5281/zenodo.22085394',
+              'record_url': f'https://zenodo.org/records/{dep_id}',
+              'archive_file': archive_name,
+              'archive_sha256': public_sha,
+              'archive_bytes': len(rr.content),
+              'public_files': names,
+              'original_five_files_preserved': required - {archive_name} <= set(names),
+              'tree_archive_present': archive_name in names,
+              'github_tree': github_tree,
+              'same_record_not_new_version': True,
+              'claim_boundary': 'FINAL DESIGN BASELINE / NOT PRODUCTION',
+          }
+          Path('ops/zenodo/world8').mkdir(parents=True, exist_ok=True)
+          Path('ops/zenodo/world8/tree-publication-receipt.json').write_text(json.dumps(receipt, ensure_ascii=False, indent=2), encoding='utf-8')
+          print('WORLD8_TREE_PUBLICATION=VERIFIED')
+          print('PUBLIC_FILE_COUNT=' + str(len(names)))
+          print('PUBLIC_ARCHIVE_SHA256=' + public_sha)
+          PY
+
+      - name: Commit Zenodo tree publication receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase
+          git add ops/zenodo/world8/tree-publication-receipt.json
+          if git diff --cached --quiet; then
+            echo "No Zenodo tree receipt changes to commit"
+          else
+            git commit -m "Record complete World 8 Zenodo architecture tree publication [skip ci]"
+            git push
+          fi
