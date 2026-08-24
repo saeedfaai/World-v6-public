@@ -1,0 +1,62 @@
+{
+  "status": "BACKEND_LAUNCH_READY",
+  "finalized_at": "2026-08-24T22:33:00+03:30",
+  "system": "World 8 / Z0-A Paid Access v1",
+  "claim_boundary": "FINAL DESIGN BASELINE / NOT PRODUCTION",
+  "payment": {
+    "asset": "BTC",
+    "network": "bitcoin-mainnet",
+    "receiving_address": "bc1qe4nydvpu79cu4ngtryp7yghksveqcya9drg0zc",
+    "address_validation": "bech32 mainnet segwit v0 / 20-byte witness program",
+    "private_key_required": false,
+    "seed_phrase_required": false,
+    "invoice_expiry_minutes": 30
+  },
+  "automated_checkout": [
+    "technical_access: USD 390 / 30 days / 1 user",
+    "professional_access: USD 990 / 90 days / 1 user"
+  ],
+  "manual_review": [
+    "team_evaluation: USD 4,900",
+    "enterprise_due_diligence: USD 12,500",
+    "internal_pilot_license: USD 25,000 starting point",
+    "commercial_license: separately negotiated"
+  ],
+  "database": {
+    "migration": "w8_paid_access_v1",
+    "api_exposure_migration": "w8_paid_access_api_exposure",
+    "schema": "access",
+    "private_storage_bucket": "world8-paid-vault",
+    "rls_enabled": true
+  },
+  "edge_functions": [
+    {
+      "name": "create-btc-invoice",
+      "status": "ACTIVE",
+      "verify_jwt": true
+    },
+    {
+      "name": "verify-btc-payment",
+      "status": "ACTIVE",
+      "verify_jwt": true
+    }
+  ],
+  "terms": {
+    "version": "1.0",
+    "sha256": "7c60af2c6feea10ef6697674e860ff777d1276fd7483996089c2cb42f8501d0e",
+    "url": "https://github.com/saeedfaai/World-v6-public/blob/main/world8-z0a/PAID_ACCESS/TERMS_OF_ACCESS.md"
+  },
+  "public_policy_directory": "https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a/PAID_ACCESS",
+  "security_notes": {
+    "paid_content_in_public_repo": false,
+    "commercial_rights_auto_activated": false,
+    "txid_reuse_blocked": true,
+    "private_vault": true,
+    "long_term_upgrade": "unique per-invoice Bitcoin addresses via watch-only xpub or equivalent processor before meaningful payment volume"
+  },
+  "remaining_before_public_checkout": [
+    "deploy user-facing login/pricing/checkout interface",
+    "upload only approved non-public deliverables into the private vault",
+    "run end-to-end payment test with a small real BTC transaction before accepting customers"
+  ]
+}
