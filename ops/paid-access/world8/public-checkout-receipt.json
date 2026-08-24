@@ -1,0 +1,47 @@
+{
+  "status": "PUBLIC_CHECKOUT_DEPLOYED_PENDING_REAL_BTC_E2E_TEST",
+  "deployed_at_utc": "2026-08-24T19:20:59+00:00",
+  "temporary_host": "https://piercing-zone-5dn92m9.shipstatic.com",
+  "temporary_host_expires_at_utc": "2026-08-27T19:20:59+00:00",
+  "source_directory": "world8-z0a/PAID_ACCESS/site",
+  "backend_project": "world-8",
+  "supabase_project_ref": "ogiqujrubsvzohqremuv",
+  "payment_asset": "BTC",
+  "payment_network": "bitcoin-mainnet",
+  "direct_checkout_plans": [
+    "technical_access",
+    "professional_access"
+  ],
+  "manual_review_plans": [
+    "team_evaluation",
+    "enterprise_due_diligence",
+    "internal_pilot_license",
+    "commercial_license"
+  ],
+  "edge_functions": {
+    "create-btc-invoice": "ACTIVE v2",
+    "verify-btc-payment": "ACTIVE v2",
+    "get-paid-vault": "ACTIVE v1",
+    "request-manual-access": "ACTIVE v1"
+  },
+  "private_materials_seeded": [
+    "implementation-workbook-core-v1",
+    "professional-review-pack-v1"
+  ],
+  "security": {
+    "supabase_security_advisors": "0 findings after paid-access RLS hardening",
+    "private_key_or_seed_stored": false,
+    "publishable_key_only_in_frontend": true,
+    "paid_materials_direct_public_table_access": false,
+    "material_views_watermarked": true,
+    "material_views_audit_logged": true,
+    "txid_reuse_blocked": true,
+    "commercial_rights_automatic": false
+  },
+  "required_before_marking_full_production_checkout": [
+    "claim or move temporary frontend to a permanent controlled domain",
+    "complete one small real BTC end-to-end payment test using a dedicated buyer account",
+    "verify account signup/email-confirmation behavior from the final production domain",
+    "upgrade from a shared receiving address to unique per-invoice Bitcoin addresses before meaningful transaction volume"
+  ]
+}
