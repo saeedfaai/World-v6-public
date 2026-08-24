@@ -1,0 +1,51 @@
+{
+  "@context": "https://w3id.org/codemeta/3.0",
+  "@type": "SoftwareSourceCode",
+  "name": "World 8 / Z0-A",
+  "alternateName": "World 8 Z0-A Final Design Baseline",
+  "version": "Z0-A (Final Design Baseline)",
+  "datePublished": "2026-08-24",
+  "description": "Archival architecture/reference package for long-lived AI agents and digital organizations. The Z0-A baseline separates replaceable cognition from canonical identity, authority, objectives, accepted state, and history. This package is a FINAL DESIGN BASELINE / NOT PRODUCTION and is not a claim of production readiness, AGI, consciousness, biological life, legal personhood, proven autonomous evolution, universal exactly-once effects, or complete security.",
+  "author": [
+    {
+      "@type": "Person",
+      "givenName": "Saeed",
+      "familyName": "Farokhi",
+      "name": "Saeed Farokhi"
+    }
+  ],
+  "copyrightHolder": {
+    "@type": "Person",
+    "name": "Saeed Farokhi"
+  },
+  "copyrightYear": "2026",
+  "license": "https://creativecommons.org/licenses/by-nc-nd/4.0/",
+  "codeRepository": "https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a",
+  "url": "https://zenodo.org/records/22085394",
+  "identifier": [
+    "https://doi.org/10.5281/zenodo.22085394",
+    "https://doi.org/10.5281/zenodo.22085393"
+  ],
+  "keywords": [
+    "long-lived AI agents",
+    "provider-independent AI",
+    "AI agent continuity",
+    "agent governance",
+    "persistent digital entities",
+    "canonical identity",
+    "event sourcing",
+    "recoverable AI systems",
+    "model-independent architecture",
+    "evidence-driven development",
+    "transactional outbox",
+    "clean-host recovery",
+    "World 8",
+    "Z0-A"
+  ],
+  "isBasedOn": [
+    "https://zenodo.org/records/22058813",
+    "https://doi.org/10.5281/zenodo.22040348"
+  ],
+  "developmentStatus": "inactive",
+  "applicationCategory": "Architecture specification and archival reference package"
+}
