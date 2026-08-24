@@ -1,0 +1,55 @@
+name: Inspect Zenodo RDM file-modification API
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/world8-rdm-filemod-introspect.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect endpoints
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p ops/zenodo/world8
+          python - <<'PY'
+          import os, json, requests, datetime
+          token=os.environ['ZENODO_TOKEN']; rid=22085394; base='https://zenodo.org/api'
+          h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+          out={'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat()}
+          for label,method,url in [
+              ('draft_get','GET',f'{base}/records/{rid}/draft'),
+              ('filemod_get','GET',f'{base}/records/{rid}/file-modification'),
+              ('filemod_options','OPTIONS',f'{base}/records/{rid}/file-modification'),
+              ('draft_files_get','GET',f'{base}/records/{rid}/draft/files'),
+          ]:
+              try:
+                  r=requests.request(method,url,headers=h,timeout=30)
+                  out[label]={'status':r.status_code,'headers':{k:v for k,v in r.headers.items() if k.lower() in ['allow','content-type','link']}}
+                  try: out[label]['json']=r.json()
+                  except Exception: out[label]['text']=r.text[:5000]
+              except Exception as e:
+                  out[label]={'error':repr(e)}
+          open('ops/zenodo/world8/rdm-filemod-introspection.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2))
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+      - name: Commit introspection
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo/world8/rdm-filemod-introspection.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record Zenodo RDM file-modification introspection [skip ci]"
+            git push
+          fi
