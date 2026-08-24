@@ -1,0 +1,165 @@
+name: Freeze and archive World 8 Z0-A tagged release
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/software-heritage-world8-tagged-release.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  tag-and-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ORIGIN_URL: https://github.com/saeedfaai/World-v6-public
+      TARGET_COMMIT: 7a0311bc25668ea00da873a1663a99898eaa7329
+      TARGET_PATH: world8-z0a
+      TAG_NAME: world8-z0a-final-2026-08-24
+      ZENODO_DOI: 10.5281/zenodo.22085394
+    steps:
+      - name: Checkout full history
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Create or verify annotated release tag
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "Saeed Farokhi archival automation"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git fetch --tags origin
+          if git show-ref --verify --quiet "refs/tags/$TAG_NAME"; then
+            peeled="$(git rev-parse "$TAG_NAME^{}")"
+            test "$peeled" = "$TARGET_COMMIT" || {
+              echo "Existing tag points to $peeled, expected $TARGET_COMMIT" >&2
+              exit 10
+            }
+            echo "TAG_ALREADY_EXISTS=true"
+          else
+            git tag -a "$TAG_NAME" "$TARGET_COMMIT" \
+              -m "World 8 / Z0-A — Final Design Baseline — 2026-08-24 — Zenodo DOI: $ZENODO_DOI — NOT PRODUCTION"
+            git push origin "refs/tags/$TAG_NAME"
+            echo "TAG_CREATED=true"
+          fi
+          tag_object="$(git rev-parse "refs/tags/$TAG_NAME")"
+          peeled="$(git rev-parse "refs/tags/$TAG_NAME^{}")"
+          tree="$(git rev-parse "$TARGET_COMMIT:$TARGET_PATH")"
+          echo "TAG_OBJECT=$tag_object" >> "$GITHUB_ENV"
+          echo "WORLD8_TREE=$tree" >> "$GITHUB_ENV"
+          echo "TAG_OBJECT=$tag_object"
+          echo "TARGET_COMMIT=$peeled"
+          echo "WORLD8_TREE=$tree"
+
+      - name: Request Software Heritage save after tag creation
+        id: save
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ops/software-heritage/world8
+          python - <<'PY'
+          import json, os, sys, urllib.parse, urllib.request, urllib.error
+          origin=os.environ['ORIGIN_URL']
+          url='https://archive.softwareheritage.org/api/1/origin/save/?'+urllib.parse.urlencode({'visit_type':'git','origin_url':origin})
+          req=urllib.request.Request(url,method='POST',headers={
+              'Accept':'application/json',
+              'User-Agent':'World8-Z0A-Tagged-Archival-Workflow/1.0 (+https://github.com/saeedfaai/World-v6-public)'
+          })
+          try:
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  code=r.status; body=r.read().decode('utf-8')
+          except urllib.error.HTTPError as e:
+              code=e.code; body=e.read().decode('utf-8',errors='replace')
+          try: data=json.loads(body)
+          except Exception: data={'raw':body}
+          print('HTTP='+str(code)); print(json.dumps(data,ensure_ascii=False,indent=2))
+          if code not in (200,201): raise SystemExit(20)
+          rid=data.get('id')
+          if not rid: raise SystemExit(21)
+          with open(os.environ['GITHUB_OUTPUT'],'a') as f: f.write('request_id='+str(rid)+'\n')
+          PY
+
+      - name: Poll and verify tagged Software Heritage objects
+        shell: bash
+        env:
+          REQUEST_ID: ${{ steps.save.outputs.request_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime,json,os,time,urllib.parse,urllib.request,urllib.error
+          origin=os.environ['ORIGIN_URL']; rid=os.environ['REQUEST_ID']
+          commit=os.environ['TARGET_COMMIT']; tree=os.environ['WORLD8_TREE']; tagobj=os.environ['TAG_OBJECT']; tag=os.environ['TAG_NAME']
+          ua={'Accept':'application/json','User-Agent':'World8-Z0A-Tagged-Archival-Workflow/1.0 (+https://github.com/saeedfaai/World-v6-public)'}
+          def get(url):
+              req=urllib.request.Request(url,headers=ua)
+              try:
+                  with urllib.request.urlopen(req,timeout=60) as r: return r.status,json.loads(r.read().decode())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode(errors='replace')
+                  try:o=json.loads(raw)
+                  except:o={'raw':raw}
+                  return e.code,o
+          status_url=f'https://archive.softwareheritage.org/api/1/origin/save/{rid}/'
+          data={}
+          for i in range(48):
+              code,data=get(status_url)
+              task=data.get('save_task_status') if isinstance(data,dict) else None
+              reqst=data.get('save_request_status') if isinstance(data,dict) else None
+              print(f'POLL={i+1} request={reqst} task={task}')
+              if reqst=='rejected' or task in ('failed','succeeded'): break
+              time.sleep(15)
+          task=data.get('save_task_status') if isinstance(data,dict) else None
+          if data.get('save_request_status')=='rejected' or task=='failed': raise SystemExit(30)
+          rev_code,_=get('https://archive.softwareheritage.org/api/1/revision/'+commit+'/')
+          dir_code,_=get('https://archive.softwareheritage.org/api/1/directory/'+tree+'/')
+          rel_code,rel_obj=get('https://archive.softwareheritage.org/api/1/release/'+tagobj+'/')
+          receipt={
+            'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'result':'SUCCEEDED' if task=='succeeded' and rev_code==200 and dir_code==200 and rel_code==200 else 'REQUESTED_OR_PROCESSING',
+            'origin_url':origin,
+            'save_request_id':int(rid),
+            'save_request_status':data.get('save_request_status'),
+            'save_task_status':task,
+            'visit_status':data.get('visit_status'),
+            'visit_date':data.get('visit_date'),
+            'snapshot_swhid':data.get('snapshot_swhid'),
+            'tag_name':tag,
+            'git_tag_object_sha1':tagobj,
+            'release_swhid':'swh:1:rel:'+tagobj,
+            'release_api_http_status':rel_code,
+            'release_archived':rel_code==200,
+            'git_revision':commit,
+            'revision_swhid':'swh:1:rev:'+commit,
+            'revision_archived':rev_code==200,
+            'world8_tree_git_sha1':tree,
+            'directory_swhid':'swh:1:dir:'+tree,
+            'directory_archived':dir_code==200,
+            'qualified_directory_swhid':'swh:1:dir:'+tree+';origin='+origin+';anchor=swh:1:rev:'+commit+';path=/world8-z0a',
+            'zenodo_doi':os.environ['ZENODO_DOI'],
+            'claim_boundary':'FINAL DESIGN BASELINE / NOT PRODUCTION',
+            'archive_release_url':'https://archive.softwareheritage.org/swh:1:rel:'+tagobj+'/',
+            'archive_revision_url':'https://archive.softwareheritage.org/swh:1:rev:'+commit+'/',
+            'archive_directory_url':'https://archive.softwareheritage.org/swh:1:dir:'+tree+'/'
+          }
+          open('ops/software-heritage/world8/tagged-receipt.json','w',encoding='utf-8').write(json.dumps(receipt,ensure_ascii=False,indent=2))
+          print(json.dumps(receipt,ensure_ascii=False,indent=2))
+          PY
+
+      - name: Commit tagged archival receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout main
+          git pull --ff-only origin main
+          git add ops/software-heritage/world8/tagged-receipt.json
+          if git diff --cached --quiet; then
+            echo 'No tagged archival receipt changes.'
+          else
+            git commit -m 'Record tagged World 8 Software Heritage receipt [skip ci]'
+            git push origin main
+          fi
