@@ -1,0 +1,31 @@
+{
+  "checked_at_utc": "2026-08-24T17:44:17.039762+00:00",
+  "http_status": 200,
+  "drafts": [
+    {
+      "id": 22040348,
+      "title": "World v6.2 — Fractal Multi-Brain Architecture",
+      "version": "6.2.0-rc.3",
+      "publication_date": "2026-08-21",
+      "upload_type": "software",
+      "files": [
+        "World_v6.2_RC3_FINAL_RELEASE.zip"
+      ],
+      "html": "https://zenodo.org/records/22040348",
+      "latest_draft": "https://zenodo.org/api/deposit/depositions/22040348"
+    },
+    {
+      "id": 22058813,
+      "title": "World 7 v0.2 — Living Genome Architecture for Persistent Digital Organisms",
+      "version": "7.0.0-rc.1",
+      "publication_date": "2026-08-22",
+      "upload_type": "software",
+      "files": [
+        "saeedfaai/World-v6-public-v7.0.0-rc.1.zip"
+      ],
+      "html": "https://zenodo.org/records/22058813",
+      "latest_draft": "https://zenodo.org/api/deposit/depositions/22058813"
+    }
+  ],
+  "world8_match_ids": []
+}
