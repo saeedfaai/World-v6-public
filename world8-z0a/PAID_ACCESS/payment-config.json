@@ -1,0 +1,42 @@
+{
+  "version": "1.0",
+  "effective_date": "2026-08-24",
+  "status": "LAUNCH_CONFIGURATION",
+  "pricing_currency": "USD",
+  "payment_rail": {
+    "asset": "BTC",
+    "network": "bitcoin-mainnet",
+    "receiving_address": "bc1qe4nydvpu79cu4ngtryp7yghksveqcya9drg0zc",
+    "address_type": "bech32-native-segwit-v0-p2wpkh",
+    "invoice_expiry_minutes": 30,
+    "required_confirmations": {
+      "technical_access": 1,
+      "professional_access": 1,
+      "manual_high_value_default": 2
+    },
+    "private_key_required_by_application": false,
+    "seed_phrase_required_by_application": false,
+    "xpub_mode": "not-enabled-v1",
+    "future_recommendation": "Migrate to unique per-invoice addresses using a watch-only xpub or payment processor before high-volume checkout."
+  },
+  "automated_checkout_plans": [
+    "technical_access",
+    "professional_access"
+  ],
+  "manual_review_plans": [
+    "team_evaluation",
+    "enterprise_due_diligence",
+    "internal_pilot_license",
+    "commercial_license"
+  ],
+  "controls": {
+    "exact_satoshi_invoice_amount": true,
+    "unique_invoice_nonce_sats": true,
+    "transaction_hash_reuse_prohibited": true,
+    "underpayment_auto_activation": false,
+    "commercial_rights_auto_activation": false,
+    "signed_url_delivery_only": true,
+    "private_storage_required": true
+  },
+  "claim_boundary": "FINAL DESIGN BASELINE / NOT PRODUCTION"
+}
