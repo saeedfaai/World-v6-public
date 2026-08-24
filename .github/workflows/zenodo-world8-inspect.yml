@@ -1,0 +1,73 @@
+name: Inspect Zenodo drafts for World 8
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/zenodo-world8-inspect.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Inspect Zenodo drafts safely
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo "ERROR: GitHub secret ZENODO_TOKEN is missing"; exit 2; }
+          python - <<'PY'
+          import os, json, requests
+
+          token = os.environ['ZENODO_TOKEN']
+          base = 'https://zenodo.org/api'
+          headers = {'Authorization': f'Bearer {token}', 'Accept': 'application/json'}
+
+          r = requests.get(
+              f'{base}/deposit/depositions',
+              params={'status':'draft', 'sort':'-mostrecent', 'size':100},
+              headers=headers,
+              timeout=30,
+          )
+          print('HTTP_STATUS=' + str(r.status_code))
+          r.raise_for_status()
+          data = r.json()
+          if isinstance(data, dict):
+              drafts = data.get('hits', {}).get('hits', []) or data.get('entries', []) or []
+          else:
+              drafts = data
+
+          print('DRAFT_COUNT=' + str(len(drafts)))
+          for d in drafts:
+              md = d.get('metadata') or {}
+              title = d.get('title') or md.get('title') or ''
+              dep_id = d.get('id')
+              files = []
+              for f in d.get('files') or []:
+                  files.append(f.get('filename') or f.get('key') or '')
+              links = d.get('links') or {}
+              rec = {
+                  'id': dep_id,
+                  'title': title,
+                  'version': md.get('version'),
+                  'publication_date': md.get('publication_date'),
+                  'upload_type': md.get('upload_type'),
+                  'files': files,
+                  'html': links.get('html'),
+                  'latest_draft': links.get('latest_draft'),
+              }
+              print('DRAFT=' + json.dumps(rec, ensure_ascii=False))
+
+          matches = []
+          for d in drafts:
+              md = d.get('metadata') or {}
+              title = (d.get('title') or md.get('title') or '').lower()
+              file_names = [(f.get('filename') or f.get('key') or '').lower() for f in (d.get('files') or [])]
+              if 'world 8' in title or 'world8' in title or any(('world8' in x or 'world_8' in x) for x in file_names):
+                  matches.append(d.get('id'))
+          print('WORLD8_MATCH_IDS=' + json.dumps(matches))
+          PY
