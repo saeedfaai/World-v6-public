@@ -1,0 +1,67 @@
+name: Verify World 8 Zenodo publication
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/zenodo-world8-postpublish-check.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify published record
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p ops/zenodo/world8
+          python - <<'PY'
+          import os, json, datetime, requests
+          rid='22085394'
+          token=os.environ.get('ZENODO_TOKEN','')
+          out={'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'record_id':int(rid)}
+
+          pub=requests.get(f'https://zenodo.org/api/records/{rid}',timeout=30)
+          out['public_api_status']=pub.status_code
+          if pub.ok:
+              j=pub.json()
+              md=j.get('metadata') or {}
+              out['published']=True
+              out['title']=md.get('title')
+              out['doi']=md.get('doi') or j.get('doi')
+              out['conceptdoi']=md.get('conceptdoi') or j.get('conceptdoi')
+              out['publication_date']=md.get('publication_date')
+              out['version']=md.get('version')
+              out['files']=[f.get('key') for f in (j.get('files') or [])]
+              out['html']=((j.get('links') or {}).get('html') or f'https://zenodo.org/records/{rid}')
+          else:
+              out['published']=False
+              out['public_error']=pub.text[:500]
+
+          if token:
+              dep=requests.get(f'https://zenodo.org/api/deposit/depositions/{rid}',headers={'Authorization':f'Bearer {token}','Accept':'application/json'},timeout=30)
+              out['authenticated_deposition_status']=dep.status_code
+              if dep.ok:
+                  d=dep.json()
+                  out['deposition_state']=d.get('state')
+                  out['deposition_submitted']=d.get('submitted')
+                  out['deposition_links']=d.get('links') or {}
+
+          open('ops/zenodo/world8/postpublish-receipt.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2))
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+      - name: Commit receipt
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo/world8/postpublish-receipt.json
+          if git diff --cached --quiet; then exit 0; fi
+          git commit -m "Record World 8 Zenodo publication status [skip ci]"
+          git push
