@@ -1,0 +1,376 @@
+{
+  "checked_at_utc": "2026-08-24T18:10:04.523619+00:00",
+  "draft_get": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "json": {
+      "created": "2026-08-24T17:48:47.757103+00:00",
+      "modified": "2026-08-24T18:08:06.240299+00:00",
+      "id": 22085394,
+      "conceptrecid": "22085393",
+      "doi": "10.5281/zenodo.22085394",
+      "conceptdoi": "10.5281/zenodo.22085393",
+      "doi_url": "https://doi.org/10.5281/zenodo.22085394",
+      "metadata": {
+        "title": "World 8 / Z0-A: Provider-Independent Identity, Governed Development, and Recoverable Continuity for Long-Lived AI Agents",
+        "doi": "10.5281/zenodo.22085394",
+        "publication_date": "2026-08-24",
+        "description": "<p><strong>World 8 / Z0-A</strong> is an archival reference architecture for long-lived AI agents and digital organizations whose accountable identity must remain stable while language models, providers, sessions, workflow engines, channels, hosts, and other implementation components are replaced.</p><p>The Z0-A baseline separates replaceable cognition from canonical identity, authority, objectives, accepted state, and history. Its normative topology contains five planes: Canonical Spine, Operational, Observation, Development/Mason, and Evidence/Governance. Observation independently converts telemetry into attributed gap signals; Mason is proposal-only; independent evaluation is recorded through identity- and build-bound receipts; Promotion Authority activates or rejects revisions; and the Canonical Spine records accepted transitions through commit-time compare-and-swap, intent-bound idempotency, fencing, append-only history, and governed external-effect obligations and receipts.</p><p>The release defines versioned Objective Contracts and Phenotype Revisions, Entity/Role/RoleBinding separation, provider-independent identity, transactional-outbox effect handling, clean-host recovery requirements, evidence levels, falsifiers, and failure criteria.</p><p><strong>Claim boundary:</strong> the architecture documents are a <strong>FINAL DESIGN BASELINE / NOT PRODUCTION</strong>. The included long-form technical articles are explicitly marked <strong>DRAFT FOR REVIEW / NOT A PRODUCTION CLAIM</strong>. This deposit does not claim consciousness, biological life, legal personhood, AGI, proven autonomous evolution, universal exactly-once effects, or complete security. Established mechanisms such as CAS, event sourcing, transactional outbox, fencing, and hash chains are not claimed as individually novel. Stronger operational, recovery, security, load/chaos, and longitudinal claims remain evidence-gated.</p><p>The deposit contains complete English and Persian archival architecture references, extended English and Persian technical articles, and the final master bundle for long-term preservation and independent technical review.</p><p>AI-assisted tools were used for iterative review, manuscript organization, language editing, and typesetting support. The human author remains responsible for the architecture, claims, evidence boundaries, source verification, and final publication decision.</p>",
+        "access_right": "open",
+        "creators": [
+          {
+            "name": "Farokhi, Saeed",
+            "affiliation": null
+          }
+        ],
+        "keywords": [
+          "long-lived AI agents",
+          "provider-independent AI",
+          "AI agent continuity",
+          "agent governance",
+          "persistent digital entities",
+          "multi-agent systems",
+          "canonical identity",
+          "event sourcing",
+          "recoverable AI systems",
+          "model-independent architecture",
+          "evidence-driven development",
+          "transactional outbox",
+          "clean-host recovery",
+          "World 8",
+          "Z0-A"
+        ],
+        "related_identifiers": [
+          {
+            "identifier": "https://zenodo.org/records/22058813",
+            "relation": "continues",
+            "scheme": "url"
+          },
+          {
+            "identifier": "10.5281/zenodo.22040348",
+            "relation": "references",
+            "scheme": "doi"
+          }
+        ],
+        "version": "Z0-A (Final Design Baseline)",
+        "resource_type": {
+          "title": "Report",
+          "type": "publication",
+          "subtype": "report"
+        },
+        "license": {
+          "id": "cc-by-nc-nd-4.0"
+        },
+        "relations": {
+          "version": [
+            {
+              "index": 0,
+              "is_last": true,
+              "parent": {
+                "pid_type": "recid",
+                "pid_value": "22085393"
+              }
+            }
+          ]
+        },
+        "notes": "Publication gate: PREPARED DRAFT ONLY — NOT PUBLISHED BY AUTOMATION. Architecture status: FINAL DESIGN BASELINE / NOT PRODUCTION. Long-form article status: DRAFT FOR REVIEW / NOT A PRODUCTION CLAIM. Documentation license selected for this deposit: CC BY-NC-ND 4.0. SHA-256 checksums are recorded in the repository preparation receipt."
+      },
+      "title": "World 8 / Z0-A: Provider-Independent Identity, Governed Development, and Recoverable Continuity for Long-Lived AI Agents",
+      "links": {
+        "self": "https://zenodo.org/api/records/22085394/draft",
+        "self_html": "https://zenodo.org/uploads/22085394",
+        "preview_html": "https://zenodo.org/records/22085394?preview=1",
+        "doi": "https://doi.org/10.5281/zenodo.22085394",
+        "self_doi": "https://doi.org/10.5281/zenodo.22085394",
+        "reserve_doi": "https://zenodo.org/api/records/22085394/draft/pids/doi",
+        "parent_doi": "https://doi.org/10.5281/zenodo.22085393",
+        "parent_doi_html": "https://zenodo.org/doi/10.5281/zenodo.22085393",
+        "self_iiif_manifest": "https://zenodo.org/api/iiif/draft:22085394/manifest",
+        "self_iiif_sequence": "https://zenodo.org/api/iiif/draft:22085394/sequence/default",
+        "files": "https://zenodo.org/api/records/22085394/draft/files",
+        "media_files": "https://zenodo.org/api/records/22085394/draft/media-files",
+        "thumbnails": {
+          "10": "https://zenodo.org/api/iiif/record:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/full/%5E10,/0/default.jpg",
+          "50": "https://zenodo.org/api/iiif/record:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/full/%5E50,/0/default.jpg",
+          "100": "https://zenodo.org/api/iiif/record:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/full/%5E100,/0/default.jpg",
+          "250": "https://zenodo.org/api/iiif/record:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/full/%5E250,/0/default.jpg",
+          "750": "https://zenodo.org/api/iiif/record:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/full/%5E750,/0/default.jpg",
+          "1200": "https://zenodo.org/api/iiif/record:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/full/%5E1200,/0/default.jpg"
+        },
+        "archive": "https://zenodo.org/api/records/22085394/draft/files-archive",
+        "archive_media": "https://zenodo.org/api/records/22085394/draft/media-files-archive",
+        "versions": "https://zenodo.org/api/records/22085394/versions",
+        "record": "https://zenodo.org/api/records/22085394",
+        "record_html": "https://zenodo.org/records/22085394",
+        "publish": "https://zenodo.org/api/records/22085394/draft/actions/publish",
+        "review": "https://zenodo.org/api/records/22085394/draft/review",
+        "access_links": "https://zenodo.org/api/records/22085394/access/links",
+        "access_grants": "https://zenodo.org/api/records/22085394/access/grants",
+        "access_users": "https://zenodo.org/api/records/22085394/access/users",
+        "access_request": "https://zenodo.org/api/records/22085394/access/request",
+        "access": "https://zenodo.org/api/records/22085394/access",
+        "communities": "https://zenodo.org/api/records/22085394/communities",
+        "communities-suggestions": "https://zenodo.org/api/records/22085394/communities-suggestions",
+        "request_deletion": "https://zenodo.org/api/records/22085394/request-deletion",
+        "file_modification": "https://zenodo.org/api/records/22085394/file-modification",
+        "quota_increase": "https://zenodo.org/api/records/22085394/quota-increase",
+        "requests": "https://zenodo.org/api/records/22085394/requests"
+      },
+      "updated": "2026-08-24T18:08:06.240299+00:00",
+      "recid": "22085394",
+      "revision": 15,
+      "files": [
+        {
+          "id": "e7901ebb-3707-4a80-a00f-cd8f2eca2beb",
+          "key": "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+          "size": 434050,
+          "checksum": "md5:f026caeb7bb84f348edcadebb213ef40",
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/content"
+          }
+        },
+        {
+          "id": "eaf87bc6-603a-4e32-a3a4-caf696be354f",
+          "key": "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+          "size": 187382,
+          "checksum": "md5:fcf91ea84cd47c0200cdad8489b57621",
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf/content"
+          }
+        },
+        {
+          "id": "d8a8354e-0d37-46a6-a2ce-8abf7cde9a51",
+          "key": "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+          "size": 512455,
+          "checksum": "md5:565151938fc341a27c97106ccbcd43a9",
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf/content"
+          }
+        },
+        {
+          "id": "4ae740d2-2910-41d9-9b70-ee7cb7968dfb",
+          "key": "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+          "size": 836045,
+          "checksum": "md5:02d760c497e72c5722e75656f39d0ee2",
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf/content"
+          }
+        },
+        {
+          "id": "d4adb26e-7f6b-48d0-b4d6-f118291a282f",
+          "key": "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf",
+          "size": 203998,
+          "checksum": "md5:d9d54eb5dc2e2d2af5a3ae6a44edbc9a",
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf/content"
+          }
+        }
+      ],
+      "owners": [
+        {
+          "id": "1840926"
+        }
+      ],
+      "status": "draft",
+      "state": "inprogress",
+      "submitted": true
+    }
+  },
+  "filemod_get": {
+    "status": 405,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "json": {
+      "message": "The method is not allowed for the requested URL.",
+      "status": 405
+    }
+  },
+  "filemod_options": {
+    "status": 200,
+    "headers": {
+      "content-type": "text/html; charset=utf-8",
+      "allow": "POST, OPTIONS"
+    },
+    "text": ""
+  },
+  "draft_files_get": {
+    "status": 200,
+    "headers": {
+      "content-type": "application/json"
+    },
+    "json": {
+      "enabled": true,
+      "links": {
+        "self": "https://zenodo.org/api/records/22085394/draft/files",
+        "archive": "https://zenodo.org/api/records/22085394/draft/files-archive"
+      },
+      "entries": [
+        {
+          "created": "2026-08-24T18:08:06.044905+00:00",
+          "updated": "2026-08-24T18:08:06.044908+00:00",
+          "mimetype": "application/pdf",
+          "version_id": "dfc30903-74d5-410e-9d7a-3f39bb1da405",
+          "file_id": "e7901ebb-3707-4a80-a00f-cd8f2eca2beb",
+          "bucket_id": "a31b2ad3-b572-4329-9d3a-0cddf3d095c0",
+          "metadata": {
+            "width": 595,
+            "height": 842
+          },
+          "access": {
+            "hidden": false
+          },
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+            "content": "https://zenodo.org/api/records/22085394/draft/files/03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/content",
+            "commit": "https://zenodo.org/api/records/22085394/draft/files/03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/commit",
+            "iiif_canvas": "https://zenodo.org/api/iiif/draft:22085394/canvas/03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+            "iiif_base": "https://zenodo.org/api/iiif/draft:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+            "iiif_info": "https://zenodo.org/api/iiif/draft:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/info.json",
+            "iiif_api": "https://zenodo.org/api/iiif/draft:22085394:03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf/full/full/0/default.png"
+          },
+          "key": "03_World8_Z0A_COMPLETE_ARCHITECTURE_EN.pdf",
+          "transfer": {
+            "type": "L"
+          },
+          "status": "completed",
+          "checksum": "md5:f026caeb7bb84f348edcadebb213ef40",
+          "size": 434050,
+          "storage_class": "L"
+        },
+        {
+          "created": "2026-08-24T18:08:06.044918+00:00",
+          "updated": "2026-08-24T18:08:06.044918+00:00",
+          "mimetype": "application/pdf",
+          "version_id": "d3aef99e-a625-4674-a748-3cb2e7f1bcd5",
+          "file_id": "eaf87bc6-603a-4e32-a3a4-caf696be354f",
+          "bucket_id": "a31b2ad3-b572-4329-9d3a-0cddf3d095c0",
+          "metadata": {
+            "width": 595,
+            "height": 842
+          },
+          "access": {
+            "hidden": false
+          },
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+            "content": "https://zenodo.org/api/records/22085394/draft/files/01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf/content",
+            "commit": "https://zenodo.org/api/records/22085394/draft/files/01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf/commit",
+            "iiif_canvas": "https://zenodo.org/api/iiif/draft:22085394/canvas/01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+            "iiif_base": "https://zenodo.org/api/iiif/draft:22085394:01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+            "iiif_info": "https://zenodo.org/api/iiif/draft:22085394:01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf/info.json",
+            "iiif_api": "https://zenodo.org/api/iiif/draft:22085394:01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf/full/full/0/default.png"
+          },
+          "key": "01_World8_Z0A_LONGFORM_ARTICLE_EN.pdf",
+          "transfer": {
+            "type": "L"
+          },
+          "status": "completed",
+          "checksum": "md5:fcf91ea84cd47c0200cdad8489b57621",
+          "size": 187382,
+          "storage_class": "L"
+        },
+        {
+          "created": "2026-08-24T18:08:06.044925+00:00",
+          "updated": "2026-08-24T18:08:06.044925+00:00",
+          "mimetype": "application/pdf",
+          "version_id": "65eef9de-9833-4865-9615-6e2d476af7f8",
+          "file_id": "d8a8354e-0d37-46a6-a2ce-8abf7cde9a51",
+          "bucket_id": "a31b2ad3-b572-4329-9d3a-0cddf3d095c0",
+          "metadata": {
+            "width": 595,
+            "height": 842
+          },
+          "access": {
+            "hidden": false
+          },
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+            "content": "https://zenodo.org/api/records/22085394/draft/files/02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf/content",
+            "commit": "https://zenodo.org/api/records/22085394/draft/files/02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf/commit",
+            "iiif_canvas": "https://zenodo.org/api/iiif/draft:22085394/canvas/02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+            "iiif_base": "https://zenodo.org/api/iiif/draft:22085394:02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+            "iiif_info": "https://zenodo.org/api/iiif/draft:22085394:02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf/info.json",
+            "iiif_api": "https://zenodo.org/api/iiif/draft:22085394:02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf/full/full/0/default.png"
+          },
+          "key": "02_World8_Z0A_LONGFORM_ARTICLE_FA.pdf",
+          "transfer": {
+            "type": "L"
+          },
+          "status": "completed",
+          "checksum": "md5:565151938fc341a27c97106ccbcd43a9",
+          "size": 512455,
+          "storage_class": "L"
+        },
+        {
+          "created": "2026-08-24T18:08:06.044934+00:00",
+          "updated": "2026-08-24T18:08:06.044934+00:00",
+          "mimetype": "application/pdf",
+          "version_id": "6cb835be-a43f-4303-806f-72b91cb3394a",
+          "file_id": "4ae740d2-2910-41d9-9b70-ee7cb7968dfb",
+          "bucket_id": "a31b2ad3-b572-4329-9d3a-0cddf3d095c0",
+          "metadata": {
+            "width": 595,
+            "height": 842
+          },
+          "access": {
+            "hidden": false
+          },
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+            "content": "https://zenodo.org/api/records/22085394/draft/files/04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf/content",
+            "commit": "https://zenodo.org/api/records/22085394/draft/files/04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf/commit",
+            "iiif_canvas": "https://zenodo.org/api/iiif/draft:22085394/canvas/04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+            "iiif_base": "https://zenodo.org/api/iiif/draft:22085394:04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+            "iiif_info": "https://zenodo.org/api/iiif/draft:22085394:04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf/info.json",
+            "iiif_api": "https://zenodo.org/api/iiif/draft:22085394:04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf/full/full/0/default.png"
+          },
+          "key": "04_World8_Z0A_COMPLETE_ARCHITECTURE_FA.pdf",
+          "transfer": {
+            "type": "L"
+          },
+          "status": "completed",
+          "checksum": "md5:02d760c497e72c5722e75656f39d0ee2",
+          "size": 836045,
+          "storage_class": "L"
+        },
+        {
+          "created": "2026-08-24T18:08:06.044939+00:00",
+          "updated": "2026-08-24T18:08:06.044939+00:00",
+          "mimetype": "application/pdf",
+          "version_id": "922569e7-9b13-427a-a7f6-4fc5d68fbb8e",
+          "file_id": "d4adb26e-7f6b-48d0-b4d6-f118291a282f",
+          "bucket_id": "a31b2ad3-b572-4329-9d3a-0cddf3d095c0",
+          "metadata": {
+            "width": 595,
+            "height": 842
+          },
+          "access": {
+            "hidden": false
+          },
+          "links": {
+            "self": "https://zenodo.org/api/records/22085394/draft/files/05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf",
+            "content": "https://zenodo.org/api/records/22085394/draft/files/05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf/content",
+            "commit": "https://zenodo.org/api/records/22085394/draft/files/05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf/commit",
+            "iiif_canvas": "https://zenodo.org/api/iiif/draft:22085394/canvas/05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf",
+            "iiif_base": "https://zenodo.org/api/iiif/draft:22085394:05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf",
+            "iiif_info": "https://zenodo.org/api/iiif/draft:22085394:05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf/info.json",
+            "iiif_api": "https://zenodo.org/api/iiif/draft:22085394:05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf/full/full/0/default.png"
+          },
+          "key": "05_World8_Z0A_FINAL_MASTER_BUNDLE.pdf",
+          "transfer": {
+            "type": "L"
+          },
+          "status": "completed",
+          "checksum": "md5:d9d54eb5dc2e2d2af5a3ae6a44edbc9a",
+          "size": 203998,
+          "storage_class": "L"
+        }
+      ],
+      "default_preview": null,
+      "order": []
+    }
+  }
+}
