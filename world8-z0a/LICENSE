@@ -1,0 +1,63 @@
+World 8 / Z0-A — Documentation and Architecture License Notice
+
+Copyright (c) 2026 Saeed Farokhi.
+
+Scope
+-----
+This notice applies only to the original materials contained under the
+`world8-z0a/` directory, unless an individual file states a different license.
+It does not replace or alter the license terms that apply to materials outside
+this directory.
+
+License
+-------
+The original World 8 / Z0-A architecture, documentation, reports, diagrams,
+articles, manifests, and other non-software materials in this directory are
+licensed under:
+
+Creative Commons Attribution-NonCommercial-NoDerivatives 4.0 International
+SPDX-License-Identifier: CC-BY-NC-ND-4.0
+Official license: https://creativecommons.org/licenses/by-nc-nd/4.0/
+Legal code: https://creativecommons.org/licenses/by-nc-nd/4.0/legalcode
+
+Attribution should identify:
+  Saeed Farokhi — World 8 / Z0-A
+and, when practical, include the archival DOI:
+  https://doi.org/10.5281/zenodo.22085394
+
+Rights not granted
+------------------
+No permission is granted by this notice for commercial use or distribution of
+adapted/modified versions of the licensed documentation. No patent, trademark,
+trade-name, branding, endorsement, or other rights are granted except those
+expressly provided by the CC BY-NC-ND 4.0 license.
+
+Software and implementation materials
+-------------------------------------
+World 8 / Z0-A is published here as a FINAL DESIGN BASELINE / NOT PRODUCTION.
+Any software, implementation code, runtime component, schema, or executable
+artifact that is later added and carries its own license remains governed by
+that separate license. This documentation license must not be interpreted as a
+commercial or patent license for an implementation.
+
+Third-party material
+--------------------
+Third-party material, quoted material, imported material, preserved historical
+material, and separately licensed dependencies are excluded from this license
+to the extent they are identified as third-party or governed by other terms.
+Their respective rights and licenses remain in force.
+
+No production or safety representation
+--------------------------------------
+Publication, archival, citation, or preservation does not constitute a claim
+of production readiness, safety certification, security certification,
+consciousness, biological life, legal personhood, AGI, proven autonomous
+evolution, universal exactly-once effects, or fitness for a particular purpose.
+Stronger claims remain evidence-gated by the project documentation.
+
+No warranty
+-----------
+To the maximum extent permitted by applicable law, the materials are provided
+without warranties beyond those, if any, that cannot lawfully be excluded.
+The governing Creative Commons license remains controlling in case of conflict
+with this explanatory notice.
