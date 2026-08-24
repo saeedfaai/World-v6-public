@@ -1,0 +1,68 @@
+name: Diagnose World 8 Zenodo tree status
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/world8-zenodo-tree-diagnose.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Inspect authenticated deposition and public record
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -u
+          mkdir -p ops/zenodo/world8
+          python - <<'PY'
+          import os, json, requests, datetime
+          dep_id=22085394
+          token=os.environ.get('ZENODO_TOKEN','')
+          base='https://zenodo.org/api'
+          out={'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'record_id':dep_id}
+          try:
+              r=requests.get(f'{base}/records/{dep_id}',timeout=30)
+              out['public_status']=r.status_code
+              if r.ok:
+                  rec=r.json(); md=rec.get('metadata') or {}
+                  out['public_title']=md.get('title')
+                  out['public_doi']=md.get('doi') or rec.get('doi')
+                  out['public_files']=[f.get('key') or f.get('filename') for f in (rec.get('files') or [])]
+                  out['public_links']=rec.get('links') or {}
+          except Exception as e:
+              out['public_error']=repr(e)
+          if token:
+              try:
+                  h={'Authorization':f'Bearer {token}','Accept':'application/json'}
+                  r=requests.get(f'{base}/deposit/depositions/{dep_id}',headers=h,timeout=30)
+                  out['deposit_status']=r.status_code
+                  if r.ok:
+                      d=r.json(); out['deposit_state']=d.get('state'); out['deposit_submitted']=d.get('submitted')
+                      out['deposit_files']=[f.get('filename') or f.get('key') for f in (d.get('files') or [])]
+                      out['deposit_links']=d.get('links') or {}
+                      out['deposit_metadata_notes']=(d.get('metadata') or {}).get('notes')
+              except Exception as e:
+                  out['deposit_error']=repr(e)
+          else:
+              out['deposit_error']='ZENODO_TOKEN missing'
+          open('ops/zenodo/world8/tree-diagnostic.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2))
+          print(json.dumps(out,ensure_ascii=False,indent=2))
+          PY
+      - name: Commit diagnostic receipt
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo/world8/tree-diagnostic.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Record World 8 Zenodo tree diagnostic [skip ci]"
+            git push
+          fi
