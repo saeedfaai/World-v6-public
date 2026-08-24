@@ -1,0 +1,44 @@
+cff-version: 1.2.0
+message: "If you use, discuss, review, or build upon World 8 / Z0-A, please cite the archival DOI below."
+title: "World 8 / Z0-A: Provider-Independent Identity, Governed Development, and Recoverable Continuity for Long-Lived AI Agents"
+type: software
+version: "Z0-A (Final Design Baseline)"
+date-released: 2026-08-24
+authors:
+  - family-names: Farokhi
+    given-names: Saeed
+abstract: >-
+  Archival architecture/reference package for long-lived AI agents and digital
+  organizations. The Z0-A baseline separates replaceable cognition from
+  canonical identity, authority, objectives, accepted state, and history.
+  This repository package is a FINAL DESIGN BASELINE / NOT PRODUCTION and is
+  not a claim of production readiness, AGI, consciousness, biological life,
+  legal personhood, proven autonomous evolution, universal exactly-once
+  effects, or complete security.
+doi: 10.5281/zenodo.22085394
+url: "https://zenodo.org/records/22085394"
+repository-code: "https://github.com/saeedfaai/World-v6-public/tree/main/world8-z0a"
+license: "CC-BY-NC-ND-4.0"
+keywords:
+  - long-lived AI agents
+  - provider-independent AI
+  - AI agent continuity
+  - agent governance
+  - canonical identity
+  - recoverable AI systems
+  - event sourcing
+  - transactional outbox
+  - clean-host recovery
+  - World 8
+  - Z0-A
+preferred-citation:
+  type: report
+  title: "World 8 / Z0-A: Provider-Independent Identity, Governed Development, and Recoverable Continuity for Long-Lived AI Agents"
+  authors:
+    - family-names: Farokhi
+      given-names: Saeed
+  year: 2026
+  month: 8
+  day: 24
+  doi: 10.5281/zenodo.22085394
+  url: "https://zenodo.org/records/22085394"
