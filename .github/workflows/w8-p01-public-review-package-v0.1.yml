@@ -5,7 +5,7 @@ on:
     branches:
       - w8-p01-review-package-v0.1
     paths:
-      - 'world8/w8-p01-review-package-v0.1/**'
+      - 'world8/w8-p01-review-package-v0.1/reference/**'
       - '.github/workflows/w8-p01-public-review-package-v0.1.yml'
   workflow_dispatch:
 
@@ -15,9 +15,11 @@ permissions:
 jobs:
   reproduce-public-evidence:
     runs-on: ubuntu-latest
-    timeout-minutes: 20
+    timeout-minutes: 25
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
@@ -39,6 +41,23 @@ jobs:
         working-directory: world8/w8-p01-review-package-v0.1/reference
         run: python compound_fault_gate_v1.py --trials 1000 --seed 20260827 --output ../results_compound
 
+      - name: Install pinned AutoGen Core for E5
+        run: pip install autogen-core==0.7.5
+
+      - name: Materialize frozen public E5 fixture from its source commit
+        run: |
+          mkdir -p world8/w8-p01-review-package-v0.1/external/autogen
+          git show ba9fe95cc41b02bd04962d6e38b1b6afdeefe26a:benchmarks/w8_p01_autogen/baseline.py \
+            > world8/w8-p01-review-package-v0.1/external/autogen/baseline.py
+          test "$(git rev-parse ba9fe95cc41b02bd04962d6e38b1b6afdeefe26a)" = "ba9fe95cc41b02bd04962d6e38b1b6afdeefe26a"
+
+      - name: Reproduce E5 AutoGen external-runtime baseline
+        run: |
+          python world8/w8-p01-review-package-v0.1/external/autogen/baseline.py \
+            --trials 100 \
+            --seed 20260827 \
+            --out world8/w8-p01-review-package-v0.1/results_autogen
+
       - name: Validate frozen bounded outcomes
         run: |
           python - <<'PY'
@@ -46,70 +65,53 @@ jobs:
           from pathlib import Path
           root = Path('world8/w8-p01-review-package-v0.1')
 
-          # E1: exact frozen experiment shape and selected bounded outcomes.
           e1 = json.loads((root/'results_e1'/'summary_v2.json').read_text())
           assert e1['seed'] == 20260827
           assert e1['trials_per_scenario_per_system'] == 1000
           assert e1['total_trials'] == 98000
           w8 = e1['systems']['world8_full']['by_scenario']
           hb = e1['systems']['hardened_session_baseline']['by_scenario']
+          assert (w8['F0']['valid_effect_success_rate'], w8['F0']['mean_policy_checks'], w8['F0']['mean_evidence_records']) == (1.0, 7.0, 9.0)
+          assert (hb['F0']['valid_effect_success_rate'], hb['F0']['mean_policy_checks'], hb['F0']['mean_evidence_records']) == (1.0, 6.0, 8.0)
+          for sc in ['F3','F4','F5','C1_REVOKE_RACE','C2_SESSION_SWAP_STALE_RETRY']:
+              assert hb[sc]['fail_closed_rate_on_invalid_attempts'] == 1.0
+          assert w8['F2']['unauthorized_effect_rate'] == 0.0 and hb['F2']['unauthorized_effect_rate'] == 1.0
+          assert w8['F7']['unauthorized_effect_rate'] == 0.0 and hb['F7']['unauthorized_effect_rate'] == 1.0
+          assert w8['F9']['audit_correct_rate'] == 1.0 and hb['F9']['audit_correct_rate'] == 0.0
+          assert w8['F10']['actor_continuity_rate'] == 1.0 and hb['F10']['actor_continuity_rate'] == 0.0
+          assert w8['C3_RESTART_TAMPER']['audit_correct_rate'] == 1.0 and hb['C3_RESTART_TAMPER']['audit_correct_rate'] == 0.0
 
-          # Valid-path reference cost; this is a check/evidence-record count, not latency.
-          assert w8['F0']['valid_effect_success_rate'] == 1.0
-          assert w8['F0']['mean_policy_checks'] == 7.0
-          assert w8['F0']['mean_evidence_records'] == 9.0
-          assert hb['F0']['valid_effect_success_rate'] == 1.0
-          assert hb['F0']['mean_policy_checks'] == 6.0
-          assert hb['F0']['mean_evidence_records'] == 8.0
-
-          # Hardened generic controls intentionally erase generic advantages.
-          assert hb['F3']['fail_closed_rate_on_invalid_attempts'] == 1.0  # revoke
-          assert hb['F4']['fail_closed_rate_on_invalid_attempts'] == 1.0  # CAS/stale write
-          assert hb['F5']['fail_closed_rate_on_invalid_attempts'] == 1.0  # durable idempotency
-          assert hb['C1_REVOKE_RACE']['fail_closed_rate_on_invalid_attempts'] == 1.0
-          assert hb['C2_SESSION_SWAP_STALE_RETRY']['fail_closed_rate_on_invalid_attempts'] == 1.0
-
-          # Differentiated frozen failure families.
-          assert w8['F2']['unauthorized_effect_rate'] == 0.0
-          assert hb['F2']['unauthorized_effect_rate'] == 1.0
-          assert w8['F7']['unauthorized_effect_rate'] == 0.0
-          assert hb['F7']['unauthorized_effect_rate'] == 1.0
-          assert w8['F9']['audit_correct_rate'] == 1.0
-          assert hb['F9']['audit_correct_rate'] == 0.0
-          assert w8['F10']['actor_continuity_rate'] == 1.0
-          assert hb['F10']['actor_continuity_rate'] == 0.0
-          assert w8['C3_RESTART_TAMPER']['audit_correct_rate'] == 1.0
-          assert hb['C3_RESTART_TAMPER']['audit_correct_rate'] == 0.0
-
-          # E2 cross-Society conformance.
           s = json.loads((root/'results_society'/'society_conformance.json').read_text())
-          assert s['trials_per_society'] == 1000
-          assert s['all_company_pass'] is True
-          assert s['all_trading_pass'] is True
-          assert s['conformance_vectors_equal'] is True
-          assert s['market_performance_evaluated'] is False
-          assert s['live_effects'] is False
+          assert s['trials_per_society'] == 1000 and s['all_company_pass'] and s['all_trading_pass']
+          assert s['conformance_vectors_equal'] and not s['market_performance_evaluated'] and not s['live_effects']
 
-          # E4 mutation gate.
           m = json.loads((root/'results_mutation'/'mutation_gate_v1.json').read_text())
-          assert m['gate_state'] == 'PASS'
-          assert m['killed'] == 5
-          assert m['total'] == 5
-          assert m['mutation_score'] == 1.0
+          assert m['gate_state'] == 'PASS' and (m['killed'], m['total'], m['mutation_score']) == (5, 5, 1.0)
           assert m['runtime_db_mutated'] is False
 
-          # E4 compound-fault gate.
           c = json.loads((root/'results_compound'/'compound_fault_gate_v1.json').read_text())
-          assert c['gate_state'] == 'PASS'
-          assert c['trials_per_case'] == 1000
-          assert c['runtime_db_mutated'] is False
+          assert c['gate_state'] == 'PASS' and c['trials_per_case'] == 1000 and c['runtime_db_mutated'] is False
           assert all(v == 0.0 for v in c['world8_false_deny_rate_valid_paths'].values())
           for name, rates in c['rates'].items():
               if name.startswith('CF'):
-                  assert rates['world8_safe'] == 1.0
-                  assert rates['baseline_failure_exposed'] == 1.0
+                  assert rates['world8_safe'] == 1.0 and rates['baseline_failure_exposed'] == 1.0
 
-          print('W8-P01 PUBLIC REVIEW PACKAGE: FROZEN E1/E2/E4 OUTCOMES REPRODUCED')
+          a = json.loads((root/'results_autogen'/'summary.json').read_text())
+          assert a['autogen_core_version'] == '0.7.5'
+          assert a['trials_per_case'] == 100 and a['llm_used'] is False and a['external_effects'] is False
+          h, g = a['rates']['hardened'], a['rates']['full']
+          for sc in ['V1_NORMAL','V2_RUNTIME_SWAP','V3_RUNTIME_RECREATE_RECOVER','X2_REVOKED','X3_STALE_VERSION','X4_DUPLICATE']:
+              assert h[sc]['safe_rate'] == 1.0
+          for sc in ['X1_STOLEN_APPROVAL','X5_STALE_FENCE','X6_TAMPER','X7_EFFECT_BEFORE_RECOVERY']:
+              assert h[sc]['safe_rate'] == 0.0
+          for sc, v in g.items():
+              assert v['safe_rate'] == 1.0
+          for sc in ['V1_NORMAL','V2_RUNTIME_SWAP','V3_RUNTIME_RECREATE_RECOVER']:
+              assert g[sc]['false_deny_rate'] == 0.0
+          assert h['V2_RUNTIME_SWAP']['actor_continuity_rate'] == 0.0
+          assert g['V2_RUNTIME_SWAP']['actor_continuity_rate'] == 1.0
+
+          print('W8-P01 PUBLIC REVIEW PACKAGE: FROZEN E1/E2/E4/E5 OUTCOMES REPRODUCED')
           PY
 
       - name: Hash public source and reproduced evidence
@@ -122,10 +124,12 @@ jobs:
             reference/society_conformance.py \
             reference/mutation_gate_v1.py \
             reference/compound_fault_gate_v1.py \
+            external/autogen/baseline.py \
             results_e1/summary_v2.json \
             results_society/society_conformance.json \
             results_mutation/mutation_gate_v1.json \
             results_compound/compound_fault_gate_v1.json \
+            results_autogen/summary.json \
             | tee PUBLIC_SHA256SUMS.txt
 
       - name: Upload public reproduction receipt
@@ -137,6 +141,8 @@ jobs:
             world8/w8-p01-review-package-v0.1/results_society/
             world8/w8-p01-review-package-v0.1/results_mutation/
             world8/w8-p01-review-package-v0.1/results_compound/
+            world8/w8-p01-review-package-v0.1/results_autogen/summary.json
+            world8/w8-p01-review-package-v0.1/external/autogen/baseline.py
             world8/w8-p01-review-package-v0.1/PUBLIC_SHA256SUMS.txt
           retention-days: 90
           if-no-files-found: error
