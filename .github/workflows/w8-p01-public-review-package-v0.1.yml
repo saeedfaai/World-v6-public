@@ -1,0 +1,79 @@
+name: W8-P01 Public Review Package v0.1
+
+on:
+  push:
+    branches:
+      - w8-p01-review-package-v0.1
+    paths:
+      - 'world8/w8-p01-review-package-v0.1/**'
+      - '.github/workflows/w8-p01-public-review-package-v0.1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  reproduce-public-subset:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Reproduce two-Society conformance
+        working-directory: world8/w8-p01-review-package-v0.1/reference
+        run: python society_conformance.py --trials 1000 --seed 20260827 --output ../results_society
+
+      - name: Reproduce compound-fault gate
+        working-directory: world8/w8-p01-review-package-v0.1/reference
+        run: python compound_fault_gate_v1.py --trials 1000 --seed 20260827 --output ../results_compound
+
+      - name: Validate frozen bounded outcomes
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root = Path('world8/w8-p01-review-package-v0.1')
+          s = json.loads((root/'results_society'/'society_conformance.json').read_text())
+          assert s['trials_per_society'] == 1000
+          assert s['all_company_pass'] is True
+          assert s['all_trading_pass'] is True
+          assert s['conformance_vectors_equal'] is True
+          assert s['market_performance_evaluated'] is False
+          assert s['live_effects'] is False
+          c = json.loads((root/'results_compound'/'compound_fault_gate_v1.json').read_text())
+          assert c['gate_state'] == 'PASS'
+          assert c['trials_per_case'] == 1000
+          assert all(v == 0.0 for v in c['world8_false_deny_rate_valid_paths'].values())
+          for name, rates in c['rates'].items():
+              if name.startswith('CF'):
+                  assert rates['world8_safe'] == 1.0
+                  assert rates['baseline_failure_exposed'] == 1.0
+          print('PUBLIC REVIEW PACKAGE SUBSET: PASS')
+          PY
+
+      - name: Hash reproduced results and public source subset
+        run: |
+          cd world8/w8-p01-review-package-v0.1
+          sha256sum \
+            reference/model.py \
+            reference/model_v2.py \
+            reference/society_conformance.py \
+            reference/compound_fault_gate_v1.py \
+            results_society/society_conformance.json \
+            results_compound/compound_fault_gate_v1.json \
+            | tee PUBLIC_SHA256SUMS.txt
+
+      - name: Upload public reproduction receipt
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-public-review-package-v0.1-subset
+          path: |
+            world8/w8-p01-review-package-v0.1/results_society/
+            world8/w8-p01-review-package-v0.1/results_compound/
+            world8/w8-p01-review-package-v0.1/PUBLIC_SHA256SUMS.txt
+          retention-days: 90
+          if-no-files-found: error
