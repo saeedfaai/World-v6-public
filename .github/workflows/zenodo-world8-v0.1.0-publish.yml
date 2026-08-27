@@ -1,0 +1,170 @@
+name: Publish World 8 v0.1.0 to Zenodo
+
+on:
+  push:
+    paths:
+      - '.github/workflows/zenodo-world8-v0.1.0-publish.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+      STAGING_URL: https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787834156403_world8-v0.1.0-zenodo-package.zip?alt=media
+      STAGING_SHA256: f3a5f96f4972215028e51e637842ef49ea030faa508f772654e3d9ba6409739f
+      RELEASE_COMMIT: b14f2feea0fa233851a774d6ebd295b63cde75c0
+      RELEASE_TAG: V0.1.0
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Guarded prepare, verify and publish
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo 'ERROR: ZENODO_TOKEN missing'; exit 2; }
+          python -m pip install --quiet requests
+          mkdir -p /tmp/world8-zenodo ops/zenodo
+          curl -L --fail --silent --show-error "$STAGING_URL" -o /tmp/world8-zenodo/package.zip
+          echo "$STAGING_SHA256  /tmp/world8-zenodo/package.zip" | sha256sum -c -
+          unzip -q /tmp/world8-zenodo/package.zip -d /tmp/world8-zenodo/package
+          cd /tmp/world8-zenodo/package
+          sha256sum -c SHA256SUMS.txt
+          cd "$GITHUB_WORKSPACE"
+          python - <<'PY'
+          import json, os, pathlib, requests, hashlib, sys
+
+          TOKEN=os.environ['ZENODO_TOKEN']
+          COMMIT=os.environ['RELEASE_COMMIT']
+          TAG=os.environ['RELEASE_TAG']
+          BASE='https://zenodo.org/api'
+          PKG=pathlib.Path('/tmp/world8-zenodo/package')
+          RESULT=pathlib.Path('ops/zenodo/world8-v0.1.0-publication.json')
+          auth={'Authorization':f'Bearer {TOKEN}','Accept':'application/json'}
+          jh={**auth,'Content-Type':'application/json'}
+
+          metadata_doc=json.loads((PKG/'zenodo-metadata.json').read_text())
+          md=metadata_doc['metadata']
+          md['publication_date']='2026-08-27'
+          md['access_right']='open'
+          # Deliberately do not invent a software license: the frozen Git tag has no LICENSE file.
+          title=md['title']
+          version=md['version']
+
+          def save(status, **kw):
+              out={'provider':'zenodo','status':status,'release_tag':TAG,'release_commit':COMMIT,**kw}
+              RESULT.write_text(json.dumps(out,indent=2),encoding='utf-8')
+              print(json.dumps(out,indent=2))
+              return out
+
+          # 0) Check published user records first to avoid duplicate DOI creation.
+          rr=requests.get(f'{BASE}/user/records',params={'size':100,'sort':'newest'},headers=auth,timeout=45)
+          rr.raise_for_status()
+          raw=rr.json()
+          hits=(raw.get('hits') or {}).get('hits') or raw.get('entries') or [] if isinstance(raw,dict) else raw
+          for rec in hits or []:
+              rmd=rec.get('metadata') or {}
+              if rmd.get('title')==title and str(rmd.get('version') or '')==str(version):
+                  recid=rec.get('id') or rec.get('record_id')
+                  doi=((rec.get('pids') or {}).get('doi') or {}).get('identifier') or rmd.get('doi') or rec.get('doi')
+                  save('ALREADY_PUBLISHED',record_id=recid,doi=doi,record_url=f'https://zenodo.org/records/{recid}')
+                  raise SystemExit(0)
+
+          # 1) Reuse exact matching draft or create a new one.
+          rr=requests.get(f'{BASE}/deposit/depositions',params={'status':'draft','sort':'-mostrecent','size':100},headers=auth,timeout=45)
+          rr.raise_for_status()
+          raw=rr.json()
+          drafts=(raw.get('hits') or {}).get('hits') or raw.get('entries') or [] if isinstance(raw,dict) else raw
+          dep=None
+          for d in drafts or []:
+              dmd=d.get('metadata') or {}
+              if dmd.get('title')==title and str(dmd.get('version') or '')==str(version):
+                  dep=d
+                  break
+          if dep is None:
+              rr=requests.post(f'{BASE}/deposit/depositions',headers=jh,data='{}',timeout=45)
+              rr.raise_for_status()
+              dep=rr.json()
+          else:
+              dep_id=dep.get('id')
+              rr=requests.get(f'{BASE}/deposit/depositions/{dep_id}',headers=auth,timeout=45)
+              rr.raise_for_status(); dep=rr.json()
+
+          dep_id=dep['id']
+          bucket=(dep.get('links') or {}).get('bucket')
+          if not bucket:
+              save('SAFETY_STOP',reason='NO_UPLOAD_BUCKET',deposition_id=dep_id)
+              raise SystemExit(1)
+
+          # 2) Upload exact release package members; verify local hashes first.
+          upload_names=['world8-v0.1.0-source.zip','SHA256SUMS.txt','RELEASE_RECEIPT.txt']
+          existing={f.get('filename') or f.get('key') for f in (dep.get('files') or [])}
+          local=[]
+          for name in upload_names:
+              p=PKG/name
+              if not p.exists():
+                  save('SAFETY_STOP',reason=f'MISSING_PACKAGE_MEMBER:{name}',deposition_id=dep_id)
+                  raise SystemExit(1)
+              sha=hashlib.sha256(p.read_bytes()).hexdigest()
+              local.append({'name':name,'bytes':p.stat().st_size,'sha256':sha})
+              if name not in existing:
+                  with p.open('rb') as fh:
+                      ur=requests.put(f'{bucket}/{name}',data=fh,headers=auth,timeout=180)
+                  ur.raise_for_status()
+
+          # 3) Write exact metadata from prepared package plus explicit open access.
+          rr=requests.put(f'{BASE}/deposit/depositions/{dep_id}',json={'metadata':md},headers=jh,timeout=45)
+          rr.raise_for_status()
+
+          # 4) Read back and enforce pre-publication safety gates.
+          rr=requests.get(f'{BASE}/deposit/depositions/{dep_id}',headers=auth,timeout=45)
+          rr.raise_for_status(); chk=rr.json(); cmd=chk.get('metadata') or {}
+          files=chk.get('files') or []
+          remote_names={f.get('filename') or f.get('key') for f in files}
+          gates={
+              'title':cmd.get('title')==title,
+              'version':str(cmd.get('version') or '')==str(version),
+              'upload_type':cmd.get('upload_type')=='software',
+              'creator':bool(cmd.get('creators')),
+              'description':bool(cmd.get('description')),
+              'access_right':cmd.get('access_right')=='open',
+              'source_zip':'world8-v0.1.0-source.zip' in remote_names,
+              'checksums':'SHA256SUMS.txt' in remote_names,
+              'receipt':'RELEASE_RECEIPT.txt' in remote_names,
+              'not_submitted':not bool(chk.get('submitted')),
+          }
+          if not all(gates.values()):
+              save('SAFETY_STOP',deposition_id=dep_id,gates=gates,files=local)
+              raise SystemExit(1)
+
+          # 5) Publish using the same modern draft action proven in prior World releases.
+          pr=requests.post(f'{BASE}/records/{dep_id}/draft/actions/publish',headers=jh,timeout=90)
+          if not pr.ok:
+              try: err=pr.json()
+              except Exception: err={'body':pr.text[:2000]}
+              save('PUBLISH_FAILED',deposition_id=dep_id,http_code=pr.status_code,error=err,gates=gates,files=local)
+              raise SystemExit(1)
+          pub=pr.json()
+          recid=pub.get('id') or pub.get('recid') or dep_id
+          doi=((pub.get('pids') or {}).get('doi') or {}).get('identifier') or pub.get('doi') or (pub.get('metadata') or {}).get('doi')
+          save('PUBLISHED',record_id=recid,doi=doi,record_url=f'https://zenodo.org/records/{recid}',gates=gates,files=local)
+          PY
+
+      - name: Commit sanitized publication receipt
+        if: always()
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo/world8-v0.1.0-publication.json || true
+          if git diff --cached --quiet; then
+            echo 'No receipt change'
+          else
+            git commit -m 'publication: record World 8 v0.1.0 Zenodo result [skip ci]'
+            git pull --rebase origin main
+            git push
+          fi
