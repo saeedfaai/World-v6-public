@@ -1,0 +1,69 @@
+{
+  "schema": "WORLD8_W8P01_PUBLIC_REVIEW_PACKAGE/1.0",
+  "status": "REPRODUCED_PUBLICLY_PENDING_FREEZE_REF",
+  "paper_id": "W8-P01",
+  "title": "A Governed Shared-Kernel Architecture for Persistent, Auditable Multi-Agent Societies Beyond the LLM Session",
+  "private_canonical_evidence_commit": "34ed68b6e04c548e7ee14aa16e0e3eecdb1b31f0",
+  "private_evidence_freeze_ref": "freeze/w8-p01-evidence-v0.1",
+  "public_executable_source_commit": "a0b2cf32915c9d63cca0ddd7c3eeb497ae8ce6d0",
+  "public_reproduction": {
+    "repository": "saeedfaai/World-v6-public",
+    "branch": "w8-p01-review-package-v0.1",
+    "workflow": ".github/workflows/w8-p01-public-review-package-v0.1.yml",
+    "run_id": 33113474577,
+    "run_url": "https://github.com/saeedfaai/World-v6-public/actions/runs/33113474577",
+    "conclusion": "success",
+    "artifact_name": "w8-p01-public-review-package-v0.1",
+    "artifact_id": 9663511297,
+    "artifact_digest": "sha256:46e15a72c59c5e6035e0732590941f20d1ed7c44b7870b8d54002c790efe166c",
+    "artifact_size_bytes": 7942
+  },
+  "evidence_reproduced": {
+    "E1": {
+      "trials": 98000,
+      "bounded_assertions": "PASS",
+      "claim": "hardened generic controls erase revoke/CAS/idempotency advantages while frozen actor-binding/fencing/tamper families remain differentiated in the reference model"
+    },
+    "E2": {
+      "company_trials": 1000,
+      "trading_trials": 1000,
+      "same_eight_invariants": true,
+      "all_rates_one": true,
+      "market_performance_evaluated": false,
+      "live_effects": false
+    },
+    "E4": {
+      "mutation_killed": 5,
+      "mutation_total": 5,
+      "mutation_score": 1.0,
+      "compound_trials_per_case": 1000,
+      "valid_path_false_deny_rate": 0.0,
+      "runtime_db_mutated": false
+    },
+    "E5": {
+      "runtime": "autogen-core==0.7.5",
+      "fixture_source_commit": "ba9fe95cc41b02bd04962d6e38b1b6afdeefe26a",
+      "fixture_path": "benchmarks/w8_p01_autogen/baseline.py",
+      "trials_per_case": 100,
+      "total_cases": 2000,
+      "llm_used": false,
+      "external_effects": false,
+      "bounded_gate": "PASS"
+    }
+  },
+  "scope_excluded": [
+    "credentials or secrets",
+    "private Supabase identifiers or production database data",
+    "business/customer/supplier data",
+    "live trading",
+    "external business effects",
+    "private operational control-plane state not required for manuscript reproduction"
+  ],
+  "claim_ceiling": [
+    "not production readiness",
+    "not trading profitability",
+    "not universal security",
+    "not general superiority over AutoGen or other agent frameworks",
+    "not standalone novelty for identity, governance, authorization, fencing, recovery, provenance, or orchestration primitives"
+  ]
+}
