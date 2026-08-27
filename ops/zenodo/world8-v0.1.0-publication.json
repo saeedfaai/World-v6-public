@@ -1,0 +1,38 @@
+{
+  "provider": "zenodo",
+  "status": "PUBLISHED",
+  "release_tag": "V0.1.0",
+  "release_commit": "b14f2feea0fa233851a774d6ebd295b63cde75c0",
+  "record_id": 22127650,
+  "doi": "10.5281/zenodo.22127650",
+  "record_url": "https://zenodo.org/records/22127650",
+  "gates": {
+    "title": true,
+    "version": true,
+    "upload_type": true,
+    "creator": true,
+    "description": true,
+    "access_right": true,
+    "source_zip": true,
+    "checksums": true,
+    "receipt": true,
+    "not_submitted": true
+  },
+  "files": [
+    {
+      "name": "world8-v0.1.0-source.zip",
+      "bytes": 49701,
+      "sha256": "17d1721efc68e7addabf11b152e84f20156a2ca058259e75b3f67d9493fe6a86"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 208,
+      "sha256": "3d95a0aca6df3b6e31aba77688399e1236be9853fdd0e81e433f40c1b37ef338"
+    },
+    {
+      "name": "RELEASE_RECEIPT.txt",
+      "bytes": 481,
+      "sha256": "816b9c3bb957f5aa2c9e0d9f43a3d2f1617b52d742bf6995c653e898b25b1e97"
+    }
+  ]
+}
