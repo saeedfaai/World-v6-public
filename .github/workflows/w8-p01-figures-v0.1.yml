@@ -1,0 +1,81 @@
+name: W8-P01 Frozen Figures v0.1
+
+on:
+  push:
+    branches:
+      - work/w8-p01-figures-v0.1
+    paths:
+      - 'world8/w8-p01-figures-v0.1/**'
+      - '.github/workflows/w8-p01-figures-v0.1.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install pinned AutoGen Core
+        run: pip install autogen-core==0.7.5
+
+      - name: Reproduce E5 summary from frozen public fixture
+        run: |
+          mkdir -p /tmp/w8-p01-autogen
+          git show ba9fe95cc41b02bd04962d6e38b1b6afdeefe26a:benchmarks/w8_p01_autogen/baseline.py > /tmp/w8-p01-autogen/baseline.py
+          python /tmp/w8-p01-autogen/baseline.py --trials 100 --seed 20260827 --out /tmp/w8-p01-autogen/results
+
+      - name: Validate E5 frozen inputs before figure rendering
+        run: |
+          python - <<'PY'
+          import json
+          p='/tmp/w8-p01-autogen/results/summary.json'
+          x=json.load(open(p))
+          assert x['autogen_core_version']=='0.7.5'
+          assert x['trials_per_case']==100
+          assert x['llm_used'] is False
+          assert x['external_effects'] is False
+          assert x['rates']['hardened']['X1_STOLEN_APPROVAL']['safe_rate']==0.0
+          assert x['rates']['hardened']['X5_STALE_FENCE']['safe_rate']==0.0
+          assert x['rates']['hardened']['X6_TAMPER']['safe_rate']==0.0
+          assert x['rates']['hardened']['X7_EFFECT_BEFORE_RECOVERY']['safe_rate']==0.0
+          for _,v in x['rates']['full'].items(): assert v['safe_rate']==1.0
+          PY
+
+      - name: Render deterministic SVG figures
+        run: |
+          python world8/w8-p01-figures-v0.1/generate_figures.py \
+            --autogen-summary /tmp/w8-p01-autogen/results/summary.json
+
+      - name: Validate figure semantics and hashes
+        run: |
+          set -euo pipefail
+          D=world8/w8-p01-figures-v0.1/out
+          test -s "$D/figure1_governed_effect_contract.svg"
+          test -s "$D/figure2_evidence_ladder.svg"
+          test -s "$D/figure3_autogen_fault_matrix.svg"
+          grep -q 'PROPOSAL ≠ DECISION ≠ EFFECT' "$D/figure1_governed_effect_contract.svg"
+          grep -q '98,000 trials' "$D/figure2_evidence_ladder.svg"
+          grep -q 'safe = 0.0' "$D/figure3_autogen_fault_matrix.svg"
+          grep -q 'safe = 1.0' "$D/figure3_autogen_fault_matrix.svg"
+          cd "$D"
+          sha256sum *.svg | tee FIGURE_SHA256SUMS.txt
+
+      - name: Upload frozen figure artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-frozen-figures-v0.1
+          path: |
+            world8/w8-p01-figures-v0.1/out/*.svg
+            world8/w8-p01-figures-v0.1/out/FIGURE_SHA256SUMS.txt
+          retention-days: 90
+          if-no-files-found: error
