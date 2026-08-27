@@ -1,0 +1,9 @@
+{
+  "provider": "zenodo",
+  "secret_name": "ZENODO_TOKEN",
+  "http": {
+    "legacy_depositions": 200,
+    "modern_user_records": 200
+  },
+  "status": "VALID"
+}
