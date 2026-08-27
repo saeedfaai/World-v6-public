@@ -1,0 +1,59 @@
+name: Recover Zenodo token status
+
+on:
+  push:
+    paths:
+      - '.github/workflows/zenodo-token-recovery-probe.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Probe existing Zenodo secret safely
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          mkdir -p ops/zenodo
+          python - <<'PY'
+          import json, os, urllib.request, urllib.error
+          token = os.getenv('ZENODO_TOKEN','')
+          out = {'provider':'zenodo','secret_name':'ZENODO_TOKEN'}
+          if not token:
+              out.update(status='SECRET_MISSING')
+          else:
+              endpoints = {
+                  'legacy_depositions':'https://zenodo.org/api/deposit/depositions?status=draft&size=1',
+                  'modern_user_records':'https://zenodo.org/api/user/records?size=1',
+              }
+              codes = {}
+              for k,u in endpoints.items():
+                  req = urllib.request.Request(u, headers={'Authorization':f'Bearer {token}','Accept':'application/json','User-Agent':'world8-zenodo-recovery/1.0'})
+                  try:
+                      with urllib.request.urlopen(req, timeout=30) as r:
+                          codes[k] = r.status
+                          r.read(256)
+                  except urllib.error.HTTPError as e:
+                      codes[k] = e.code
+                  except Exception as e:
+                      codes[k] = type(e).__name__
+              out['http'] = codes
+              out['status'] = 'VALID' if 200 in codes.values() else 'INVALID_OR_SCOPE_ERROR'
+          open('ops/zenodo/token-recovery-probe.json','w').write(json.dumps(out,indent=2))
+          print(json.dumps(out,indent=2))
+          PY
+      - name: Commit sanitized result
+        shell: bash
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add ops/zenodo/token-recovery-probe.json
+          git commit -m "chore: record Zenodo secret recovery probe" || exit 0
+          git push
