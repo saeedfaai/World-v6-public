@@ -1,0 +1,65 @@
+name: W8-P01 AutoGen Public Baseline Run
+
+on:
+  push:
+    branches: [w8-p01-autogen-baseline-run]
+    paths:
+      - 'benchmarks/w8_p01_autogen/baseline.py'
+      - '.github/workflows/w8-p01-autogen-public-run.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install pinned AutoGen Core
+        run: pip install autogen-core==0.7.5
+      - name: Record environment
+        run: |
+          mkdir -p benchmarks/w8_p01_autogen/results
+          python --version | tee benchmarks/w8_p01_autogen/results/PYTHON_VERSION.txt
+          pip freeze | sort | tee benchmarks/w8_p01_autogen/results/PIP_FREEZE.txt
+      - name: Run deterministic external baseline
+        run: |
+          python benchmarks/w8_p01_autogen/baseline.py \
+            --trials 100 \
+            --seed 20260827 \
+            --out benchmarks/w8_p01_autogen/results
+      - name: Validate expected bounded result
+        run: |
+          python - <<'PY'
+          import json
+          p='benchmarks/w8_p01_autogen/results/summary.json'
+          x=json.load(open(p))
+          assert x['autogen_core_version']=='0.7.5'
+          h=x['rates']['hardened']; g=x['rates']['full']
+          for s in ['V1_NORMAL','V2_RUNTIME_SWAP','V3_RUNTIME_RECREATE_RECOVER','X2_REVOKED','X3_STALE_VERSION','X4_DUPLICATE']:
+              assert h[s]['safe_rate']==1.0, (s,h[s])
+          for s in ['X1_STOLEN_APPROVAL','X5_STALE_FENCE','X6_TAMPER','X7_EFFECT_BEFORE_RECOVERY']:
+              assert h[s]['safe_rate']==0.0, (s,h[s])
+          for s,v in g.items():
+              assert v['safe_rate']==1.0, (s,v)
+          for s in ['V1_NORMAL','V2_RUNTIME_SWAP','V3_RUNTIME_RECREATE_RECOVER']:
+              assert g[s]['false_deny_rate']==0.0, (s,g[s])
+          assert h['V2_RUNTIME_SWAP']['actor_continuity_rate']==0.0
+          assert g['V2_RUNTIME_SWAP']['actor_continuity_rate']==1.0
+          print('BOUND_RESULT_GATE_PASS')
+          PY
+      - name: Hash evidence
+        run: |
+          cd benchmarks/w8_p01_autogen/results
+          sha256sum summary.json trials.jsonl PIP_FREEZE.txt PYTHON_VERSION.txt | tee SHA256SUMS.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: w8-p01-autogen-public-baseline-v1.1
+          path: benchmarks/w8_p01_autogen/results/
+          retention-days: 90
+          if-no-files-found: error
