@@ -1,0 +1,12 @@
+{
+  "started_at_utc": "2026-08-29T04:48:15.768756+00:00",
+  "record_id": 22153981,
+  "status": "COMPLETE",
+  "finished_at_utc": "2026-08-29T04:48:19.676786+00:00",
+  "doi": "10.5281/zenodo.22153981",
+  "same_doi": true,
+  "revision_swhid": "swh:1:rev:cc9dfbdff6684657080df83ee4bfcb22d043efe8",
+  "directory_swhid": "swh:1:dir:faca94ab04386be496080a0f7cd065eb74046f92",
+  "snapshot_swhid": "swh:1:snp:f8149216bbd789c21fd85d2724119ffad4ce8b03",
+  "record_url": "https://zenodo.org/records/22153981"
+}
