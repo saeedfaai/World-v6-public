@@ -1,0 +1,130 @@
+name: Archive World 9 R0.1 in Software Heritage
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/software-heritage-world9-r0.1.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      ORIGIN_URL: https://github.com/saeedfaai/World-9
+      TARGET_COMMIT: cc9dfbdff6684657080df83ee4bfcb22d043efe8
+      TARGET_BRANCH: archive/world9-r0.1-2026-08-29
+      ZENODO_DOI: 10.5281/zenodo.22153981
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Validate frozen World 9 baseline
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/world9
+          git clone --no-tags --single-branch --branch "$TARGET_BRANCH" "$ORIGIN_URL.git" /tmp/world9
+          cd /tmp/world9
+          test "$(git rev-parse HEAD)" = "$TARGET_COMMIT"
+          test -s README.md
+          test -s CITATION.cff
+          test -s docs/ARCHITECTURE_MASTER.md
+          test -s proof/PROOF_REGISTRY.json
+          grep -q "$ZENODO_DOI" CITATION.cff
+          cd "$GITHUB_WORKSPACE"
+          mkdir -p ops/software-heritage/world9-r0.1
+
+      - name: Request Software Heritage Save Code Now
+        id: request
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, sys, urllib.parse, urllib.request, urllib.error
+          origin=os.environ['ORIGIN_URL']
+          qs=urllib.parse.urlencode({'visit_type':'git','origin_url':origin})
+          url='https://archive.softwareheritage.org/api/1/origin/save/?'+qs
+          req=urllib.request.Request(url,method='POST',headers={'Accept':'application/json','User-Agent':'World9-R0.1-Archival-Workflow/1.0 (+https://github.com/saeedfaai/World-9)'})
+          try:
+              with urllib.request.urlopen(req,timeout=60) as r:
+                  status=r.status; body=r.read().decode('utf-8')
+          except urllib.error.HTTPError as e:
+              status=e.code; body=e.read().decode('utf-8',errors='replace')
+          try: data=json.loads(body)
+          except Exception: data={'raw':body}
+          out={'request_http_status':status,'request_response':data}
+          open('ops/software-heritage/world9-r0.1/save-request.json','w',encoding='utf-8').write(json.dumps(out,ensure_ascii=False,indent=2))
+          print('SWH_HTTP_STATUS='+str(status)); print(body)
+          if status not in (200,201): sys.exit(20)
+          rid=data.get('id')
+          if not rid: sys.exit(21)
+          with open(os.environ['GITHUB_OUTPUT'],'a',encoding='utf-8') as f: f.write('request_id='+str(rid)+'\n')
+          PY
+
+      - name: Poll archival task and derive SWHIDs
+        shell: bash
+        env:
+          REQUEST_ID: ${{ steps.request.outputs.request_id }}
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import datetime,json,os,subprocess,time,urllib.request,urllib.error
+          rid=os.environ['REQUEST_ID']; commit=os.environ['TARGET_COMMIT']; origin=os.environ['ORIGIN_URL']; branch=os.environ['TARGET_BRANCH']
+          tree=subprocess.check_output(['git','-C','/tmp/world9','rev-parse',commit+'^{tree}'],text=True).strip()
+          def get_json(url):
+              req=urllib.request.Request(url,headers={'Accept':'application/json','User-Agent':'World9-R0.1-Archival-Workflow/1.0'})
+              try:
+                  with urllib.request.urlopen(req,timeout=60) as r: return r.status,json.loads(r.read().decode())
+              except urllib.error.HTTPError as e:
+                  raw=e.read().decode(errors='replace')
+                  try: obj=json.loads(raw)
+                  except Exception: obj={'raw':raw}
+                  return e.code,obj
+          status_url=f'https://archive.softwareheritage.org/api/1/origin/save/{rid}/'
+          last={}
+          for attempt in range(48):
+              code,data=get_json(status_url); last={'http_status':code,'response':data,'attempt':attempt+1}
+              task=(data or {}).get('save_task_status'); reqs=(data or {}).get('save_request_status')
+              print(f'POLL={attempt+1} request={reqs} task={task}')
+              if reqs=='rejected' or task in ('failed','succeeded'): break
+              time.sleep(15)
+          data=last.get('response') or {}; task=data.get('save_task_status')
+          rev_swhid='swh:1:rev:'+commit; dir_swhid='swh:1:dir:'+tree
+          rev_code,_=get_json('https://archive.softwareheritage.org/api/1/revision/'+commit+'/')
+          dir_code,_=get_json('https://archive.softwareheritage.org/api/1/directory/'+tree+'/')
+          receipt={
+            'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'origin_url':origin,'frozen_branch':branch,'git_revision':commit,
+            'software_heritage_save_request_id':int(rid),
+            'save_request_status':data.get('save_request_status'),'save_task_status':task,
+            'visit_date':data.get('visit_date'),'visit_status':data.get('visit_status'),'snapshot_swhid':data.get('snapshot_swhid'),
+            'revision_swhid':rev_swhid,'directory_swhid':dir_swhid,
+            'revision_archived':rev_code==200,'directory_archived':dir_code==200,
+            'zenodo_doi':os.environ['ZENODO_DOI'],
+            'result':'SUCCEEDED' if task=='succeeded' and rev_code==200 and dir_code==200 else 'REQUESTED_OR_PROCESSING',
+            'request_status_url':status_url,
+            'archive_browse_revision':'https://archive.softwareheritage.org/'+rev_swhid+'/'
+          }
+          open('ops/software-heritage/world9-r0.1/receipt.json','w',encoding='utf-8').write(json.dumps(receipt,ensure_ascii=False,indent=2))
+          print(json.dumps(receipt,ensure_ascii=False,indent=2))
+          if data.get('save_request_status')=='rejected' or task=='failed': raise SystemExit(30)
+          PY
+
+      - name: Commit Software Heritage receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          git add ops/software-heritage/world9-r0.1 || true
+          if ! git diff --cached --quiet; then
+            git commit -m "Record World 9 R0.1 Software Heritage archive [skip ci]"
+            git push
+          fi
