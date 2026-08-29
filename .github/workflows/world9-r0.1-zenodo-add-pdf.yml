@@ -1,0 +1,143 @@
+name: World 9 R0.1 Zenodo Add Final PDF
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/world9-r0.1-zenodo-add-pdf.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  add-pdf:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Add final PDF to existing Zenodo record and verify
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+          PDF_URL: https://firebasestorage.googleapis.com/v0/b/postly-548c1.appspot.com/o/6a89ccbe58f602d63c000000%2F1787978539159_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf?alt=media
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo "ERROR: ZENODO_TOKEN missing"; exit 2; }
+          python -m pip install --quiet requests
+          mkdir -p ops/zenodo/world9-r0.1
+          python - <<'PY'
+          import os, json, hashlib, requests, datetime, sys, time
+          from pathlib import Path
+
+          RID=22153981
+          DOI='10.5281/zenodo.22153981'
+          NAME='04_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf'
+          URL=os.environ['PDF_URL']
+          TOKEN=os.environ['ZENODO_TOKEN']
+          BASE='https://zenodo.org/api'
+          AUTH={'Authorization':f'Bearer {TOKEN}','Accept':'application/json'}
+          J={**AUTH,'Content-Type':'application/json'}
+
+          def fail(msg,r=None):
+              print('ERROR:',msg)
+              if r is not None:
+                  print('HTTP:',r.status_code)
+                  print(r.text[:4000])
+              sys.exit(1)
+
+          r=requests.get(URL,timeout=180)
+          if not r.ok: fail('Could not download staged final PDF',r)
+          blob=r.content
+          staged_sha=hashlib.sha256(blob).hexdigest()
+          Path('/tmp/world9-final.pdf').write_bytes(blob)
+          print('STAGED_PDF_SHA256='+staged_sha)
+          print('STAGED_PDF_BYTES='+str(len(blob)))
+
+          # Open the published deposition for edit if necessary.
+          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=AUTH,timeout=30)
+          if not r.ok: fail('Could not read World 9 deposition',r)
+          dep=r.json()
+          if dep.get('submitted') or dep.get('state')=='done':
+              er=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/edit',headers=AUTH,timeout=30)
+              if not er.ok and er.status_code not in (400,409):
+                  fail('Could not unlock World 9 record for editing',er)
+          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=AUTH,timeout=30)
+          if not r.ok: fail('Could not reread editable deposition',r)
+          dep=r.json(); bucket=(dep.get('links') or {}).get('bucket')
+          if not bucket: fail('Editable deposition has no bucket')
+
+          existing={f.get('filename') or f.get('key') for f in dep.get('files') or []}
+          if NAME not in existing:
+              with open('/tmp/world9-final.pdf','rb') as fh:
+                  ur=requests.put(f'{bucket}/{NAME}',data=fh,headers=AUTH,timeout=180)
+              if not ur.ok: fail('Zenodo rejected final PDF',ur)
+              print('PDF_UPLOAD=SUCCESS')
+          else:
+              print('PDF_UPLOAD=ALREADY_PRESENT')
+
+          # Preserve metadata and add an explicit note.
+          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=AUTH,timeout=30)
+          if not r.ok: fail('Could not reread deposition before metadata update',r)
+          dep=r.json(); md=dict(dep.get('metadata') or {})
+          note=md.get('notes') or ''
+          add='Final rendered architecture PDF included as 04_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf.'
+          if add not in note:
+              md['notes']=(note+'\n\n'+add).strip()
+              mr=requests.put(f'{BASE}/deposit/depositions/{RID}',headers=J,data=json.dumps({'metadata':md}),timeout=30)
+              if not mr.ok: fail('Zenodo rejected metadata note update',mr)
+
+          pr=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/publish',headers=AUTH,timeout=90)
+          if not pr.ok: fail('Could not republish World 9 record after PDF upload',pr)
+
+          public=None
+          for _ in range(12):
+              vr=requests.get(f'{BASE}/records/{RID}',timeout=30)
+              if vr.ok:
+                  cand=vr.json(); names=[f.get('key') or f.get('filename') or '' for f in cand.get('files') or []]
+                  if NAME in names:
+                      public=cand; break
+              time.sleep(5)
+          if public is None: fail('Public record did not expose final PDF in time')
+
+          pdoi=((public.get('metadata') or {}).get('doi') or public.get('doi') or '')
+          if pdoi and pdoi!=DOI: fail('DOI changed unexpectedly: '+pdoi)
+          entry=next(f for f in public.get('files') or [] if (f.get('key') or f.get('filename'))==NAME)
+          u=(entry.get('links') or {}).get('self') or (entry.get('links') or {}).get('content')
+          rr=requests.get(u,timeout=180)
+          if not rr.ok: fail('Could not download public final PDF',rr)
+          public_sha=hashlib.sha256(rr.content).hexdigest()
+          if public_sha!=staged_sha: fail('Public PDF SHA mismatch')
+
+          receipt={
+            'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'status':'FINAL_PDF_PUBLISHED_AND_VERIFIED',
+            'record_id':RID,
+            'doi':DOI,
+            'record_url':f'https://zenodo.org/records/{RID}',
+            'pdf_file':NAME,
+            'pdf_sha256':public_sha,
+            'pdf_bytes':len(rr.content),
+            'same_record_same_doi':True
+          }
+          Path('ops/zenodo/world9-r0.1/pdf-publication-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('WORLD9_ZENODO_PDF=FINAL_PDF_PUBLISHED_AND_VERIFIED')
+          print('DOI='+DOI)
+          print('RECORD='+receipt['record_url'])
+          PY
+
+      - name: Commit PDF publication receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          if [ -f ops/zenodo/world9-r0.1/pdf-publication-receipt.json ]; then
+            git add ops/zenodo/world9-r0.1/pdf-publication-receipt.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Record World 9 R0.1 Zenodo final PDF publication [skip ci]"
+              git push
+            fi
+          fi
