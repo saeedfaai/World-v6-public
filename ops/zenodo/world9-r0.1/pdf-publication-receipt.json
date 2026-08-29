@@ -1,0 +1,83 @@
+{
+  "started_at_utc": "2026-08-29T04:44:16.431270+00:00",
+  "record_id": 22153981,
+  "doi_expected": "10.5281/zenodo.22153981",
+  "pdf_file": "04_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf",
+  "steps": [
+    {
+      "step": "verify_staged_pdf",
+      "sha256": "f4bb9541a426a4d59f37c0ffcda7c99c7b51c48173f67e0d935e5a2711940bbd",
+      "bytes": 438538
+    },
+    {
+      "step": "verify_public_baseline",
+      "doi": "10.5281/zenodo.22153981",
+      "files": [
+        "00_World_9_R0_1_SOURCE_TREE.zip",
+        "01_WORLD9_R0_1_ARCHITECTURE_MASTER.md",
+        "02_WORLD9_R0_1_PROOF_REGISTRY.json",
+        "03_CITATION.cff",
+        "SHA256SUMS.txt"
+      ]
+    },
+    {
+      "step": "unlock_published_files",
+      "http_status": 200
+    },
+    {
+      "step": "read_draft_files",
+      "http_status": 200,
+      "files": [
+        "02_WORLD9_R0_1_PROOF_REGISTRY.json",
+        "01_WORLD9_R0_1_ARCHITECTURE_MASTER.md",
+        "03_CITATION.cff",
+        "00_World_9_R0_1_SOURCE_TREE.zip",
+        "SHA256SUMS.txt"
+      ]
+    },
+    {
+      "step": "initialize_pdf_file",
+      "http_status": 201
+    },
+    {
+      "step": "upload_pdf_bytes",
+      "http_status": 200,
+      "bytes": 438538
+    },
+    {
+      "step": "commit_pdf_file",
+      "http_status": 200
+    },
+    {
+      "step": "verify_draft_pdf",
+      "status": "completed",
+      "size": 438538,
+      "checksum": "md5:c2d5726b2863d7cf8ac87c150a6d9a70"
+    },
+    {
+      "step": "republish_same_record",
+      "http_status": 202
+    },
+    {
+      "step": "verify_public_pdf_integrity",
+      "sha256": "f4bb9541a426a4d59f37c0ffcda7c99c7b51c48173f67e0d935e5a2711940bbd",
+      "bytes": 438538
+    }
+  ],
+  "status": "FINAL_PDF_PUBLISHED_AND_VERIFIED",
+  "published": true,
+  "same_record_same_doi": true,
+  "doi": "10.5281/zenodo.22153981",
+  "record_url": "https://zenodo.org/records/22153981",
+  "pdf_sha256": "f4bb9541a426a4d59f37c0ffcda7c99c7b51c48173f67e0d935e5a2711940bbd",
+  "pdf_bytes": 438538,
+  "public_files": [
+    "00_World_9_R0_1_SOURCE_TREE.zip",
+    "01_WORLD9_R0_1_ARCHITECTURE_MASTER.md",
+    "02_WORLD9_R0_1_PROOF_REGISTRY.json",
+    "03_CITATION.cff",
+    "04_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf",
+    "SHA256SUMS.txt"
+  ],
+  "finished_at_utc": "2026-08-29T04:44:25.863448+00:00"
+}
