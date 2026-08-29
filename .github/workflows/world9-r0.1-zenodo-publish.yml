@@ -1,0 +1,179 @@
+name: World 9 R0.1 Zenodo Publish
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '.github/workflows/world9-r0.1-zenodo-publish.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build immutable World 9 R0.1 package
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf /tmp/world9-r0.1 /tmp/world9-zenodo
+          git clone --no-tags --single-branch --branch main https://github.com/saeedfaai/World-9.git /tmp/world9-r0.1
+          cd /tmp/world9-r0.1
+          test "$(git rev-parse HEAD)" = "40a172f4edc9df2f60d15337c5fd7d606af71bf8"
+          mkdir -p /tmp/world9-zenodo
+          git archive --format=zip --prefix=World-9-R0.1/ -o /tmp/world9-zenodo/00_World_9_R0_1_SOURCE_TREE.zip HEAD
+          cp docs/ARCHITECTURE_MASTER.md /tmp/world9-zenodo/01_WORLD9_R0_1_ARCHITECTURE_MASTER.md
+          cp proof/PROOF_REGISTRY.json /tmp/world9-zenodo/02_WORLD9_R0_1_PROOF_REGISTRY.json
+          cp CITATION.cff /tmp/world9-zenodo/03_CITATION.cff
+          cd /tmp/world9-zenodo
+          sha256sum 00_* 01_* 02_* 03_* > SHA256SUMS.txt
+
+      - name: Publish and verify Zenodo record
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo "ERROR: ZENODO_TOKEN missing"; exit 2; }
+          python -m pip install --quiet requests
+          mkdir -p ops/zenodo/world9-r0.1
+          python - <<'PY'
+          import os, json, hashlib, datetime, sys, time, requests
+          from pathlib import Path
+
+          TOKEN=os.environ['ZENODO_TOKEN']
+          BASE='https://zenodo.org/api'
+          TITLE='World 9 / R0.1 — Governed Principal Architecture: Engine-Independent Accountable Principals over a World 8 Substrate'
+          VERSION='R0.1'
+          AUTH={'Authorization':f'Bearer {TOKEN}','Accept':'application/json'}
+          J={**AUTH,'Content-Type':'application/json'}
+          OUT=Path('ops/zenodo/world9-r0.1/publication-receipt.json')
+          FILES=sorted(Path('/tmp/world9-zenodo').iterdir())
+
+          def fail(msg,r=None):
+              print('ERROR:',msg)
+              if r is not None:
+                  print('HTTP:',r.status_code)
+                  print(r.text[:4000])
+              sys.exit(1)
+
+          # Avoid duplicate publication if an exact public record already exists.
+          sr=requests.get(f'{BASE}/records',params={'q':f'metadata.title:"{TITLE}"','size':20},timeout=30)
+          if sr.ok:
+              hits=(sr.json().get('hits') or {}).get('hits') or []
+              for h in hits:
+                  md=h.get('metadata') or {}
+                  if md.get('title')==TITLE and str(md.get('version') or '')==VERSION:
+                      rid=h.get('id')
+                      doi=md.get('doi') or h.get('doi') or ''
+                      receipt={'status':'ALREADY_PUBLISHED','record_id':rid,'doi':doi,'record_url':f'https://zenodo.org/records/{rid}','world9_commit_sha':'40a172f4edc9df2f60d15337c5fd7d606af71bf8'}
+                      OUT.write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+                      print('WORLD9_ZENODO=ALREADY_PUBLISHED')
+                      print('DOI='+doi)
+                      sys.exit(0)
+
+          # Reuse matching draft if present; otherwise create a new deposition.
+          r=requests.get(f'{BASE}/deposit/depositions',headers=AUTH,params={'status':'draft','size':100},timeout=30)
+          if not r.ok: fail('Could not list Zenodo drafts',r)
+          raw=r.json(); drafts=raw if isinstance(raw,list) else (raw.get('hits') or {}).get('hits') or []
+          dep=None
+          for d in drafts:
+              md=d.get('metadata') or {}
+              if md.get('title')==TITLE and str(md.get('version') or '')==VERSION:
+                  dep=d; break
+          if dep is None:
+              r=requests.post(f'{BASE}/deposit/depositions',headers=J,data='{}',timeout=30)
+              if not r.ok: fail('Could not create Zenodo deposition',r)
+              dep=r.json()
+          dep_id=dep.get('id')
+          r=requests.get(f'{BASE}/deposit/depositions/{dep_id}',headers=AUTH,timeout=30)
+          if not r.ok: fail('Could not read Zenodo draft',r)
+          dep=r.json(); bucket=(dep.get('links') or {}).get('bucket')
+          if not bucket: fail('Zenodo draft has no upload bucket')
+
+          existing={f.get('filename') or f.get('key') for f in dep.get('files') or []}
+          for p in FILES:
+              if p.name in existing: continue
+              with p.open('rb') as fh:
+                  rr=requests.put(f'{bucket}/{p.name}',data=fh,headers=AUTH,timeout=180)
+              if not rr.ok: fail('Zenodo rejected '+p.name,rr)
+
+          description=(
+            '<p><strong>World 9 / R0.1</strong> is a research architecture baseline for a governed Principal Layer over World 8. '
+            'It separates the accountable Principal from replaceable cognition and execution substrates while keeping objectives, commitments, bounded authority, resources, delegation, succession, and canonical continuity governed.</p>'
+            '<p>The central separation is <strong>Brain ≠ Engine ≠ Principal</strong>. World 9 does not add a sixth World 8 plane; its code, policies, checkers, and migrations are themselves World-8-governed artifacts.</p>'
+            '<p><strong>Claim boundary:</strong> R0.1 is an E1_SPEC research architecture baseline, not a production system. No consciousness, sentience, AGI, legal personhood, metaphysical self-sameness, universal superiority, or production readiness is claimed. Executable proofs and stronger integration/security/longitudinal evidence remain OPEN.</p>'
+          )
+          md=dict(dep.get('metadata') or {})
+          md.update({
+            'upload_type':'publication','publication_type':'report','publication_date':'2026-08-29',
+            'title':TITLE,'creators':[{'name':'Farrokhi, Saeed'}],'description':description,
+            'access_right':'open','license':'cc-by-nc-nd-4.0','version':VERSION,
+            'keywords':['World 9','Governed Principal Architecture','persistent AI agents','agent governance','accountability','canonical continuity','delegated authority','commitment accounting','epistemic governance','World 8'],
+            'related_identifiers':[
+              {'identifier':'https://github.com/saeedfaai/World-9','relation':'isSupplementTo','scheme':'url'},
+              {'identifier':'10.5281/zenodo.22085394','relation':'references','scheme':'doi'}
+            ],
+            'notes':'Research architecture baseline. Evidence ceiling: E1_SPEC. Executable E2/E3/E4/E5 claims remain OPEN. GitHub is the living canonical source; this Zenodo record is the immutable research snapshot.'
+          })
+          rr=requests.put(f'{BASE}/deposit/depositions/{dep_id}',headers=J,data=json.dumps({'metadata':md}),timeout=30)
+          if not rr.ok: fail('Zenodo rejected metadata',rr)
+          rr=requests.post(f'{BASE}/deposit/depositions/{dep_id}/actions/publish',headers=AUTH,timeout=90)
+          if not rr.ok: fail('Zenodo publish failed',rr)
+          pub=rr.json(); rid=pub.get('record_id') or pub.get('id') or dep_id
+          doi=((pub.get('metadata') or {}).get('doi') or pub.get('doi') or '')
+
+          public=None
+          for _ in range(12):
+              vr=requests.get(f'{BASE}/records/{rid}',timeout=30)
+              if vr.ok:
+                  public=vr.json(); break
+              time.sleep(5)
+          if public is None: fail('Public record not readable after publish')
+          public_names=sorted([f.get('key') or f.get('filename') or '' for f in public.get('files') or []])
+          wanted=sorted([p.name for p in FILES])
+          if public_names!=wanted: fail(f'Public file mismatch: {public_names} != {wanted}')
+
+          verified=[]
+          for p in FILES:
+              e=next(x for x in public.get('files') or [] if (x.get('key') or x.get('filename'))==p.name)
+              u=(e.get('links') or {}).get('self') or (e.get('links') or {}).get('content')
+              br=requests.get(u,timeout=180)
+              if not br.ok: fail('Could not verify '+p.name,br)
+              got=hashlib.sha256(br.content).hexdigest(); exp=hashlib.sha256(p.read_bytes()).hexdigest()
+              if got!=exp: fail('SHA256 mismatch for '+p.name)
+              verified.append({'name':p.name,'sha256':got,'bytes':len(br.content)})
+
+          receipt={
+            'published_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
+            'status':'PUBLISHED_AND_VERIFIED','record_id':rid,'doi':doi,
+            'record_url':f'https://zenodo.org/records/{rid}',
+            'world9_commit_sha':'40a172f4edc9df2f60d15337c5fd7d606af71bf8',
+            'evidence_ceiling':'E1_SPEC','files':verified,
+            'claim_boundary':'RESEARCH ARCHITECTURE BASELINE / NOT PRODUCTION / NO CONSCIOUSNESS CLAIM'
+          }
+          OUT.write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('WORLD9_ZENODO=PUBLISHED_AND_VERIFIED')
+          print('DOI='+doi)
+          print('RECORD='+receipt['record_url'])
+          PY
+
+      - name: Commit publication receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          if [ -f ops/zenodo/world9-r0.1/publication-receipt.json ]; then
+            git add ops/zenodo/world9-r0.1/publication-receipt.json
+            if ! git diff --cached --quiet; then
+              git commit -m "Record World 9 R0.1 Zenodo publication [skip ci]"
+              git push
+            fi
+          fi
