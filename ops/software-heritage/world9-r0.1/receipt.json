@@ -1,0 +1,20 @@
+{
+  "checked_at_utc": "2026-08-29T04:47:41.651949+00:00",
+  "origin_url": "https://github.com/saeedfaai/World-9",
+  "frozen_branch": "archive/world9-r0.1-2026-08-29",
+  "git_revision": "cc9dfbdff6684657080df83ee4bfcb22d043efe8",
+  "software_heritage_save_request_id": 2456915,
+  "save_request_status": "accepted",
+  "save_task_status": "succeeded",
+  "visit_date": "2026-08-29T04:47:30.750000+00:00",
+  "visit_status": "full",
+  "snapshot_swhid": "swh:1:snp:f8149216bbd789c21fd85d2724119ffad4ce8b03",
+  "revision_swhid": "swh:1:rev:cc9dfbdff6684657080df83ee4bfcb22d043efe8",
+  "directory_swhid": "swh:1:dir:faca94ab04386be496080a0f7cd065eb74046f92",
+  "revision_archived": true,
+  "directory_archived": true,
+  "zenodo_doi": "10.5281/zenodo.22153981",
+  "result": "SUCCEEDED",
+  "request_status_url": "https://archive.softwareheritage.org/api/1/origin/save/2456915/",
+  "archive_browse_revision": "https://archive.softwareheritage.org/swh:1:rev:cc9dfbdff6684657080df83ee4bfcb22d043efe8/"
+}

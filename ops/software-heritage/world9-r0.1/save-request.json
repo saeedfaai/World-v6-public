@@ -1,0 +1,20 @@
+{
+  "request_http_status": 200,
+  "request_response": {
+    "id": 2456915,
+    "origin_url": "https://github.com/saeedfaai/World-9",
+    "visit_type": "git",
+    "save_request_date": "2026-08-29T04:47:23.943641+00:00",
+    "save_request_status": "accepted",
+    "save_task_status": "pending",
+    "visit_status": null,
+    "visit_date": null,
+    "loading_task_id": 421687775,
+    "note": "",
+    "from_webhook": false,
+    "webhook_origin": "",
+    "snapshot_swhid": null,
+    "next_run": "2026-08-29T04:47:23.913187Z",
+    "request_url": "https://archive.softwareheritage.org/api/1/origin/save/2456915/"
+  }
+}
