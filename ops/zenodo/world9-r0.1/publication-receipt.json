@@ -1,0 +1,37 @@
+{
+  "published_at_utc": "2026-08-29T04:40:58.302690+00:00",
+  "status": "PUBLISHED_AND_VERIFIED",
+  "record_id": 22153981,
+  "doi": "10.5281/zenodo.22153981",
+  "record_url": "https://zenodo.org/records/22153981",
+  "world9_commit_sha": "40a172f4edc9df2f60d15337c5fd7d606af71bf8",
+  "evidence_ceiling": "E1_SPEC",
+  "files": [
+    {
+      "name": "00_World_9_R0_1_SOURCE_TREE.zip",
+      "sha256": "a0f4fdc3a42c74be0107319242b9567fb8b6d2126c775e9aab4870322ad44ffc",
+      "bytes": 29147
+    },
+    {
+      "name": "01_WORLD9_R0_1_ARCHITECTURE_MASTER.md",
+      "sha256": "3751fe2bcd6a6e20b2420e4fef6b7677af7e8dfaea1b3c8dab1720cbfc467ad5",
+      "bytes": 14040
+    },
+    {
+      "name": "02_WORLD9_R0_1_PROOF_REGISTRY.json",
+      "sha256": "ec09c9dd921c8d4a3bef9d4e41a9599da3d538a1472b517c805be4e37c60b566",
+      "bytes": 2334
+    },
+    {
+      "name": "03_CITATION.cff",
+      "sha256": "56300dfd64583d8565cb04e3d50dc989590f716ada59693d24503a2de9a8aba2",
+      "bytes": 663
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "sha256": "64d05f83942659906c76f4c92969944b1900e2e8bd1291d0e411a2950ea9c59b",
+      "bytes": 385
+    }
+  ],
+  "claim_boundary": "RESEARCH ARCHITECTURE BASELINE / NOT PRODUCTION / NO CONSCIOUSNESS CLAIM"
+}
