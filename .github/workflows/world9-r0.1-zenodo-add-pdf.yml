@@ -30,100 +30,182 @@ jobs:
           import os, json, hashlib, requests, datetime, sys, time
           from pathlib import Path
 
-          RID=22153981
-          DOI='10.5281/zenodo.22153981'
-          NAME='04_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf'
-          URL=os.environ['PDF_URL']
-          TOKEN=os.environ['ZENODO_TOKEN']
-          BASE='https://zenodo.org/api'
-          AUTH={'Authorization':f'Bearer {TOKEN}','Accept':'application/json'}
-          J={**AUTH,'Content-Type':'application/json'}
+          RID = 22153981
+          DOI = '10.5281/zenodo.22153981'
+          NAME = '04_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf'
+          URL = os.environ['PDF_URL']
+          TOKEN = os.environ['ZENODO_TOKEN']
+          BASE = 'https://zenodo.org/api'
+          AUTH = {'Authorization': f'Bearer {TOKEN}', 'Accept': 'application/json'}
+          JSON_HEADERS = {**AUTH, 'Content-Type': 'application/json'}
+          BIN_HEADERS = {**AUTH, 'Content-Type': 'application/octet-stream'}
 
-          def fail(msg,r=None):
-              print('ERROR:',msg)
-              if r is not None:
-                  print('HTTP:',r.status_code)
-                  print(r.text[:4000])
+          receipt = {
+              'started_at_utc': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+              'record_id': RID,
+              'doi_expected': DOI,
+              'pdf_file': NAME,
+              'steps': [],
+          }
+
+          def step(name, response=None, **extra):
+              item = {'step': name}
+              if response is not None:
+                  item['http_status'] = response.status_code
+                  if not response.ok:
+                      item['response_text'] = response.text[:1500]
+              item.update(extra)
+              receipt['steps'].append(item)
+              print('STEP=' + json.dumps(item, ensure_ascii=False))
+
+          def save(status, **extra):
+              receipt['status'] = status
+              receipt.update(extra)
+              receipt['finished_at_utc'] = datetime.datetime.now(datetime.timezone.utc).isoformat()
+              Path('ops/zenodo/world9-r0.1/pdf-publication-receipt.json').write_text(
+                  json.dumps(receipt, ensure_ascii=False, indent=2), encoding='utf-8'
+              )
+
+          def fail(msg, response=None):
+              step('FAIL', response, error=msg)
+              save('FAILED', error=msg)
+              print('ERROR:', msg)
+              if response is not None:
+                  print('HTTP:', response.status_code)
+                  print(response.text[:5000])
               sys.exit(1)
 
-          r=requests.get(URL,timeout=180)
-          if not r.ok: fail('Could not download staged final PDF',r)
-          blob=r.content
-          staged_sha=hashlib.sha256(blob).hexdigest()
+          # Stage and hash exact PDF before touching Zenodo.
+          r = requests.get(URL, timeout=180)
+          if not r.ok:
+              fail('Could not download staged final PDF', r)
+          blob = r.content
+          staged_sha = hashlib.sha256(blob).hexdigest()
           Path('/tmp/world9-final.pdf').write_bytes(blob)
-          print('STAGED_PDF_SHA256='+staged_sha)
-          print('STAGED_PDF_BYTES='+str(len(blob)))
+          step('verify_staged_pdf', sha256=staged_sha, bytes=len(blob))
 
-          # Open the published deposition for edit if necessary.
-          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=AUTH,timeout=30)
-          if not r.ok: fail('Could not read World 9 deposition',r)
-          dep=r.json()
-          if dep.get('submitted') or dep.get('state')=='done':
-              er=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/edit',headers=AUTH,timeout=30)
-              if not er.ok and er.status_code not in (400,409):
-                  fail('Could not unlock World 9 record for editing',er)
-          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=AUTH,timeout=30)
-          if not r.ok: fail('Could not reread editable deposition',r)
-          dep=r.json(); bucket=(dep.get('links') or {}).get('bucket')
-          if not bucket: fail('Editable deposition has no bucket')
+          # Verify current public record and DOI before mutation.
+          r = requests.get(f'{BASE}/records/{RID}', timeout=30)
+          if not r.ok:
+              fail('Could not read public World 9 record', r)
+          public_before = r.json()
+          doi_before = ((public_before.get('metadata') or {}).get('doi') or public_before.get('doi') or '')
+          if doi_before and doi_before != DOI:
+              fail('Unexpected DOI before edit: ' + doi_before)
+          before_names = sorted([f.get('key') or f.get('filename') or '' for f in public_before.get('files') or []])
+          step('verify_public_baseline', doi=doi_before, files=before_names)
 
-          existing={f.get('filename') or f.get('key') for f in dep.get('files') or []}
-          if NAME not in existing:
-              with open('/tmp/world9-final.pdf','rb') as fh:
-                  ur=requests.put(f'{bucket}/{NAME}',data=fh,headers=AUTH,timeout=180)
-              if not ur.ok: fail('Zenodo rejected final PDF',ur)
-              print('PDF_UPLOAD=SUCCESS')
+          # Modern InvenioRDM published-record file modification flow.
+          r = requests.post(
+              f'{BASE}/records/{RID}/file-modification',
+              headers=JSON_HEADERS,
+              data='{}',
+              timeout=30,
+          )
+          step('unlock_published_files', r)
+          if r.status_code not in (200, 201, 202, 400):
+              fail('Zenodo file-modification activation failed', r)
+
+          files_url = f'{BASE}/records/{RID}/draft/files'
+          r = requests.get(files_url, headers=AUTH, timeout=30)
+          if not r.ok:
+              fail('Could not read Zenodo draft file collection', r)
+          entries = (r.json().get('entries') or [])
+          draft_names = [x.get('key') for x in entries]
+          step('read_draft_files', r, files=draft_names)
+
+          if NAME not in draft_names:
+              r = requests.post(
+                  files_url,
+                  headers=JSON_HEADERS,
+                  data=json.dumps([{'key': NAME, 'size': len(blob)}]),
+                  timeout=30,
+              )
+              step('initialize_pdf_file', r)
+              if r.status_code not in (200, 201):
+                  fail('Could not initialize final PDF on Zenodo draft', r)
+
+              content_url = f'{files_url}/{NAME}/content'
+              r = requests.put(content_url, headers=BIN_HEADERS, data=blob, timeout=180)
+              step('upload_pdf_bytes', r, bytes=len(blob))
+              if r.status_code not in (200, 201):
+                  fail('Could not upload final PDF bytes', r)
+
+              commit_url = f'{files_url}/{NAME}/commit'
+              r = requests.post(commit_url, headers=AUTH, timeout=60)
+              step('commit_pdf_file', r)
+              if r.status_code not in (200, 201):
+                  fail('Could not commit final PDF', r)
           else:
-              print('PDF_UPLOAD=ALREADY_PRESENT')
+              step('pdf_already_initialized', filename=NAME)
 
-          # Preserve metadata and add an explicit note.
-          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=AUTH,timeout=30)
-          if not r.ok: fail('Could not reread deposition before metadata update',r)
-          dep=r.json(); md=dict(dep.get('metadata') or {})
-          note=md.get('notes') or ''
-          add='Final rendered architecture PDF included as 04_World_9_R0_1_COMPLETE_ARCHITECTURE_FINAL.pdf.'
-          if add not in note:
-              md['notes']=(note+'\n\n'+add).strip()
-              mr=requests.put(f'{BASE}/deposit/depositions/{RID}',headers=J,data=json.dumps({'metadata':md}),timeout=30)
-              if not mr.ok: fail('Zenodo rejected metadata note update',mr)
+          # Verify draft PDF completed.
+          r = requests.get(files_url, headers=AUTH, timeout=30)
+          if not r.ok:
+              fail('Could not verify draft files', r)
+          entries = r.json().get('entries') or []
+          entry = next((x for x in entries if x.get('key') == NAME), None)
+          if entry is None:
+              fail('Final PDF missing from draft after upload')
+          if entry.get('status') != 'completed':
+              fail('Final PDF draft status is not completed: ' + str(entry.get('status')))
+          step('verify_draft_pdf', status=entry.get('status'), size=entry.get('size'), checksum=entry.get('checksum'))
 
-          pr=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/publish',headers=AUTH,timeout=90)
-          if not pr.ok: fail('Could not republish World 9 record after PDF upload',pr)
+          # Republish SAME record/DOI.
+          publish_url = f'{BASE}/records/{RID}/draft/actions/publish'
+          r = requests.post(publish_url, headers=AUTH, timeout=90)
+          step('republish_same_record', r)
+          if r.status_code not in (200, 201, 202):
+              fail('Could not republish World 9 record after PDF upload', r)
 
-          public=None
-          for _ in range(12):
-              vr=requests.get(f'{BASE}/records/{RID}',timeout=30)
-              if vr.ok:
-                  cand=vr.json(); names=[f.get('key') or f.get('filename') or '' for f in cand.get('files') or []]
+          # Poll public record until PDF is visible.
+          public_after = None
+          for attempt in range(12):
+              rr = requests.get(f'{BASE}/records/{RID}', timeout=30)
+              if rr.ok:
+                  candidate = rr.json()
+                  names = [f.get('key') or f.get('filename') or '' for f in candidate.get('files') or []]
                   if NAME in names:
-                      public=cand; break
+                      public_after = candidate
+                      break
               time.sleep(5)
-          if public is None: fail('Public record did not expose final PDF in time')
+          if public_after is None:
+              fail('Public record did not expose final PDF within verification window')
 
-          pdoi=((public.get('metadata') or {}).get('doi') or public.get('doi') or '')
-          if pdoi and pdoi!=DOI: fail('DOI changed unexpectedly: '+pdoi)
-          entry=next(f for f in public.get('files') or [] if (f.get('key') or f.get('filename'))==NAME)
-          u=(entry.get('links') or {}).get('self') or (entry.get('links') or {}).get('content')
-          rr=requests.get(u,timeout=180)
-          if not rr.ok: fail('Could not download public final PDF',rr)
-          public_sha=hashlib.sha256(rr.content).hexdigest()
-          if public_sha!=staged_sha: fail('Public PDF SHA mismatch')
+          doi_after = ((public_after.get('metadata') or {}).get('doi') or public_after.get('doi') or '')
+          if doi_after != DOI:
+              fail('DOI changed unexpectedly after PDF publication: ' + doi_after)
 
-          receipt={
-            'checked_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),
-            'status':'FINAL_PDF_PUBLISHED_AND_VERIFIED',
-            'record_id':RID,
-            'doi':DOI,
-            'record_url':f'https://zenodo.org/records/{RID}',
-            'pdf_file':NAME,
-            'pdf_sha256':public_sha,
-            'pdf_bytes':len(rr.content),
-            'same_record_same_doi':True
-          }
-          Path('ops/zenodo/world9-r0.1/pdf-publication-receipt.json').write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+          after_files = public_after.get('files') or []
+          public_entry = next((f for f in after_files if (f.get('key') or f.get('filename')) == NAME), None)
+          if public_entry is None:
+              fail('Public PDF entry missing after republish')
+          links = public_entry.get('links') or {}
+          public_url = links.get('self') or links.get('content')
+          if not public_url:
+              fail('Public PDF has no content URL')
+          rr = requests.get(public_url, timeout=180)
+          if not rr.ok:
+              fail('Could not download public PDF for checksum verification', rr)
+          public_sha = hashlib.sha256(rr.content).hexdigest()
+          if public_sha != staged_sha:
+              fail(f'Public PDF SHA mismatch: expected {staged_sha}, got {public_sha}')
+          step('verify_public_pdf_integrity', sha256=public_sha, bytes=len(rr.content))
+
+          after_names = sorted([f.get('key') or f.get('filename') or '' for f in after_files])
+          save(
+              'FINAL_PDF_PUBLISHED_AND_VERIFIED',
+              published=True,
+              same_record_same_doi=True,
+              doi=DOI,
+              record_url=f'https://zenodo.org/records/{RID}',
+              pdf_sha256=public_sha,
+              pdf_bytes=len(rr.content),
+              public_files=after_names,
+          )
           print('WORLD9_ZENODO_PDF=FINAL_PDF_PUBLISHED_AND_VERIFIED')
-          print('DOI='+DOI)
-          print('RECORD='+receipt['record_url'])
+          print('DOI=' + DOI)
+          print('RECORD=https://zenodo.org/records/22153981')
           PY
 
       - name: Commit PDF publication receipt
