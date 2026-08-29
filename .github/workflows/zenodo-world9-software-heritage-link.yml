@@ -1,0 +1,87 @@
+name: Cross-link World 9 Zenodo and Software Heritage
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'ops/software-heritage/world9-r0.1/receipt.json'
+      - '.github/workflows/zenodo-world9-software-heritage-link.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  link:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add Software Heritage preservation identifiers to World 9 Zenodo metadata
+        shell: bash
+        env:
+          ZENODO_TOKEN: ${{ secrets.ZENODO_TOKEN }}
+        run: |
+          set -euo pipefail
+          test -n "${ZENODO_TOKEN:-}" || { echo 'ERROR: ZENODO_TOKEN missing'; exit 2; }
+          test -s ops/software-heritage/world9-r0.1/receipt.json
+          python -m pip install --quiet requests
+          mkdir -p ops/zenodo/world9-r0.1
+          python - <<'PY'
+          import os,json,requests,datetime,sys
+          from pathlib import Path
+          RID=22153981; DOI='10.5281/zenodo.22153981'; BASE='https://zenodo.org/api'
+          swh=json.loads(Path('ops/software-heritage/world9-r0.1/receipt.json').read_text(encoding='utf-8'))
+          if swh.get('result')!='SUCCEEDED':
+              print('SWH_LINK_WAITING='+str(swh.get('result'))); raise SystemExit(0)
+          revision=swh['revision_swhid']; directory=swh['directory_swhid']; snapshot=swh.get('snapshot_swhid')
+          rev_url='https://archive.softwareheritage.org/'+revision+'/'
+          dir_url='https://archive.softwareheritage.org/'+directory+'/'
+          token=os.environ['ZENODO_TOKEN']; auth={'Authorization':f'Bearer {token}','Accept':'application/json'}; jh={**auth,'Content-Type':'application/json'}
+          out=Path('ops/zenodo/world9-r0.1/software-heritage-link-receipt.json')
+          receipt={'started_at_utc':datetime.datetime.now(datetime.timezone.utc).isoformat(),'record_id':RID}
+          def fail(msg,r=None):
+              receipt.update(status='FAILED',error=msg)
+              if r is not None: receipt.update(http_status=r.status_code,response=r.text[:3000])
+              out.write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8'); print('ERROR:',msg); raise SystemExit(1)
+          r=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/edit',headers=auth,timeout=30)
+          if not r.ok and r.status_code not in (400,409): fail('Could not open Zenodo metadata edit',r)
+          r=requests.get(f'{BASE}/deposit/depositions/{RID}',headers=auth,timeout=30)
+          if not r.ok: fail('Could not read Zenodo edit draft',r)
+          dep=r.json(); md=dict(dep.get('metadata') or {}); related=list(md.get('related_identifiers') or [])
+          for identifier in (rev_url,dir_url):
+              if not any(isinstance(x,dict) and x.get('identifier')==identifier for x in related): related.append({'identifier':identifier,'relation':'isSupplementTo'})
+          md['related_identifiers']=related
+          note=('INDEPENDENT SOFTWARE HERITAGE PRESERVATION: World 9 / R0.1 frozen Git baseline is archived from the public World-9 origin. '
+                f'Revision SWHID: {revision}; directory SWHID: {directory}' + (f'; snapshot SWHID: {snapshot}' if snapshot else '') + '. '
+                f'Frozen Git revision: {swh.get("git_revision")}. Preservation does not expand the E1_SPEC evidence ceiling or imply production readiness.')
+          notes=(md.get('notes') or '').strip()
+          if note not in notes: md['notes']=(notes+'\n\n'+note).strip()
+          r=requests.put(f'{BASE}/deposit/depositions/{RID}',headers=jh,data=json.dumps({'metadata':md}),timeout=30)
+          if not r.ok: fail('Zenodo rejected Software Heritage metadata',r)
+          r=requests.post(f'{BASE}/deposit/depositions/{RID}/actions/publish',headers=auth,timeout=90)
+          if not r.ok: fail('Could not republish Zenodo metadata edit',r)
+          r=requests.get(f'{BASE}/records/{RID}',timeout=30)
+          if not r.ok: fail('Could not verify public Zenodo record',r)
+          rec=r.json(); pmd=rec.get('metadata') or {}; rels=pmd.get('related_identifiers') or []; doi=pmd.get('doi') or rec.get('doi')
+          if doi!=DOI: fail('DOI changed unexpectedly: '+str(doi))
+          if not any(isinstance(x,dict) and x.get('identifier')==rev_url for x in rels): fail('Revision SWH link not visible publicly')
+          if not any(isinstance(x,dict) and x.get('identifier')==dir_url for x in rels): fail('Directory SWH link not visible publicly')
+          receipt.update(status='COMPLETE',finished_at_utc=datetime.datetime.now(datetime.timezone.utc).isoformat(),doi=doi,same_doi=True,revision_swhid=revision,directory_swhid=directory,snapshot_swhid=snapshot,record_url=f'https://zenodo.org/records/{RID}')
+          out.write_text(json.dumps(receipt,ensure_ascii=False,indent=2),encoding='utf-8')
+          print('ZENODO_WORLD9_SWH_CROSSLINK=COMPLETE')
+          PY
+      - name: Commit cross-link receipt
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git pull --rebase || true
+          if [ -f ops/zenodo/world9-r0.1/software-heritage-link-receipt.json ]; then
+            git add ops/zenodo/world9-r0.1/software-heritage-link-receipt.json
+            if ! git diff --cached --quiet; then
+              git commit -m 'Record World 9 Zenodo Software Heritage cross-link [skip ci]'
+              git push
+            fi
+          fi
