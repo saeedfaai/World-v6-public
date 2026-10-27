@@ -1,0 +1,29 @@
+{
+  "$schema": "https://static.modelcontextprotocol.io/schemas/2025-12-11/server.schema.json",
+  "name": "io.github.saeedfaai/taminyaran-engineering",
+  "title": "Taminyaran Engineering MCP",
+  "description": "Engineering MCP for geosynthetics, waterproofing, drainage, ponds, foundations and tunnels.",
+  "websiteUrl": "https://mcp.taminyaran.com/",
+  "version": "0.4.1",
+  "remotes": [
+    {
+      "type": "streamable-http",
+      "url": "https://mcp.taminyaran.com/mcp"
+    }
+  ],
+  "_meta": {
+    "io.modelcontextprotocol.registry/publisher-provided": {
+      "vendor": "Taminyaran",
+      "canonicalWebsite": "https://www.taminyaran.com/",
+      "dataVersion": "TY-MCP-P0.4.1-2026-10-27",
+      "mode": "public-read-only",
+      "domains": [
+        "pond",
+        "foundation",
+        "drainage",
+        "tunnel"
+      ],
+      "safety": "Engineering constraints precede sales preference; missing critical inputs are not silently guessed."
+    }
+  }
+}
